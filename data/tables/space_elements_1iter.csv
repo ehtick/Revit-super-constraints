@@ -1,0 +1,27 @@
+,Selected_roomI_uniqueId,Selected_roomI_Id,UniqueId,ElementId,Family,Typ,Category,LevelId
+0,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,d85573c2-f8d5-46ae-966a-ac82fa18f500-00066187,418183,Floor,Generic 300,Floors,245423
+1,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,203cff26-4c9d-4eb4-93e5-28d28a01f256-0002b2a4,176804,Floor,Generic 150mm,Floors,311
+2,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,72678df9-14a3-4aee-a80e-94a8e55a0926-0006611f,418079,Basic Wall,Wall - Timber Clad,Walls,311
+3,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,59371552-5800-43eb-9ba3-609565158fc5-00067163,422243,Basic Wall,Wall - Timber Clad,Walls,311
+4,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,f565bef9-7d27-4781-b8d4-60f4a6034d87-000ce5d2,845266,Basic Wall,Wall - Timber Clad,Walls,311
+5,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,c85e5be0-d8d5-4148-836f-b55e711ef373-00068454,427092,Basic Wall,Wall - Timber Clad,Walls,311
+6,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,1551350c-45e5-41b8-bdf1-bcfa6794dc6a-000b0dce,724430,Basic Roof,Warm Roof - Timber,Roofs,694
+7,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,c85e5be0-d8d5-4148-836f-b55e711ef373-00068ac9,428745,Basic Wall,SIP 202mm Wall - conc clad,Walls,245423
+8,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,ef57b02a-5e81-49e7-93bb-ae5f002d921c-00030826,198694,Basic Wall,SIP 202mm Wall - conc clad,Walls,245423
+9,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,ef57b02a-5e81-49e7-93bb-ae5f002d921c-0003085d,198749,Basic Wall,Wall - Timber Clad,Walls,311
+10,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,59371552-5800-43eb-9ba3-609565158fc5-000674bb,423099,Curtain Wall,SH_Curtain wall,Walls,311
+11,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,59371552-5800-43eb-9ba3-609565158fc5-00067bda,424922,Basic Wall,Interior - 165 Partition (1-hr),Walls,311
+12,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,7fcc8dca-3132-4323-9d41-faf5184b4f26-00067f11,425745,Basic Wall,Interior - 165 Partition (1-hr),Walls,311
+13,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,c85e5be0-d8d5-4148-836f-b55e711ef373-00068a2c,428588,Basic Wall,SIP 202mm Wall - conc clad,Walls,245423
+14,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,17836a3c-e764-47fa-a2e0-08216444f621-000788de,493790,Basic Wall,CL_W1,Walls,311
+15,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,17836a3c-e764-47fa-a2e0-08216444f621-00078937,493879,Basic Wall,Foundation - 300mm Concrete,Walls,311
+16,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,5b7ac240-e9a7-43b2-b6bf-246956549a40-00099178,627064,Basic Wall,CL_W1,Walls,311
+17,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,5b7ac240-e9a7-43b2-b6bf-246956549a40-00099411,627729,Basic Wall,CL_W1,Walls,311
+18,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,5b7ac240-e9a7-43b2-b6bf-246956549a40-0009972b,628523,Basic Wall,CL_W1,Walls,311
+19,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,e2eeab38-f437-4dce-846b-cb64191c9fcc-000acc8a,707722,Curtain Wall,SH_Curtain wall,Walls,311
+20,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,98e2f96c-ccbd-4abb-a697-e7e5136106ee-000cec5b,846939,Curtain Wall,SH_Curtain wall,Walls,311
+21,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,98e2f96c-ccbd-4abb-a697-e7e5136106ee-000cf488,849032,Basic Wall,Wall - Timber Clad,Walls,311
+22,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,b3a4a465-08e5-441a-bd3e-d967e546d52e-000dd685,906885,Basic Wall,Interior - 165 Partition (1-hr),Walls,311
+23,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,ab343b7e-3705-4b87-bacc-33c06a6cee1d-000ee770,976752,Basic Wall,Interior - Partition,Walls,511122
+24,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,ab343b7e-3705-4b87-bacc-33c06a6cee1d-000ee8ed,977133,Basic Wall,Cavity wall_sliders,Walls,311
+25,e6ac360b-aaed-4c3b-a130-36b4c2ac9d13-000d15c9,857545,ab343b7e-3705-4b87-bacc-33c06a6cee1d-000ee9e1,977377,Curtain Wall,SH_Curtain wall,Walls,311
