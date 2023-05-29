@@ -1,11 +1,15 @@
 #! python3
 import clr
+import os
+import os.path
+# import sys
+# sys.path.append(r'C:\Users\elyah\AppData\Local\Programs\Python\Python38\Lib\site-packages')
+
 clr.AddReference("System")
 clr.AddReference('RevitAPI')
 clr.AddReference('RevitServices')
 import numpy as np
 import pandas as pd
-import os.path
 
 from Autodesk.Revit.DB import *
 from Autodesk.Revit.UI.Selection import *
@@ -15,6 +19,7 @@ from System.Collections.Generic import List
 from openpyxl.workbook import Workbook
 
 global doc
+global room_solid
 
 app = __revit__.Application
 doc = __revit__.ActiveUIDocument.Document
@@ -34,7 +39,14 @@ if selectedElement.GetType().ToString() != "Autodesk.Revit.DB.Architecture.Room"
 
 #empty database
 df = pd.DataFrame()
-data_cat = pd.read_excel('D:/Bachelor_thesis/super-constraints/extensions/extensions.extension/Super-Constraints.tab/Super-Constraints.panel/Collect.pushbutton/Revit-Categories-2022_arc.xlsx')
+# filter categories
+directory = os.path.dirname(os.path.abspath(__file__))
+name = "Revit-Categories-2022_arc.xlsx"
+filename = os.path.join(directory,name)
+# data directory
+data_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(directory)))))
+
+data_cat = pd.read_excel(filename)
 df_cat = pd.DataFrame(data_cat)
 df_cat = df_cat.loc[df_cat['Support'] == "Yes"]
 df_fur = df_cat.loc[df_cat['Furniture'] == "Yes"]
@@ -44,73 +56,89 @@ df_fur = df_cat.loc[df_cat['Furniture'] == "Yes"]
 # collector_2.WherePasses(ElementIntersectsSolidFilter(room_solid))
 # furniture_elements = List[ElementId]()
 
-def get_roomSolid(room):
-    calculator = SpatialElementGeometryCalculator(doc)
-    results = calculator.CalculateSpatialElementGeometry(selectedElement)
-    room_solid = results.GetGeometry()
-    return room_solid
-
-def find_room_from_elem_location(elem,room):
+#==============================================================================
+#  function ckecks if element locates in the room 
+#  otherwise check intersection between geometry representation
+#  returns element id if element id located in the selected room
+def find_room_from_elem_location(elem):
     location = elem.Location
-    location_type = location.GetType().ToString()
-    room_solid = get_roomSolid(room)
-    if location_type == "LocationPoint":
-        # point location
-        loc_point = location.Point
-        room_elem = doc.GetRoomAtPoint(loc_point)
-        if room_elem != None:
-            # cannot find room for columns
-            if room.Id.Equals(selectedElement.Id):
+    if location != None:
+        location_type = location.GetType().ToString()
+        if location_type == "LocationPoint":
+            # point location
+            loc_point = location.Point
+            room_elem = doc.GetRoomAtPoint(loc_point)
+            if room_elem != None:
+                # cannot find room for columns
+                if room_elem.Id.Equals(selectedElement.Id):
+                    return elem.Id
+            else:
+                inter = find_intersection_elemToRoomSolid(elem,room_solid)
+                if inter == 1:
+                    return elem.Id
+        elif location_type == "LocationCurve":
+            # curve location
+            loc_curve = location.Curve
+            if room_solid.IntersectWithCurve(curve,SolidCurveIntersectionOptions()) != None:
                 return elem.Id
+            else:
+                inter = find_intersection_elemToRoomSolid(elem,room_solid)
+                if inter == 1:
+                    return elem.Id
+        # elif location_type == "Location":
+
         else:
+            # find intersections
             inter = find_intersection_elemToRoomSolid(elem,room_solid)
-            if inter:
+            if inter == 1:
                 return elem.Id
-    elif location_type == "LocationCurve":
-        # curve location
-        loc_curve = location.Curve
-        if room_solid.IntersectWithCurve(curve,SolidCurveIntersectionOptions()) != None:
-            return elem.Id
-        else:
-            inter = find_intersection_elemToRoomSolid(elem,room_solid)
-            if inter:
-                return elem.Id
-    else:
-        # find intersections
-        inter = find_intersection_elemToRoomSolid(elem,room_solid)
-        if inter:
-            return elem.Id
-    
+#==============================================================================
+#  function finds intersections between element solid and room solid
+#  returns i if intersections occured   
 def find_intersection_elemToRoomSolid(elem, room_solid):
     elem_geom = elem.get_Geometry(Options())
     inter = 0
     for geomInst in elem_geom:
-        print(geomInst.GetType().ToString())
-        if geomInst.GetType().ToString() != "Autodesk.Revit.DB.Solid" and inter == 0:
-            for instObj in geomInst.SymbolGeometry:
-                if instObj.GetType().ToString() == "Autodesk.Revit.DB.Solid":
-                    if instObj.Faces.Size != 0 and instObj.Edges.Size != 0:
-                        furn_solid = instObj
+        if geomInst.GetType().ToString() == "Autodesk.Revit.DB.GeometryInstance":
+                instGeom = geomInst.GetInstanceGeometry()
+                for instObj in instGeom:
+                    if instObj.GetType().ToString() == "Autodesk.Revit.DB.Solid":
+                        if instObj.Faces.Size != 0 and instObj.Edges.Size != 0:
+                            furn_solid = instObj
+                            try:
+                                interSolid = BooleanOperationsUtils.ExecuteBooleanOperation(room_solid,furn_solid,BooleanOperationsType.Intersect)
+                                if interSolid.Volume > 0.0000001:
+                                    inter = 1 
+                                    return inter
+                            except:
+                                pass
+        elif geomInst.GetType().ToString() == "Autodesk.Revit.DB.Solid":
+                if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
+                    furn_solid = geomInst
+                    try:
                         interSolid = BooleanOperationsUtils.ExecuteBooleanOperation(room_solid,furn_solid,BooleanOperationsType.Intersect)
-                        print(interSolid.Volume)
                         if interSolid.Volume > 0.0:
-                            inter = 1  
-                            print(interSolid.Volume)
-                            return 1
-        elif geomInst.GetType().ToString() == "Autodesk.Revit.DB.Solid" and inter == 0:
-            if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
-                furn_solid = geomInst
-                interSolid = BooleanOperationsUtils.ExecuteBooleanOperation(room_solid,furn_solid,BooleanOperationsType.Intersect)
-                if interSolid.Volume > 0.0:
-                    inter = 1  
-                    return 1
+                            inter = 1 
+                            return inter
+                    except:
+                        pass
+        elif geomInst.GetType().ToString() == "Autodesk.Revit.DB.Line":
+            inter_options = SolidCurveIntersectionOptions()
+            interSolid = room_solid.IntersectWithCurve(geomInst,inter_options)
+            print(interSolid.ResultType)
+            res = interSolid.ResultType
+            if res == 0:
+                return 1          
+    return inter
 
-
-# collect all bounding elements of the room: walls and floors
+# get room solid from spatial calculator
 sel_location = selectedElement.Location.Point
-calculator = SpatialElementGeometryCalculator(doc)
+options = SpatialElementBoundaryOptions()
+calculator = SpatialElementGeometryCalculator(doc,options)
 results = calculator.CalculateSpatialElementGeometry(selectedElement)
 room_solid = results.GetGeometry()
+
+# collect all bounding elements of the room: walls and floors
 face_dic = {}
 bounds_elem = List[ElementId]()
 added_elements = List[ElementId]()
@@ -129,7 +157,7 @@ for face in room_solid.Faces:
             bounds_elem.Add(elem.Id)
             face_dic[elem.Id.IntegerValue] = f.GetSubface().ComputeNormal(UV(sel_location.X,sel_location.Y))
 
-# ellements collector
+# create collection of ellements passes into room-bounding-box
 boundingBox = selectedElement.ClosedShell.GetBoundingBox()
 offset = 0.164042 # 0.05 m
 boundingBox.Min = XYZ(boundingBox.Min.X- offset, boundingBox.Min.Y- offset, boundingBox.Min.Z)
@@ -144,73 +172,55 @@ for elem in elements:
         filter_cat = elem.Category.Name
     except:
         filter_cat = None
-    if df_cat['Support'][(df_cat['English'] == filter_cat)].any() and not added_elements.Contains(elem.Id):
-        location = elem.Location
-        # print(elem.Category.Name)
-        # write function to find Location
-        # try:
-        #     point = location.Point
-        #     room = doc.GetRoomAtPoint(point)
-        #     if room != None:
-        #         # cannot find room for columns
-        #         roomId = room.Id
-        #         if room.Id.Equals(selectedElement.Id):
-        #             added_elements.Add(elem.Id)
-        # except:
-        #     pass
-        # try:
-        #     curve = location.Curve
-        #     print(elem.Category.Name)
-        #     if room_solid.IntersectWithCurve(curve,SolidCurveIntersectionOptions()) != None:
-        #         added_elements.Add(elem.Id)
-        # except:
-        #     pass
-        # try:
-        #     location = elem.get_Location()
-        #     print(elem.Category.Name)
-        #     print(type(location))
-        # except:
-        #     pass
-        
-        elemId = find_room_from_elem_location(elem,selectedElement)
 
-        if elemId != None:
-            added_elements.Add(elemId)
+    if df_cat['Support'][(df_cat['English'] == filter_cat)].any():
+        if not added_elements.Contains(elem.Id):
+            if not (df_fur['English'] == filter_cat).any():
+                print(elem)
+                elemId = find_room_from_elem_location(elem)
 
-    #     if filter_cat == "Doors" or filter_cat == "Windows":
-    #         room = elem.FromRoom
-    #         if room != None:
-    #             roomId = room.Id
-    #             if room.Id.Equals(selectedElement.Id):
-    #                     added_elements.Add(elem.Id)
+                if elemId != None:
+                    added_elements.Add(elemId)
+                    print(elemId)
+                if filter_cat == "Doors" or filter_cat == "Windows" and not added_elements.Contains(elem.Id):
+                    room = elem.FromRoom
+                    if room != None:
+                        roomId = room.Id
+                        if room.Id.Equals(selectedElement.Id):
+                                added_elements.Add(elem.Id)
+            else:
+                elemId = find_room_from_elem_location(elem)
+                if elemId != None:
+                    added_elements.Add(elemId)
+                    furniture_elements.Add(elem.Id)
+                else:
+                    inter = find_intersection_elemToRoomSolid(elem,room_solid)
+                    if inter == 1:
+                        added_elements.Add(elemId)
+                        furniture_elements.Add(elem.Id)
 
-    #     # if filter_cat == "Plumbing Fixtures":
-    #     #     added_elements.Add(elem.Id)
-
-    if df_fur['Furniture'][(df_cat['English'] == filter_cat)].any() and not added_elements.Contains(elem.Id):
-        inter = find_intersection_elemToRoomSolid(elem,room_solid)
-        print(inter)
-        if inter:
-            furniture_elements.Add(elem.Id)
-            added_elements.Add(elem.Id)
-
-        # furn_geom = elem.get_Geometry(Options())
-        # print("Furniture")
-        # inter = 0
-        # for f_g in furn_geom:
-        #     if f_g != None and inter == 0:
-        #         for instObj in f_g.SymbolGeometry:
-        #             if instObj.GetType().ToString() == "Autodesk.Revit.DB.Solid":
-        #                 if instObj.Faces.Size != 0 and instObj.Edges.Size != 0:
-        #                     furn_solid = instObj
-        #                     interSolid = BooleanOperationsUtils.ExecuteBooleanOperation(room_solid,furn_solid,BooleanOperationsType.Intersect)
-        #                     if interSolid.Volume > 0.0:
-        #                         inter = 1                   
-        # if inter == 1:
-        #     furniture_elements.Add(elem.Id)
-        #     added_elements.Add(elem.Id)
-
-# collect constraints from the wall: perpendiculary, parallelity, angles, distance           
+                # furn_geom = elem.get_Geometry(Options())
+                # print("Furniture")
+                # inter = 0
+                # for f_g in furn_geom:
+                #     if f_g != None and inter == 0:
+                #         insGeom = f_g.GetInstanceGeometry()
+                #         for instObj in insGeom:
+                #             # if instObj.GetType().ToString() == "Autodesk.Revit.DB.Solid":
+                #             if instObj.Faces.Size != 0 and instObj.Edges.Size != 0 and instObj.Volume > 0.0:
+                #                 furn_solid = instObj
+                #                 try:  
+                #                     interSolid = BooleanOperationsUtils.ExecuteBooleanOperation(room_solid,furn_solid,BooleanOperationsType.Intersect)
+                #                     if interSolid.Volume > 0.0000001:
+                #                         print(interSolid.Volume)
+                #                         inter = 1   
+                #                 except:
+                #                     pass                
+                # if inter == 1:
+                #     furniture_elements.Add(elem.Id)
+                #     added_elements.Add(elem.Id)
+                
+# collect constraints from walls: perpendiculary, parallelity, angles, distance           
 df_walls = pd.DataFrame()
 resultArray = IntersectionResultArray()
 for id in face_dic.keys():
@@ -303,18 +313,54 @@ for id in face_dic.keys():
                             'Nearest_walls_id':nearest_walls,
                             'Angles_to_walls':angles})
         df_walls = pd.concat([df_walls,new_row.to_frame().T],ignore_index= True)
+
 # write walls into dataframe
-nameOfFile_csv = 'space_elements_walls.csv'
-completename_csv = 'D:/Bachelor_thesis/super-constraints/data/' + nameOfFile_csv
+nameOfFile_csv = 'data\\tables\\space_elements_walls.csv'
+completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_walls.to_csv(completename_csv)
 
+# collect constraints from floors: parallelity?, angles?, distance!         
+df_floors = pd.DataFrame()
+resultArray = IntersectionResultArray()
+floor_distance = {}
+for id in face_dic.keys():
+    dir = face_dic[id]
+    elem = doc.GetElement(ElementId(id))
+    if abs(dir.Z) == 1:
+        print(elem)
+        elem_geom = elem.get_Geometry(Options())
+        for geomInst in elem_geom:
+            if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
+                    floor_solid = geomInst
+                    for face in floor_solid.Faces:
+                        normal = face.ComputeNormal(UV(sel_location.X,sel_location.Y))
+                        if abs(normal.Z)==1:
+                            dis = face.Project(sel_location).Distance
+                            floor_distance[id] = [dir.Z,dis]
+                            break
+distance_between_floors = {}
+for id in floor_distance.keys():
+    val = floor_distance[id]
+    dir = val[0]
+    dis_to_room = val[1]
+    for id_t in floor_distance.keys():
+        if id_t != id:
+            val_t = floor_distance[id_t]
+            dir_t = val_t[0]
+            dis_to_room_t = val_t[1]
+            if dir != dir_t:
+                distance = dis_to_room + dis_to_room_t
+                print(distance)
+                distance_between_floors[distance] = [id,id_t]
+#distance between floors or ceilings
+print(distance_between_floors)
+            
 # analyse furniture, calculate nearest furniture
 df_furn_dist = pd.DataFrame()
 i = 0
 for id in furniture_elements:
     elem = doc.GetElement(id)
     location_point = elem.Location.Point
-    print(elem.Name)
     nearest_elem = []
     distance = []
     nearest_elem_dict = {}
@@ -323,59 +369,48 @@ for id in furniture_elements:
     for b_id in bounds_elem:
         b_elem = doc.GetElement(b_id)
         b_geom = b_elem.get_Geometry(Options())
-        print(b_elem)
         b_elem_cat = b_elem.Category.Name
         for solid in b_geom:
-            for face in solid.Faces:
-                projection = face.Project(location_point)
-                if projection != None:
-                    normal = face.ComputeNormal(UV(location_point.X,location_point.Y))
-                    if b_elem_cat == "Floors" and normal.Z == -1.0:
-                        # dist_dic[b_id] = projection.Distance
-                        nearest_elem_dict['Nearest_elem_id_'f'{n}'] = b_id
-                        nearest_elem_dict['Distance_to_nearest_'f'{n}'] = projection.Distance
-                        # nearest_elem.append(b_id)
-                        # distance.append(projection.Distance)
-                        n = n + 1
+            if solid.GetType().ToString() == "Autodesk.Revit.DB.Solid":
+                for face in solid.Faces:
+                    projection = face.Project(location_point)
+                    if projection != None:
+                        normal = face.ComputeNormal(UV(location_point.X,location_point.Y))
+                        if b_elem_cat == "Floors" and normal.Z == -1.0:
+                            # dist_dic[b_id] = projection.Distance
+                            nearest_elem_dict['Nearest_elem_id_'f'{n}'] = b_id
+                            nearest_elem_dict['Distance_to_nearest_'f'{n}'] = projection.Distance
+                            # nearest_elem.append(b_id)
+                            # distance.append(projection.Distance)
+                            n = n + 1
 
-                    if b_elem_cat == "Walls" and (normal.X == -1.0 or normal.Y == -1.0):
-                        # nearest_elem.append(b_id)
-                        # distance.append(projection.Distance)
-                        nearest_elem_dict['Nearest_elem_id_'f'{n}'] = b_id
-                        nearest_elem_dict['Distance_to_nearest_'f'{n}'] = projection.Distance
-                        n = n + 1
+                        if b_elem_cat == "Walls" and (normal.X == -1.0 or normal.Y == -1.0):
+                            # nearest_elem.append(b_id)
+                            # distance.append(projection.Distance)
+                            nearest_elem_dict['Nearest_elem_id_'f'{n}'] = b_id
+                            nearest_elem_dict['Distance_to_nearest_'f'{n}'] = projection.Distance
+                            n = n + 1
 
     new_row = pd.Series(nearest_elem_dict)
     df_furn_dist = pd.concat([df_furn_dist,new_row.to_frame().T],ignore_index= True)
-    # b_elements = dist_dic.keys()
-    # b_distances = dist_dic.values()
-    # print(b_elements)
-    # print(b_distances)
-    # new_row = pd.Series({'ElementId':id,'Nearest_elem_id':b_elements,'Distance_to_nearest':b_distances})
-    # df_furn_dist = pd.concat([df_furn_dist,new_row.to_frame().T],ignore_index= True)
-
-                    # print("Normal: " + str(face.ComputeNormal(UV(location_point.X,location_point.Y))))
-                    # print(projection.Distance)
-                    #print(projection.XYZPoint)
-
-nameOfFile_csv = 'space_elements_furniture.csv'
-completename_csv = 'D:/Bachelor_thesis/super-constraints/data/' + nameOfFile_csv
+# write furn into dataframe
+nameOfFile_csv = 'data\\tables\\space_elements_furniture.csv'
+completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_furn_dist.to_csv(completename_csv)
 
+# for id in added_elements:
+#     # print(id)
+#     elem = doc.GetElement(id)
+#     try:
 
-for id in added_elements:
-    print(id)
-    elem = doc.GetElement(id)
-    try:
-
-        dep_el = elem.FindInserts(True,True,True,True)
-        for d in dep_el:
-            if added_elements.Contains(d):
-                # recognise windows and door which belongs to the room
-                print("Connections between wall and door/window")
-                print(str(id) + ":" + str(d))
-    except:
-        pass
+#         dep_el = elem.FindInserts(True,True,True,True)
+#         for d in dep_el:
+#             if added_elements.Contains(d):
+#                 # recognise windows and door which belongs to the room
+#                 print("Connections between wall and door/window")
+#                 print(str(id) + ":" + str(d))
+#     except:
+#         pass
     # find connections between walls
     # try:
     #     location = elem.Location
@@ -421,14 +456,10 @@ for id in added_elements:
                                     'LevelId': elem.LevelId})
     df = pd.concat([df,new_row.to_frame().T],ignore_index= True)
 
-# df_result = pd.merge(df,df_furn_dist, how = "outer", on = "ElementId")
 # print space elements
-nameOfFile = 'space_elements.xlsx'
-# completeName = 'D:/Bachelor_thesis/super-constraints/data/' + nameOfFile
-# with pd.ExcelWriter(completeName) as writer:
-#     df_result.to_excel(writer, index = False)
-
-nameOfFile_csv = 'space_elements.csv'
-completename_csv = 'D:/Bachelor_thesis/super-constraints/data/' + nameOfFile_csv
+nameOfFile = 'data\\tables\\space_elements.xlsx'
+nameOfFile_csv = 'data\\tables\\space_elements.csv'
+completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df.to_csv(completename_csv)
+
 t.Commit()
