@@ -155,6 +155,19 @@ for face in room_solid.Faces:
             bounds_elem.Add(elem.Id)
             face_dic[elem.Id.IntegerValue] = f.GetSubface().ComputeNormal(UV(sel_location.X,sel_location.Y))
 
+df_bound = pd.DataFrame()
+for id in bounds_elem:
+    elem = doc.GetElement(id)
+    new_row = pd.Series({'ElementId':id,
+                        'Type' : elem.Name,
+                        'Bounded_elemId':selectedElement.Id,
+                        'Normal_to_center_room': face_dic[id.IntegerValue]})
+    df_bound = pd.concat([df_bound,new_row.to_frame().T],ignore_index=True)
+#print bounding elements
+nameOfFile_csv = 'data\\tables\\space_elements_bounds.csv'
+completename_csv =os.path.join(data_dir,nameOfFile_csv)
+df_bound.to_csv(completename_csv)
+
 # create collection of ellements passes into room-bounding-box
 boundingBox = selectedElement.ClosedShell.GetBoundingBox()
 offset = 0.164042 # 0.05 m
@@ -220,11 +233,18 @@ for elem in elements:
                 
 # collect constraints from walls: perpendiculary, parallelity, angles, distance           
 df_walls = pd.DataFrame()
+df_floors = pd.DataFrame()
 resultArray = IntersectionResultArray()
 for id in face_dic.keys():
     dir = face_dic[id]
     elem = doc.GetElement(ElementId(id))
-    if abs(dir.X) == 1 or abs(dir.Y)==1:
+    perpId = []
+    angles = []
+    nearest_walls = []
+    nearest_angles = []
+    distances = []
+    parallel_walls = []
+    if abs(dir.X) == 1.0 or abs(dir.Y)==1.0 and abs(dir.Z) == 0.0:
         # we mean that is a wall
         loc_curve = elem.get_Location()
         curve = loc_curve.Curve
@@ -234,16 +254,17 @@ for id in face_dic.keys():
         line = Line.CreateUnbound(start_point,direction)
         vec_1 = end_point.Subtract(start_point).Normalize()
         width_1 = elem.Width
-        perpId = []
-        angles = []
-        nearest_walls = []
-        nearest_angles = []
-        distances = []
-        parallel_walls = []
+        # perpId = []
+        # angles = []
+        # nearest_walls = []
+        # nearest_angles = []
+        # distances = []
+        # parallel_walls = []
         for id_temp in face_dic.keys():
             dir_temp = face_dic[id_temp]
-            if id != id_temp and (abs(dir_temp.X) == 1 or abs(dir_temp.Y)==1):
+            if id != id_temp and (abs(dir_temp.X) == 1.0 or abs(dir_temp.Y)==1.0) and abs(dir_temp.Z)==0.0:
                 elem_an = doc.GetElement(ElementId(id_temp))
+                print(id_temp)
                 loc_curve_an = elem_an.Location
                 curve_an = loc_curve_an.Curve
                 start_point_an = curve_an.GetEndPoint(0)
@@ -252,6 +273,7 @@ for id in face_dic.keys():
                 line_an = Line.CreateUnbound(start_point_an,direction_an)
                 vec_2 = end_point_an.Subtract(start_point_an).Normalize()
                 inter = curve.Intersect(curve_an)
+                print(inter)
                 width_2 = elem_an.Width
                 angle = round(vec_1.AngleTo(vec_2)*180/np.pi)
                 if inter == SetComparisonResult.Overlap:
@@ -303,28 +325,35 @@ for id in face_dic.keys():
                             perpId.append(None)
                             nearest_walls.append(None)
                             parallel_walls.append(None)
-
-        new_row = pd.Series({'ElementId': id,
+            elif id != id_temp and abs(dir_temp.Z) == 1 and abs(dir_temp.X) == 0.0 and abs(dir_temp.Y) == 0.0:
+                # means that walls are perpendicular to the floor
+                angles.append(90)
+                distances.append(None)
+                perpId.append(id_temp)
+                nearest_walls.append(None)
+                parallel_walls.append(None)
+                            
+        new_row_walls = pd.Series({'ElementId': id,
                             'Perpendicular_walls_id':perpId,
                             'Parallel_walls_id':parallel_walls,
                             'Distance_to_parall':distances,
                             'Nearest_walls_id':nearest_walls,
                             'Angles_to_walls':angles})
-        df_walls = pd.concat([df_walls,new_row.to_frame().T],ignore_index= True)
+        df_walls = pd.concat([df_walls,new_row_walls.to_frame().T],ignore_index= True)
 
 # write walls into dataframe
 nameOfFile_csv = 'data\\tables\\space_elements_walls.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_walls.to_csv(completename_csv)
 
-# collect constraints from floors: parallelity?, angles?, distance!         
+# collect constraints from floors: parallelity!, angles?, distance!         
 df_floors = pd.DataFrame()
 resultArray = IntersectionResultArray()
 floor_distance = {}
 for id in face_dic.keys():
     dir = face_dic[id]
     elem = doc.GetElement(ElementId(id))
-    if abs(dir.Z) == 1:
+    if abs(dir.Z) == 1.0 and dir.X == 0.0 and dir.Y == 0.0:
         print(elem)
         elem_geom = elem.get_Geometry(Options())
         for geomInst in elem_geom:
@@ -336,6 +365,7 @@ for id in face_dic.keys():
                             dis = face.Project(sel_location).Distance
                             floor_distance[id] = [dir.Z,dis]
                             break
+
 distance_between_floors = {}
 for id in floor_distance.keys():
     val = floor_distance[id]
@@ -350,10 +380,21 @@ for id in floor_distance.keys():
                 distance = dis_to_room + dis_to_room_t
                 print(distance)
                 distance_between_floors[distance] = [id,id_t]
+
+
+    new_row_floors = pd.Series({'ElementId': id,
+                                    'Parallel_floor_id':id_t,
+                                    'Distance_to_parall':distance})
+    df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
+
 #distance between floors or ceilings
-print(distance_between_floors)
+nameOfFile_csv = 'data\\tables\\space_elements_floors.csv'
+completename_csv =os.path.join(data_dir,nameOfFile_csv)
+df_floors.to_csv(completename_csv)
+
             
 # analyse furniture, calculate nearest furniture
+# not sure that code below is usefull
 df_furn_dist = pd.DataFrame()
 i = 0
 for id in furniture_elements:
@@ -391,6 +432,7 @@ for id in furniture_elements:
 
     new_row = pd.Series(nearest_elem_dict)
     df_furn_dist = pd.concat([df_furn_dist,new_row.to_frame().T],ignore_index= True)
+
 # write furn into dataframe
 nameOfFile_csv = 'data\\tables\\space_elements_furniture.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
