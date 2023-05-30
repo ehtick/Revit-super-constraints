@@ -2,8 +2,6 @@
 import clr
 import os
 import os.path
-# import sys
-# sys.path.append(r'C:\Users\elyah\AppData\Local\Programs\Python\Python38\Lib\site-packages')
 
 clr.AddReference("System")
 clr.AddReference('RevitAPI')
