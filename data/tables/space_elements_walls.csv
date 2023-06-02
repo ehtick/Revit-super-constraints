@@ -1,0 +1,5 @@
+,ElementId,Perpendicular_walls_id,Parallel_walls_id,Distance_to_parall,Nearest_walls_id,Angles_to_walls
+0,422243,"[176804, 906885, None, 845266, 418183]","[None, None, 424922, None, None]","[None, None, 1.799, None, None]","[None, 906885, None, 845266, None]","[90, 90, 0, 90, 90]"
+1,906885,"[176804, 422243, 424922, None, 418183]","[None, None, None, 845266, None]","[None, None, None, 1.528, None]","[None, 422243, 424922, None, None]","[90, 90, 90, 0, 90]"
+2,424922,"[176804, None, 906885, 845266, 418183]","[None, 422243, None, None, None]","[None, 1.799, None, None, None]","[None, None, 906885, 845266, None]","[90, 0, 90, 90, 90]"
+3,845266,"[176804, 422243, None, 424922, 418183]","[None, None, 906885, None, None]","[None, None, 1.528, None, None]","[None, 422243, None, 424922, None]","[90, 90, 0, 90, 90]"

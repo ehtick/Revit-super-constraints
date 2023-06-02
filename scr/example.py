@@ -17,7 +17,7 @@ class App:
         rooms = df.groupby('Selected_roomI_Id').groups.keys()
 
         nameOfFile_csv = 'space_elements_furniture.csv'
-        completename_csv = 'D:/Bachelor_thesis/super-constraints/data/' + nameOfFile_csv
+        completename_csv = 'D:/Bachelor_thesis/super-constraints/data/tables/' + nameOfFile_csv
         data = pd.read_csv(completename_csv)
         df_furn_dist = pd.DataFrame(data)
 
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     user = "neo4j"
     password = "Mmte2MYxy73Y0_pUSmCFy_ZxgHvjUaMTS14m4d8A5d8"
     app = App(uri, user, password)
-    app.load_data(r'D:/Bachelor_thesis/super-constraints/data/space_elements.csv')
+    app.load_data(r'D:/Bachelor_thesis/super-constraints/data/tables/space_elements.csv')
     app.load_all_relationships()
     # app.create_friendship("Alice", "David")
     # app.find_person("Alice")
