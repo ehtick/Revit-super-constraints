@@ -124,8 +124,6 @@ def get_opening_cut(door,wall,dir,room):
             if dir.IsAlmostEqualTo(dir_rm):
                 print("Curve loop funded!")
                 return face.GetEdgesAsCurveLoops()
-
- 
 #==============================================================================
 #  function finds intersections between element solid and room solid
 #  returns i if intersections occured   
@@ -296,6 +294,7 @@ df_floors = pd.DataFrame()
 resultArray = IntersectionResultArray()
 # check if volume of intersection/touching between walls are max
 # filter for only maximum values
+perpId_dic ={}
 for id in face_dic.keys():
     dir = face_dic[id]
     elem = doc.GetElement(ElementId(id))
@@ -393,6 +392,8 @@ for id in face_dic.keys():
                 perpId.append(id_temp)
                 nearest_walls.append(None)
                 parallel_walls.append(None)
+        
+        perpId_dic[id] = perpId
                             
         new_row_walls = pd.Series({'ElementId': id,
                             'Perpendicular_walls_id':perpId,
@@ -457,106 +458,56 @@ df_doors = pd.DataFrame()
 doors_wh = {}
 
 for id in doors_elements:
-    for id_wall in bounds_elem:
-        id_n = ElementId(id_wall.IntegerValue)
-        wall = doc.GetElement(id_n)
-        # instead find Host 
-        # wall = door.Host
-        if id in wall.FindInserts(False,False,False,False):
-            # print(id)
-            door = doc.GetElement(id)
-            dist_to_faces = []
-            dir = face_dic[id_wall.IntegerValue]
-            cut_loop = None
-            try:
-                cut_loop = ExporterIFCUtils.GetInstanceCutoutFromWall(doc, wall, door, dir)[0]
-                # print(cut_loop)
-            except:
-                cut_loop = get_opening_cut(door,wall,dir,selectedElement)
-                pass
-            dType = doc.GetElement(door.GetTypeId())
-            width = dType.get_Parameter(BuiltInParameter.DOOR_WIDTH).AsDouble() 
-            height = dType.get_Parameter(BuiltInParameter.DOOR_HEIGHT).AsDouble()
-            print(width, height)
-            doors_wh[id] = [width,height]
-            new_row_doors = pd.Series({'ElementId': id,
-                                    'Door_width':width,
-                                    'Door_height':height})
-            df_doors = pd.concat([df_doors,new_row_doors.to_frame().T],ignore_index= True)
-            # curve_loops = room_faces_dw[id_wall.IntegerValue].GetSpatialElementFace().EdgeLoops
-            for face in faces:
-                curve_loops = face.GetEdgesAsCurveLoops()
-                print(door.Name)
-                print(wall)
-                if cut_loop != None:
-                    for curve_cut in cut_loop:
-                        # print("Door lines")
-                        # print(face.Intersect(curve_cut))
-                        # print("example")
-                        # print(SetComparisonResult.Overlap)
-                        # print(SetComparisonResult.Subset)
-        
-                        # if face.Intersect(curve_cut) == SetComparisonResult.Subset:
-                        dir_c = Line.CreateBound(curve_cut.GetEndPoint(0),curve_cut.GetEndPoint(1)).Direction
-                        # print(curve_cut.ApproximateLength*0.3048)
-                        line = Line.CreateUnbound(curve_cut.GetEndPoint(0),dir_c)
-                        print(dir_c)
-                        print(round(curve_cut.Length*0.3048,3))
-                        for cl in curve_loops:
-                            for curve in cl:
-                                print("Room face lines")
-                                print(round(curve.Length*0.3048,3))
-                                dir_2 = Line.CreateBound(curve.GetEndPoint(0),curve.GetEndPoint(1)).Direction
-                                print(dir_2)
-                                # print(dir_c.IsAlmostEqualTo(dir_2))
-                                dis = round(line.Project(curve.GetEndPoint(0)).Distance*0.3048,3)
-                                # dis = round(line.Project(curve.GetEndPoint(0)).Distance * 0.3048,3)
-                                if dir_c.IsAlmostEqualTo(dir_2) and dir_2.IsUnitLength():
-                                    equal = True
-                                elif dir_c.Negate().IsAlmostEqualTo(dir_2) and dir_2.IsUnitLength():
-                                    equal = True
-                                elif dir_2.Negate().IsAlmostEqualTo(dir_c) and dir_2.IsUnitLength():
-                                    equal = True
-                                equal = True
-                                if dis not in dist_to_faces and equal:
-                                    dist_to_faces.append(dis)
-                # edge_arr_arr = room_faces_dw[id_wall.IntegerValue].EdgeLoops
-                # print(door.Name)
-                # print(wall)
-                # if cut_loop != None:
-                #     for curve_cut in cut_loop:
-                #         dir_c = Line.CreateBound(curve_cut.GetEndPoint(0),curve_cut.GetEndPoint(1)).Direction
-                #         # print(curve_cut.ApproximateLength*0.3048)
-                #         print("directions")
-                #         print(dir_c)
-                #         line = Line.CreateUnbound(curve_cut.GetEndPoint(0),dir_c)
-                #         for edge_arr in edge_arr_arr:
-                #             for edge in edge_arr:
-                #                 curve = edge.AsCurve()
-                #                 #print(curve.IsBound)
-                #                 dir_2 = Line.CreateBound(curve.GetEndPoint(0),curve.GetEndPoint(1)).Direction
-                #                 print(dir_2)
-                #                 # print(dir_c.IsAlmostEqualTo(dir_2))
-                #                 dis = round(line.Project(curve.GetEndPoint(0)).Distance * 0.3048,3)
-                #                 # if dir_c.IsAlmostEqualTo(dir_2) and dir_2.IsUnitLength():
-                #                 #     equal = True
-                #                 # elif dir_c.Negate().IsAlmostEqualTo(dir_2) and dir_2.IsUnitLength():
-                #                 #     equal = True
-                #                 # elif dir_2.Negate().IsAlmostEqualTo(dir_c) and dir_2.IsUnitLength():
-                #                 #     equal = True
+    door = doc.GetElement(id)
+    wall = door.Host
+    width = wall.Width
+    id_wall = wall.Id
+    cut_loop = None
+    dir = face_dic[id_wall.IntegerValue]
+    try:
+        cut_loop = ExporterIFCUtils.GetInstanceCutoutFromWall(doc, wall, door, dir)[0]
+    except:
+        cut_loop = get_opening_cut(door,wall,dir,selectedElement)
+        pass
+    perp_elem = perpId_dic[id_wall.IntegerValue]
+    for id_el in perp_elem:
+        if id_el != None:
+            elem = doc.GetElement(ElementId(id_el))
+            closest_dis = []
+            for curve in cut_loop:
+                dir_c = Line.CreateBound(curve.GetEndPoint(0),curve.GetEndPoint(1)).Direction
+                line = Line.CreateUnbound(curve.GetEndPoint(0),dir_c)
+                try:
+                    if abs(dir_c.Z) == 1.0:
+                        width_p = elem.Width
+                        loc_elem = elem.Location.Curve
+                        point_list = List[ClosestPointsPairBetweenTwoCurves]()
+                        closest_pnt = curve.ComputeClosestPoints(loc_elem, False, False,False,point_list)
+                        for points in closest_pnt:
+                            first_point = points.XYZPointOnFirstCurve
+                            second_point = points.XYZPointOnSecondCurve
+                            dis_to_cut = round(first_point.DistanceTo(second_point)*0.3048 - width_p/2,2)
+                            closest_dis.append(dis_to_cut)
+                except:
+                    pass
+            print("Distance: ")
+            print(closest_dis)
 
-                #                 equal = True
-
-                #                 # if abs(dir_c.X) == abs(dir_2.X) and equal:
-                #                 #     dist_to_faces.append(dis)
-                #                 if dis not in dist_to_faces and equal:
-                #                     dist_to_faces.append(dis)
+    dType = doc.GetElement(door.GetTypeId())
+    width = dType.get_Parameter(BuiltInParameter.DOOR_WIDTH).AsDouble() 
+    height = dType.get_Parameter(BuiltInParameter.DOOR_HEIGHT).AsDouble()
+    print(width, height)
+    doors_wh[id] = [width,height]
+    new_row_doors = pd.Series({'ElementId': id,
+                            'Door_width':width,
+                            'Door_height':height})
+    df_doors = pd.concat([df_doors,new_row_doors.to_frame().T],ignore_index= True)
                             
 #distance between floors or ceilings
 nameOfFile_csv = 'data\\tables\\space_elements_doors.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_doors.to_csv(completename_csv)                        
-print(dist_to_faces)
+# print(dist_to_faces)
 
 #collect constraints from windows: distance to edges (floor, wall), width, hight
 # for id in windows_elements:
