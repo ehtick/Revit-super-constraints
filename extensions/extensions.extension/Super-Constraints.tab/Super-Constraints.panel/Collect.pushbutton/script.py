@@ -456,7 +456,7 @@ df_floors.to_csv(completename_csv)
 # collect constraints from doors: distance to edges (floor, wall), width, hight
 df_doors = pd.DataFrame()
 doors_wh = {}
-
+distance_dic = {}
 for id in doors_elements:
     door = doc.GetElement(id)
     wall = door.Host
@@ -467,32 +467,39 @@ for id in doors_elements:
     try:
         cut_loop = ExporterIFCUtils.GetInstanceCutoutFromWall(doc, wall, door, dir)[0]
     except:
-        cut_loop = get_opening_cut(door,wall,dir,selectedElement)
+        print(door.Name)
+        cuts = get_opening_cut(door,wall,dir,selectedElement)
+        for cut_loop in cuts:
+            # print(cut_loop.GetRectangularHeight())
+            print(cut_loop.NumberOfCurves())
         pass
     perp_elem = perpId_dic[id_wall.IntegerValue]
+    print(perp_elem)
+    closest_dis = []
     for id_el in perp_elem:
         if id_el != None:
             elem = doc.GetElement(ElementId(id_el))
-            closest_dis = []
-            for curve in cut_loop:
-                dir_c = Line.CreateBound(curve.GetEndPoint(0),curve.GetEndPoint(1)).Direction
-                line = Line.CreateUnbound(curve.GetEndPoint(0),dir_c)
-                try:
-                    if abs(dir_c.Z) == 1.0:
-                        width_p = elem.Width
-                        loc_elem = elem.Location.Curve
-                        point_list = List[ClosestPointsPairBetweenTwoCurves]()
-                        closest_pnt = curve.ComputeClosestPoints(loc_elem, False, False,False,point_list)
-                        for points in closest_pnt:
-                            first_point = points.XYZPointOnFirstCurve
-                            second_point = points.XYZPointOnSecondCurve
-                            dis_to_cut = round(first_point.DistanceTo(second_point)*0.3048 - width_p/2,2)
-                            closest_dis.append(dis_to_cut)
-                except:
-                    pass
-            print("Distance: ")
-            print(closest_dis)
-
+            if cut_loop != None:
+                if face_dic[id_el].Z == 0.0:
+                    for curve in cut_loop:
+                        dir_c = Line.CreateBound(curve.GetEndPoint(0),curve.GetEndPoint(1)).Direction
+                        line = Line.CreateUnbound(curve.GetEndPoint(0),dir_c)
+                        # try:
+                        if abs(dir_c.Z) == 1.0:
+                            width_p = elem.Width
+                            loc_elem = elem.Location.Curve
+                            point_list = List[ClosestPointsPairBetweenTwoCurves]()
+                            closest_pnt = curve.ComputeClosestPoints(loc_elem, False, False,False,point_list)
+                            for points in closest_pnt:
+                                first_point = points.XYZPointOnFirstCurve
+                                second_point = points.XYZPointOnSecondCurve
+                                dis_to_cut = round(first_point.DistanceTo(second_point)*0.3048 - width_p/2*0.3048,2)
+                                closest_dis.append(dis_to_cut)
+                        # except:
+                        #     pass
+    print("Distance: ")
+    print(closest_dis)
+    distance_dic[id] = closest_dis
     dType = doc.GetElement(door.GetTypeId())
     width = dType.get_Parameter(BuiltInParameter.DOOR_WIDTH).AsDouble() 
     height = dType.get_Parameter(BuiltInParameter.DOOR_HEIGHT).AsDouble()
@@ -500,7 +507,8 @@ for id in doors_elements:
     doors_wh[id] = [width,height]
     new_row_doors = pd.Series({'ElementId': id,
                             'Door_width':width,
-                            'Door_height':height})
+                            'Door_height':height,
+                            'Distance_to_edges':distance_dic[id]})
     df_doors = pd.concat([df_doors,new_row_doors.to_frame().T],ignore_index= True)
                             
 #distance between floors or ceilings
