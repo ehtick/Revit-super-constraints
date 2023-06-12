@@ -55,10 +55,6 @@ df_cat = pd.DataFrame(data_cat)
 df_cat = df_cat.loc[df_cat['Support'] == "Yes"]
 df_fur = df_cat.loc[df_cat['Furniture'] == "Yes"]
 
-# collector_2 = FilteredElementCollector(doc)
-# # collector_2.OfClass(FamilyInstance)
-# collector_2.WherePasses(ElementIntersectsSolidFilter(room_solid))
-# furniture_elements = List[ElementId]()
 
 #==============================================================================
 #  function ckecks if element locates in the room 
@@ -161,7 +157,6 @@ def find_room_from_elem_location(elem,room):
             inter = find_intersection_elemToRoomSolid(elem,room_solid)
             if inter == 1:
                 return elem.Id
-
 #==============================================================================
 # function finds opening cut in the wall
 def get_opening_cut(door,wall,dir,room):
@@ -293,7 +288,6 @@ max_new = XYZ(boundingBox.Max.X + offset, boundingBox.Max.Y + offset, boundingBo
 outline = Outline(min_new,max_new)
 collection = FilteredElementCollector(doc).WherePasses(BoundingBoxIntersectsFilter(outline))
 elements = collection.ToElements()  
-
 for elem in elements:
     try:
         filter_cat = elem.Category.Name
@@ -313,13 +307,15 @@ for elem in elements:
                     windows_elements.Add(elem.Id)
 
                 if len(df_fur.loc[df_fur['English'] == filter_cat])>0:
-                    furniture_elements.Add(elem.Id)
-                
-# collect constraints from walls: perpendiculary, parallelity, angles, distance           
+                    furniture_elements.Add(elem.Id)              
+# 
+# 
+# 
+# 
+#ollect constraints from walls: perpendiculary, parallelity, angles, distance           
 df_walls = pd.DataFrame()
 df_floors = pd.DataFrame()
 resultArray = IntersectionResultArray()
-
 # check if volume of intersection/touching between walls are max (!?)
 # filter for only maximum values
 perpId_dic ={}
@@ -435,7 +431,6 @@ for id in face_dic.keys():
                             'Nearest_walls_id':nearest_walls,
                             'Angles_to_walls':angles})
         df_walls = pd.concat([df_walls,new_row_walls.to_frame().T],ignore_index= True)
-
 # write walls into dataframe
 nameOfFile_csv = 'data\\tables\\space_elements_walls.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
@@ -464,7 +459,6 @@ for id in face_dic.keys():
                             dis = face.Project(sel_location).Distance
                             floor_distance[id] = [dir.Z,dis]
                             break
-
 distance_between_floors = {}
 for id in floor_distance.keys():
     val = floor_distance[id]
@@ -482,7 +476,6 @@ for id in floor_distance.keys():
                                         'Parallel_floor_id':id_t,
                                         'Distance_to_parall':distance})
             df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
-
 #distance between floors or ceilings
 nameOfFile_csv = 'data\\tables\\space_elements_floors.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
@@ -581,8 +574,7 @@ for id in doors_elements:
                             'Door_height':height*0.3048,
                             'Nearest_elementIds':distance_ids,
                             'Distance_to_edges':distance_dic[id]})
-    df_doors = pd.concat([df_doors,new_row_doors.to_frame().T],ignore_index= True)
-                            
+    df_doors = pd.concat([df_doors,new_row_doors.to_frame().T],ignore_index= True)                       
 #distance between doors and walls, floors
 nameOfFile_csv = 'data\\tables\\space_elements_doors.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
@@ -682,7 +674,6 @@ for id in windows_elements:
                             'Nearest_elementIds':distance_ids,
                             'Distance_to_edges':distance_dic[id]})
     df_windows = pd.concat([df_windows,new_row_windows.to_frame().T],ignore_index= True)
-
 #distance between doors and walls, floors
 nameOfFile_csv = 'data\\tables\\space_elements_windows.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
@@ -692,8 +683,7 @@ df_windows.to_csv(completename_csv)
 # 
 # 
 #           
-# analyse furniture, calculate nearest furniture
-# not sure that code below is usefull
+# analyse furniture, calculate nearest bounding element
 df_furn_dist = pd.DataFrame()
 i = 0
 for id in furniture_elements:
@@ -742,7 +732,6 @@ df_furn_dist.to_csv(completename_csv)
 #  
 # write all in dataframe
 for id in added_elements:
-
     elem = doc.GetElement(id)
     try:
             eId = elem.GetTypeId()
@@ -760,7 +749,6 @@ for id in added_elements:
                                     'Category':elem.Category.Name,
                                     'LevelId': elem.LevelId})
     df = pd.concat([df,new_row.to_frame().T],ignore_index= True)
-
 # print space elements
 nameOfFile = 'data\\tables\\space_elements.xlsx'
 nameOfFile_csv = 'data\\tables\\space_elements.csv'
