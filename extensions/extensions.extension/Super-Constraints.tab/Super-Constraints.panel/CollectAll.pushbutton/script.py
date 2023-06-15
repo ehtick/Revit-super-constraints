@@ -610,7 +610,7 @@ for room in room_collection:
                         distance = dis
                         id_next = d_t
             df_doors.loc[df_doors['ElementId'] == d,['ElementId_next_door']]= id_next
-            df_doors.loc[df_doors['ElementId'] == d,['Distance_to_next_door_min']] = distance                                            
+            df_doors.loc[df_doors['ElementId'] == d,['Distance_to_next_door_min']] = round(distance*0.3048,3)                                           
     # 
     # 
     # 
