@@ -28,7 +28,7 @@ app = __revit__.Application
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
 
-t = Transaction(doc, "Get all elements from room")
+t = Transaction(doc, "Get all elements in the model")
 t.Start()
  
 # pic room object
@@ -261,23 +261,25 @@ for room in room_collection:
     room_solid = results.GetGeometry()
 
     # create collection of room containing elements e.g. windows,doors,furniture
-    
     room_elements = List[ElementId]()
     windows_elements = List[ElementId]()
     doors_elements = List[ElementId]()
     furniture_elements = List[ElementId]()
+    floor_elements = List[ElementId]()
 
     for id in elements:
         elem = doc.GetElement(id)
         elemId = find_room_from_elem_location(elem,room,room_solid)
         if elemId != None:
-            room_elements.Add(id)
             if all_windows_elements.Contains(id):
                 windows_elements.Add(id)
+                room_elements.Add(id)
             if all_doors_elements.Contains(id):
                 doors_elements.Add(id)
+                room_elements.Add(id)
             if all_furniture_elements.Contains(id):
                 furniture_elements.Add(id)
+                room_elements.Add(id)
     # 
     # 
     # 
@@ -442,45 +444,38 @@ for room in room_collection:
     df_floors = pd.DataFrame()
     resultArray = IntersectionResultArray()
     floor_distance = {}
+    dis_to_m = []
+    dir_t = 0
+    id_t = None
+    parallel_floors = []
+    roof = []
+    for id in face_dic.keys():
+        dir = face_dic[id]
+        if abs(dir.Z) == 1.0 or abs(dir.Z)> 0.:
+            if abs(dir.Z) == 1.0:
+                parallel_floors.append(id)
+            else:
+                roof.append(id)
+            room_bb = room.ClosedShell.GetBoundingBox()
+            room_bb_min = room_bb.Min
+            room_bb_max = room_bb.Max
+            dis = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,2)
+            floor_distance[id] = dis
     for id in face_dic.keys():
         dir = face_dic[id]
         elem = doc.GetElement(ElementId(id))
-        if abs(dir.Z) == 1.0 and dir.X == 0.0 and dir.Y == 0.0:
-            # print(elem)
-            elem_geom = elem.get_Geometry(Options())
-            for geomInst in elem_geom:
-                if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
-                        floor_solid = geomInst
-                        for face in floor_solid.Faces:
-                            normal = face.ComputeNormal(UV(room_location.X,room_location.Y))
-                            if abs(normal.Z)==1 and face != None:
-                                try:
-                                    dis = face.Project(room_location).Distance
-                                    floor_distance[id] = [dir.Z,dis]
-                                    break
-                                except:
-                                    continue
-    distance_between_floors = {}
-    for id in floor_distance.keys():
-        val = floor_distance[id]
-        dir = val[0]
-        dis_to_room = val[1]
-        floor = doc.GetElement(ElementId(id))
-        for id_t in floor_distance.keys():
-            if id_t != id:
-                val_t = floor_distance[id_t]
-                dir_t = val_t[0]
-                dis_to_room_t = val_t[1]
-                if dir != dir_t:
-                    distance = dis_to_room + dis_to_room_t
-                    distance_between_floors[distance] = [id,id_t]
-                new_row_floors = pd.Series({'Room_Id':room.Id,
+        if abs(dir.Z) == 1.0 or abs(dir.Z)> 0.:
+            new_par = []
+            for val in parallel_floors:
+                if val != id and id not in roof:
+                    new_par.append(val)
+            new_row_floors = pd.Series({'Room_Id':room.Id,
                                             'Room_uniqueId':room.UniqueId,
                                             'ElementId': id,
-                                            'Element_uniqueId': floor.UniqueId,
-                                            'Parallel_floor_id':id_t,
-                                            'Distance_to_parall':distance})
-                df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
+                                            'Element_uniqueId': elem.UniqueId,
+                                            'Parallel_floor_id':new_par,
+                                            'Distance_max':floor_distance[id]})
+            df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
     # 
     # 
     # 
@@ -501,7 +496,7 @@ for room in room_collection:
         dir = face_dic[id_wall.IntegerValue]
         try:
             cut_loop = ExporterIFCUtils.GetInstanceCutoutFromWall(doc, wall, door, dir)[0]
-            print('test')
+            # print('test')
 
         except:
             cut_loop = get_opening_cut(door,wall,dir,room)
@@ -743,13 +738,13 @@ for room in room_collection:
                     fam_name = elemType.FamilyName
         except:
             fam_name = elem.Symbol.Family.Name
-        room_name = room.LookupParameter('Name').ToString()
+        room_name = room.LookupParameter('Name').AsString()
         new_row = pd.Series({'Level_Id': room.LevelId,
                              'Level_name':room.Level.Name,
                              'Room_uniqueId':room.UniqueId,
                              'Room_Id': room.Id,
-                             'Room_number':room_name,
-                             'Room_name':room.Number,
+                             'Room_number':room.Number,
+                             'Room_name':room_name,
                              'ElementId': elem.Id,
                              'Element_uniqueId': elem.UniqueId,
                              'Family':fam_name,
