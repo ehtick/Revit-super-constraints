@@ -307,7 +307,7 @@ for room in room_collection:
                 face_dic[elem.Id.IntegerValue] = f.GetSubface().ComputeNormal(UV(room_location.X,room_location.Y))
                 new_row = pd.Series({'Room_Id':room.Id,
                                         'Room_uniqueId':room.UniqueId,
-                                        'ElementId':elem.Id,
+                                        'ElementId':elem.Id.IntegerValue,
                                         'Element_uniqueId': elem.UniqueId,
                                         'Type' : elem.Name,
                                         'Normal_to_center_room': face_dic[elem.Id.IntegerValue]})
@@ -485,6 +485,8 @@ for room in room_collection:
     df_doors = pd.DataFrame()
     doors_wh = {}
     distance_dic = {}
+    door_edge_dic = {}
+    wall_door = {}
     for id in doors_elements:
         door = doc.GetElement(id)
         wall = door.Host
@@ -497,13 +499,17 @@ for room in room_collection:
         try:
             cut_loop = ExporterIFCUtils.GetInstanceCutoutFromWall(doc, wall, door, dir)[0]
             # print('test')
-
         except:
             cut_loop = get_opening_cut(door,wall,dir,room)
             pass
+        if wall.Id.IntegerValue in wall_door.keys():
+            wall_door[wall.Id.IntegerValue].append(id.IntegerValue)
+        else:
+            wall_door[wall.Id.IntegerValue] = [id.IntegerValue]
         perp_elem = perpId_dic[id_wall.IntegerValue]
         closest_dis = []
         distance_ids = []
+        door_loc = door.Location.Point
         for id_el in perp_elem:
             if id_el != None:
                 elem = doc.GetElement(ElementId(id_el))
@@ -569,16 +575,42 @@ for room in room_collection:
         dType = doc.GetElement(door.GetTypeId())
         width = dType.get_Parameter(BuiltInParameter.DOOR_WIDTH).AsDouble() 
         height = dType.get_Parameter(BuiltInParameter.DOOR_HEIGHT).AsDouble()
+        l_edge = XYZ(door_loc.X + width/2,door_loc.Y,room_location.Z)
+        r_edge = XYZ(door_loc.X - width/2,door_loc.Y,room_location.Z)
+        door_edge_dic[id.IntegerValue] = [l_edge,r_edge]
         doors_wh[id] = [width,height]
         new_row_doors = pd.Series({'Room_Id':room.Id,
                                     'Room_uniqueId':room.UniqueId,
-                                    'ElementId': id,
+                                    'ElementId': id.IntegerValue,
                                     'Element_uniqueId': door.UniqueId,
                                     'Door_width':width*0.3048,
                                     'Door_height':height*0.3048,
                                     'Nearest_elementIds':distance_ids,
-                                    'Distance_to_edges':distance_dic[id]})
-        df_doors = pd.concat([df_doors,new_row_doors.to_frame().T],ignore_index= True)                                              
+                                    'Distance_to_edges':distance_dic[id],
+                                    'ElementId_next_door':None,
+                                    'Distance_to_next_door_min': None})
+        df_doors = pd.concat([df_doors,new_row_doors.to_frame().T],ignore_index= True) 
+    for wall,doors in wall_door.items():
+        for d in doors:
+            l_edge = door_edge_dic[d][0]
+            r_edge = door_edge_dic[d][1]
+            distance = 0.
+            id_next = None
+            for d_t in doors:
+                if d != d_t:
+                    l_edge_t = door_edge_dic[d_t][0]
+                    r_edge_t = door_edge_dic[d_t][1]
+                    dis_1 = l_edge.DistanceTo(r_edge_t)
+                    dis_2 = r_edge.DistanceTo(l_edge_t)
+                    dis = round(min(dis_1,dis_2),3)
+                    if distance == 0.:
+                        distance = dis
+                        id_next = d_t
+                    if distance > dis:
+                        distance = dis
+                        id_next = d_t
+            df_doors.loc[df_doors['ElementId'] == d,['ElementId_next_door']]= id_next
+            df_doors.loc[df_doors['ElementId'] == d,['Distance_to_next_door_min']] = distance                                            
     # 
     # 
     # 
@@ -587,12 +619,18 @@ for room in room_collection:
     #collect constraints from windows: distance to edges (floor, wall), width, hight
     df_windows = pd.DataFrame()
     distance_dic = {}
+    wall_win = {}
+    win_edge_dic = {}
     for id in windows_elements:
         window = doc.GetElement(id)
         if str(window.Host.GetType()) == 'Autodesk.Revit.DB.ExtrusionRoof':
             continue
         window_loc = window.Location.Point
         wall = window.Host
+        if wall.Id.IntegerValue in wall_win.keys():
+            wall_win[wall.Id.IntegerValue].append(id.IntegerValue)
+        else:
+            wall_win[wall.Id.IntegerValue] = [id.IntegerValue]
         width = wall.Width
         id_wall = wall.Id
         cut_loop = None
@@ -664,19 +702,49 @@ for room in room_collection:
                                                         temp_dist.append(dis)
                                 min_dis = min(temp_dist)
                                 distance_ids.append(id_el)
-        distance_dic[id] = closest_dis
+        distance_dic[id.IntegerValue] = closest_dis
         wType = doc.GetElement(window.GetTypeId())
         # width = wType.get_Parameter(BuiltInParameter.WINDOW_WIDTH).AsDouble() 
         # height = wType.get_Parameter(BuiltInParameter.WINDOW_HEIGHT).AsDouble()
+        w = min(dim_arr)
+        l_edge = XYZ(window_loc.X + w/2,window_loc.Y,room_location.Z)
+        r_edge = XYZ(window_loc.X - w/2,window_loc.Y,room_location.Z)
+        win_edge_dic[id.IntegerValue] = [l_edge,r_edge]
         new_row_windows = pd.Series({'Room_Id':room.Id,
                                         'Room_uniqueId':room.UniqueId,
-                                        'ElementId': id,
+                                        'ElementId': id.IntegerValue,
                                         'Element_uniqueId': window.UniqueId,
                                         'Window_width':min(dim_arr)*0.3048,
                                         'Window_height':max(dim_arr)*0.3048,
                                         'Nearest_elementIds':distance_ids,
-                                        'Distance_to_edges':distance_dic[id]})
-        df_windows = pd.concat([df_windows,new_row_windows.to_frame().T],ignore_index= True)            
+                                        'Distance_to_edges':distance_dic[id.IntegerValue],
+                                        'ElementId_next_win':None,
+                                        'Distance_to_next_win_min': None})
+        df_windows = pd.concat([df_windows,new_row_windows.to_frame().T],ignore_index= True)
+
+    for wall,wins in wall_win.items():
+        for w in wins:
+            l_edge = win_edge_dic[w][0]
+            r_edge = win_edge_dic[w][1]
+            distance = 0.
+            id_next = None
+            for w_t in wins:
+                if w != w_t:
+                    l_edge_t = win_edge_dic[w_t][0]
+                    r_edge_t = win_edge_dic[w_t][1]
+                    dis_1 = l_edge.DistanceTo(r_edge_t)
+                    dis_2 = r_edge.DistanceTo(l_edge_t)
+
+                    dis = min(dis_1,dis_2)
+                    if distance == 0.:
+                        distance = dis
+                        id_next = w_t
+                    if distance > dis:
+                        distance = dis
+                        id_next = w_t
+            df_windows.loc[df_windows['ElementId'] == w,['ElementId_next_win']]= id_next
+            df_windows.loc[df_windows['ElementId'] == w,['Distance_to_next_win_min']] = round(distance*0.3048,3)
+
     # 
     # 
     # 
@@ -745,7 +813,7 @@ for room in room_collection:
                              'Room_Id': room.Id,
                              'Room_number':room.Number,
                              'Room_name':room_name,
-                             'ElementId': elem.Id,
+                             'ElementId': elem.Id.IntegerValue,
                              'Element_uniqueId': elem.UniqueId,
                              'Family':fam_name,
                              'Typ':elem.Name,
@@ -753,7 +821,7 @@ for room in room_collection:
         df = pd.concat([df,new_row.to_frame().T],ignore_index= True)
 
 
-    #add individual data from to general data frame
+    #add individual data to general data frame
     df_bound_all = pd.concat([df_bound_all,df_bound],ignore_index=True)
     df_walls_all = pd.concat([df_walls_all,df_walls],ignore_index=True)
     df_floors_all = pd.concat([df_floors_all,df_floors],ignore_index=True)
