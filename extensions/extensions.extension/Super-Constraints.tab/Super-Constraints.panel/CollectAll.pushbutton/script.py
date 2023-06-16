@@ -30,15 +30,7 @@ uidoc = __revit__.ActiveUIDocument
 
 t = Transaction(doc, "Get all elements in the model")
 t.Start()
- 
-# pic room object
-# choise = uidoc.Selection
-# pickedElement = choise.PickObject(ObjectType.Element, "Select room")
-# selectedElement = doc.GetElement(pickedElement.ElementId)
-# print(selectedElement.GetType().ToString())
-# if selectedElement.GetType().ToString() != "Autodesk.Revit.DB.Architecture.Room":
-#     print("Wrong element selected. Operation breaks.")
-#     t.Commit()
+
 
 # filter categories
 directory = os.path.dirname(os.path.abspath(__file__))
@@ -704,8 +696,6 @@ for room in room_collection:
                                 distance_ids.append(id_el)
         distance_dic[id.IntegerValue] = closest_dis
         wType = doc.GetElement(window.GetTypeId())
-        # width = wType.get_Parameter(BuiltInParameter.WINDOW_WIDTH).AsDouble() 
-        # height = wType.get_Parameter(BuiltInParameter.WINDOW_HEIGHT).AsDouble()
         w = min(dim_arr)
         l_edge = XYZ(window_loc.X + w/2,window_loc.Y,room_location.Z)
         r_edge = XYZ(window_loc.X - w/2,window_loc.Y,room_location.Z)
@@ -721,7 +711,6 @@ for room in room_collection:
                                         'ElementId_next_win':None,
                                         'Distance_to_next_win_min': None})
         df_windows = pd.concat([df_windows,new_row_windows.to_frame().T],ignore_index= True)
-
     for wall,wins in wall_win.items():
         for w in wins:
             l_edge = win_edge_dic[w][0]
@@ -744,7 +733,6 @@ for room in room_collection:
                         id_next = w_t
             df_windows.loc[df_windows['ElementId'] == w,['ElementId_next_win']]= id_next
             df_windows.loc[df_windows['ElementId'] == w,['Distance_to_next_win_min']] = round(distance*0.3048,3)
-
     # 
     # 
     # 
@@ -860,6 +848,39 @@ nameOfFile_csv = 'data\\tables\\space_elements.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_all.to_csv(completename_csv)
 
+# experimental solution
+win_nearest_dim = df_windows_all.agg({'Distance_to_next_win_min':['mean','min','max']})
+# apply min = 0.5
+
+df_windows_all = df_windows_all[df_windows_all['Distance_to_next_win_min']> 0.]
+min_val = df_windows_all['Distance_to_next_win_min'].min()
+print(min_val)
+df_windows_all.loc[df_windows_all['Distance_to_next_win_min'] == min_val,['Distance_to_next_win_min']] = 0.5
+win_id = df_windows_all.loc[df_windows_all['Distance_to_next_win_min'] == 0.5,'ElementId']
+print(win_id.values)
+dif = abs(min_val- 0.5)*3.28084
+# transl = XYZ(0.,dif,0.)
+# w = win_id.values[0]
+# print(w)
+# win = doc.GetElement(ElementId(w))
+# loc = win.Location
+# loc.Move(transl)
+# id_prev = None
+for w in win_id:
+    win = doc.GetElement(ElementId(w))
+    loc = win.Location
+    loc_p = loc.Point
+    # loc.Move(transl)
+    id_prev = w
+    near = df_windows_all.loc[df_windows_all['ElementId'] == w,'ElementId_next_win'].values
+    win_near = doc.GetElement(ElementId(near))
+    loc_near = win_near.Location
+    loc_near_p = loc_near.Point
+    normal_to_near = XYZ(loc_near_p.X-loc_p.X,loc_near_p.Y-loc_p.Y,loc_p.Z).Normalize()
+    move_vec = normal_to_near.Multiply(dif)
+    loc.Move(move_vec)
+    if near == id_prev:
+        continue
 # df_sum = pd.DataFrame()
 # print('####### ROOM REPORT ######')
 # print(df['Category'].value_counts())
