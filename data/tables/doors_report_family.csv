@@ -1,0 +1,13 @@
+Family,,Door_width,Door_height,Distance_to_edges_mi,Distance_to_edges_mean,Distance_to_edges_ma,Distance_to_next_door_min
+Exterior-DOR_Unequal_FullyGlazed,mean,1.51,2.1,0.44000000000000006,1.1933333333333334,1.5699999999999998,0.0
+Exterior-DOR_Unequal_FullyGlazed,min,1.51,2.1,0.32,1.0533333333333332,1.42,0.0
+Exterior-DOR_Unequal_FullyGlazed,max,1.51,2.1,0.56,1.3333333333333333,1.72,0.0
+Interior-DOR_Single_Blank,mean,0.7079646017699115,2.1000000000000005,0.9434424778761064,2.634849515381374,5.730893805309734,2.221353982300885
+Interior-DOR_Single_Blank,min,0.7,2.1,0.15,1.207,2.079,0.0
+Interior-DOR_Single_Blank,max,0.8,2.1,1.159,8.427,29.16,14.589
+Interior-DOR_Single_FullyGlazed,mean,1.01,2.1,0.76,1.4144999999999999,2.069,0.0
+Interior-DOR_Single_FullyGlazed,min,1.01,2.1,0.76,1.402,2.069,0.0
+Interior-DOR_Single_FullyGlazed,max,1.01,2.1,0.76,1.427,2.069,0.0
+OpeningGlazed,mean,0.976,2.076,0.9239999999999999,1.5161250000000002,2.125,11.4665
+OpeningGlazed,min,0.976,2.076,0.69,1.402,2.125,0.0
+OpeningGlazed,max,0.976,2.076,1.113,1.619,2.125,22.933

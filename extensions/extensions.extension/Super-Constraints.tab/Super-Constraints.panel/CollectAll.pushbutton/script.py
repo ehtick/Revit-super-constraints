@@ -825,6 +825,9 @@ for room in room_collection:
         com_dis = distance_dic[id]
         if len(com_dis) == 0:
             com_dis = [0]
+        min_com_dis = min(com_dis)
+        if min_com_dis < 0.:
+            min_com_dis = 0.
         new_row_furn = pd.Series({'Room_Id':room.Id,
                                     'Room_uniqueId':room.UniqueId,
                                     'ElementId': id,
@@ -832,7 +835,7 @@ for room in room_collection:
                                     'Nearest_elementIds':distance_ids,
                                     'Nearest_elementIds_count':len(distance_ids),
                                     'Distance_to_nearest':distance_dic[id],
-                                    'Distance_to_nearest_mi': min(com_dis),
+                                    'Distance_to_nearest_mi': min_com_dis,
                                     'Distance_to_nearest_mean': statistics.mean(com_dis),
                                     'Distance_to_nearest_ma': max(com_dis)})
         df_furn_dist = pd.concat([df_furn_dist,new_row_furn.to_frame().T],ignore_index= True)

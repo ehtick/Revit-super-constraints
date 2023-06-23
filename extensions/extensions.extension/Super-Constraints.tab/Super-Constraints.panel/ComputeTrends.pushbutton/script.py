@@ -240,7 +240,7 @@ str_1 = df_walls.agg({'Width':['mean','min','max'],
                     'Angles_to_walls_ma':['mean','min','max']})
 walls_file.write(str_1.to_string(index = False) + '\n')
 df_walls_new_cat = pd.concat([df_walls_new_cat,str_1],ignore_index=True)
-nameOfFile_csv = 'data\\tables\\doors_report_category.csv'
+nameOfFile_csv = 'data\\tables\\walls_report_category.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_walls_new_cat.to_csv(completename_csv)
 
@@ -254,7 +254,7 @@ for key in df_elements_keys:
     uniqueid = df_elements_gr['Element_uniqueId'].values
     df_walls_sorted = df_walls.loc[df_walls['Element_uniqueId'].isin(uniqueid)]
     if len(df_walls_sorted)>0:
-        str_2 = df_walls.agg({'Width':['mean','min','max'],
+        str_2 = df_walls_sorted.agg({'Width':['mean','min','max'],
                             'Height':['mean','min','max'],
                             'Distance_to_parall_mi':['mean','min','max'],
                             'Distance_to_parall_mean':['mean','min','max'],
@@ -282,7 +282,7 @@ for key in df_elements_keys:
     uniqueid = df_elements_gr['Element_uniqueId'].values
     df_walls_sorted = df_walls.loc[df_walls['Element_uniqueId'].isin(uniqueid)]
     if len(df_walls_sorted)>0:
-        str_3 = df_walls.agg({'Width':['mean','min','max'],
+        str_3 = df_walls_sorted.agg({'Width':['mean','min','max'],
                     'Height':['mean','min','max'],
                     'Distance_to_parall_mi':['mean','min','max'],
                     'Distance_to_parall_mean':['mean','min','max'],
@@ -304,4 +304,123 @@ df_wall_new_famname.to_csv(completename_csv)
 #
 # FLOORS
 # analyse floors all by category
+nameOfFile_txt = 'data\\tables\\floors_report.txt'
+completename_txt = os.path.join(data_dir,nameOfFile_txt)
+floors_file = open(completename_txt,'w+')
+floors_file.write("Analyse floors \n")
+floors_file.write('1. Analyse all floors (by category: Floors) \n')
+df_floors_new_cat = pd.DataFrame()
+str_1 = df_floors.agg({'Distance_max':['mean','min','max']})
+floors_file.write(str_1.to_string(index = False) + '\n')
+df_floors_new_cat = pd.concat([df_floors_new_cat,str_1],ignore_index=True)
+nameOfFile_csv = 'data\\tables\\floors_report_category.csv'
+completename_csv = os.path.join(data_dir,nameOfFile_csv)
+df_floors_new_cat.to_csv(completename_csv)
+
+# analyse by room names
+floors_file.write('2. Analyse all floors by room names \n')
+df_elements_groped = df_elements.groupby('Room_name')
+df_elements_keys = df_elements_groped.groups.keys()
+df_floors_new_roomname = pd.DataFrame()
+for key in df_elements_keys:
+    df_elements_gr = df_elements_groped.get_group(key)
+    uniqueid = df_elements_gr['Element_uniqueId'].values
+    df_floors_sorted = df_floors.loc[df_floors['Element_uniqueId'].isin(uniqueid)]
+    if len(df_floors_sorted)>0:
+        str_2 = df_floors_sorted.agg({'Distance_max':['mean','min','max']})
+        old_idx = str_2.index.to_frame()
+        old_idx.insert(0,'Room_name',key)
+        str_2.index = pd.MultiIndex.from_frame(old_idx)
+        floors_file.write(str_2.to_string()  + '\n')
+        df_floors_new_roomname = pd.concat([df_floors_new_roomname,str_2])
+
+nameOfFile_csv = 'data\\tables\\floors_report_roomname.csv'
+completename_csv = os.path.join(data_dir,nameOfFile_csv)
+df_floors_new_roomname.to_csv(completename_csv)
+
+# analyse by family names
+floors_file.write('3. Analyse all floors by their family name \n')
+df_elements_groped = df_elements.groupby('Family')
+df_elements_keys = df_elements_groped.groups.keys()
+df_floors_new_famname = pd.DataFrame()
+for key in df_elements_keys:
+    df_elements_gr = df_elements_groped.get_group(key)
+    uniqueid = df_elements_gr['Element_uniqueId'].values
+    df_floors_sorted = df_floors.loc[df_floors['Element_uniqueId'].isin(uniqueid)]
+    if len(df_floors_sorted)>0:
+        str_3 = df_floors_sorted.agg({'Distance_max':['mean','min','max']})
+        old_idx = str_3.index.to_frame()
+        old_idx.insert(0,'Family',key)
+        str_3.index = pd.MultiIndex.from_frame(old_idx)
+        floors_file.write(str_3.to_string()  + '\n')
+        df_floors_new_famname = pd.concat([df_floors_new_famname,str_3])
+
+nameOfFile_csv = 'data\\tables\\floors_report_family.csv'
+completename_csv = os.path.join(data_dir,nameOfFile_csv)
+df_floors_new_famname.to_csv(completename_csv)
+#
+#
+#
+# FURNITURE
+# analyse furniture all by category
+nameOfFile_txt = 'data\\tables\\furniture_report.txt'
+completename_txt = os.path.join(data_dir,nameOfFile_txt)
+furniture_file = open(completename_txt,'w+')
+furniture_file.write("Analyse furniture \n")
+furniture_file.write('1. Analyse all furniture (by category: Furniture) \n')
+df_furniture_new_cat = pd.DataFrame()
+str_1 = df_furniture.agg({'Distance_to_nearest_mi':['mean','min','max'],
+                          'Distance_to_nearest_mean':['mean','min','max'],
+                          'Distance_to_nearest_ma':['mean','min','max']})
+floors_file.write(str_1.to_string(index = False) + '\n')
+df_furniture_new_cat = pd.concat([df_floors_new_cat,str_1],ignore_index=True)
+nameOfFile_csv = 'data\\tables\\furniture_report_category.csv'
+completename_csv = os.path.join(data_dir,nameOfFile_csv)
+df_furniture_new_cat.to_csv(completename_csv)
+
+# analyse by room names
+furniture_file.write('2. Analyse all furniture by room names \n')
+df_elements_groped = df_elements.groupby('Room_name')
+df_elements_keys = df_elements_groped.groups.keys()
+df_furniture_new_roomname = pd.DataFrame()
+for key in df_elements_keys:
+    df_elements_gr = df_elements_groped.get_group(key)
+    uniqueid = df_elements_gr['Element_uniqueId'].values
+    df_furniture_sorted = df_furniture.loc[df_furniture['Element_uniqueId'].isin(uniqueid)]
+    if len(df_furniture_sorted)>0:
+        str_2 = df_furniture_sorted.agg({'Distance_to_nearest_mi':['mean','min','max'],
+                                        'Distance_to_nearest_mean':['mean','min','max'],
+                                        'Distance_to_nearest_ma':['mean','min','max']})
+        old_idx = str_2.index.to_frame()
+        old_idx.insert(0,'Room_name',key)
+        str_2.index = pd.MultiIndex.from_frame(old_idx)
+        furniture_file.write(str_2.to_string()  + '\n')
+        df_furniture_new_roomname = pd.concat([df_furniture_new_roomname,str_2])
+
+nameOfFile_csv = 'data\\tables\\furniture_report_roomname.csv'
+completename_csv = os.path.join(data_dir,nameOfFile_csv)
+df_furniture_new_roomname.to_csv(completename_csv)
+
+# analyse by family names
+furniture_file.write('3. Analyse all furniture by their family name \n')
+df_elements_groped = df_elements.groupby('Family')
+df_elements_keys = df_elements_groped.groups.keys()
+df_furniture_new_famname = pd.DataFrame()
+for key in df_elements_keys:
+    df_elements_gr = df_elements_groped.get_group(key)
+    uniqueid = df_elements_gr['Element_uniqueId'].values
+    df_furniture_sorted = df_furniture.loc[df_furniture['Element_uniqueId'].isin(uniqueid)]
+    if len(df_furniture_sorted)>0:
+        str_3 = df_furniture_sorted.agg({'Distance_to_nearest_mi':['mean','min','max'],
+                                        'Distance_to_nearest_mean':['mean','min','max'],
+                                        'Distance_to_nearest_ma':['mean','min','max']})
+        old_idx = str_3.index.to_frame()
+        old_idx.insert(0,'Family',key)
+        str_3.index = pd.MultiIndex.from_frame(old_idx)
+        furniture_file.write(str_3.to_string()  + '\n')
+        df_furniture_new_famname = pd.concat([df_furniture_new_famname,str_3])
+
+nameOfFile_csv = 'data\\tables\\furniture_report_family.csv'
+completename_csv = os.path.join(data_dir,nameOfFile_csv)
+df_furniture_new_famname.to_csv(completename_csv)
 t.Commit()
