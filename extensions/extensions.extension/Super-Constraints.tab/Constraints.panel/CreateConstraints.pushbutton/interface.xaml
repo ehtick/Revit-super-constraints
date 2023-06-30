@@ -31,6 +31,6 @@
         <Button x:Name="btn_convert" Click ="convert_trend" Content="&gt;&gt;&gt;" HorizontalAlignment="Left" Width="59" Grid.Column="1" Margin="5,14,0,62" Grid.Row="2"/>
         <Button x:Name="btn_apply" Content="Apply changes" Click="apply_constraint" HorizontalAlignment="Left" VerticalAlignment="Top" Width="189" Grid.Column="3" Margin="10,29,0,0" Grid.Row="3" Height="39"/>
         <Button x:Name="open_file" Content="Load data" Click="open_and_load" HorizontalAlignment="Left" VerticalAlignment="Top" Width="179" Margin="154,15,0,0"/>
-        <TextBox x:Name="tb_constr" HorizontalAlignment="Left" Height="72" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="341" Grid.Column="2" Margin="10,10,0,0" Grid.Row="1" Grid.ColumnSpan="2"/>
+        <TextBox x:Name="tb_constr" HorizontalAlignment="Left" TextChanged = "text_changed_event_handler" Height="72" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="341" Grid.Column="2" Margin="10,10,0,0" Grid.Row="1" Grid.ColumnSpan="2"/>
     </Grid>
 </Window>

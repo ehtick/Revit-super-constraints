@@ -1,0 +1,18 @@
+Analyse windows 
+1. Analyse all windows (by category:Windows) 
+Category                                   Width                                  Height          Distance_to_edges_hor           Distance_to_edges_vert Distance_to_next
+ Windows [0.6249999999999998, 2.499999999999997] [1.0534313725490188, 2.499999999999997] [0.0, 3.380032679738562, 12.0] [0.71, 1.6200000000000006, 2.53]  [0.0, 0.0, 0.0]
+2. Analyse all windows by room names 
+        Room_name                                   Width                                    Height              Distance_to_edges_hor Distance_to_edges_vert   Distance_to_next
+0  Breakout space  [1.099999999999999, 2.499999999999997]  [1.0999999999999988, 2.4999999999999973]  [0.05, 4.5938888888888885, 11.38]     [0.71, 1.62, 2.53]  [1.741, 0.0, 0.0]
+                    Room_name                                    Width                                    Height Distance_to_edges_hor            Distance_to_edges_vert Distance_to_next
+0  Confidential meetings room  [0.6249999999999998, 2.499999999999997]  [0.9099999999999996, 2.4999999999999973]   [0.63, 2.042, 4.47]  [0.71, 1.6200000000000006, 2.53]  [0.0, 0.0, 0.0]
+         Room_name                                    Width                                   Height             Distance_to_edges_hor            Distance_to_edges_vert Distance_to_next
+0  Enclosed office  [0.6249999999999998, 2.499999999999997]  [1.0436440677966092, 2.499999999999997]  [0.05, 2.3055084745762713, 5.13]  [0.71, 1.6200000000000008, 2.53]  [0.0, 0.0, 0.0]
+      Room_name                                    Width                                   Height           Distance_to_edges_hor            Distance_to_edges_vert   Distance_to_next
+0  Meeting room  [0.6249999999999998, 2.499999999999997]  [1.0817307692307685, 2.499999999999997]  [0.0, 4.759711538461539, 12.0]  [0.71, 1.6200000000000008, 2.53]  [1.602, 0.0, 0.0]
+     Room_name                                   Width                                  Height Distance_to_edges_hor Distance_to_edges_vert   Distance_to_next
+0  Open office  [1.099999999999999, 2.499999999999997]  [1.099999999999999, 2.499999999999997]   [0.63, 2.255, 3.88]     [0.71, 1.62, 2.53]  [1.741, 0.0, 0.0]
+3. Analyse all windows by their family name 
+                               Family                                    Width                                   Height           Distance_to_edges_hor            Distance_to_edges_vert Distance_to_next
+0  WIN_WoodWndwUnits_SpringSashWindow  [0.6249999999999998, 2.499999999999997]  [1.0534313725490188, 2.499999999999997]  [0.0, 3.380032679738562, 12.0]  [0.71, 1.6200000000000006, 2.53]  [0.0, 0.0, 0.0]

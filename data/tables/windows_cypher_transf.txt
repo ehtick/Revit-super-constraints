@@ -1,0 +1,36 @@
+Cypher transformation of: All windows in the room named Breakout space have min 0.05 m and max 11.38 m horizontal distances to edges. 
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Breakout space" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.05, n.constr_distance_horizontal_max= 11.38 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:11.38,distance_hor_min:0.05}]->(w)  RETURN k,m
+
+Cypher transformation of: All windows in the room named Breakout space have min 0.05 m and max 11.38 m horizontal distances to edges., requirements 
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Breakout space" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.05, n.constr_distance_horizontal_max= 11.38 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:11.38,distance_hor_min:0.05, constraint_type: requirements}]->(w)  RETURN k,m
+
+Cypher transformation of: All windows in the room named Breakout space have min 0.05 m and max 11.38 m horizontal distances to edges., administrative 
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Breakout space" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.05, n.constr_distance_horizontal_max= 11.38 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:11.38,distance_hor_min:0.05, constraint_type: administrative}]->(w)  RETURN k,m
+
+Cypher transformation of: All windows in the room named Confidential meetings room have min 0.63 m and max 4.47 m horizontal distances to edges., limitation 
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Confidential meetings meetings" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.63, n.constr_distance_horizontal_max= 4.47 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:4.47,distance_hor_min:0.63, constraint_type: limitation}]->(w)  RETURN k,m
+
+Cypher transformation of: All windows in the room named Enclosed office have min 0.05 m and max 5.13 m horizontal distances to edges., limitation 
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Enclosed office" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.05, n.constr_distance_horizontal_max= 5.13 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:5.13,distance_hor_min:0.05, constraint_type: limitation}]->(w)  RETURN k,m
+
+Cypher transformation of: All windows in the room named Breakout space have min 0.05 m and max 11.38 m horizontal distances to edges., limitation 
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Breakout space" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.05, n.constr_distance_horizontal_max= 11.38 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:11.38,distance_hor_min:0.05, constraint_type: limitation}]->(w)  RETURN k,m
+
+Cypher transformation of: All windows in the room named Confidential meetings room have min 0.63 m and max 4.47 m horizontal distances to edges., limitation,administrative 
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Confidential meetings meetings" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.63, n.constr_distance_horizontal_max= 4.47 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:4.47,distance_hor_min:0.63, constraint_type: limitation,administrative}]->(w)  RETURN k,m
+
+Cypher transformation of: All windows in the room named Enclosed office have min 0.05 m and max 5.13 m horizontal distances to edges., "limitation,administrative" 
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Enclosed office" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.05, n.constr_distance_horizontal_max= 5.13 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:5.13,distance_hor_min:0.05, constraint_type: "limitation,administrative"}]->(w)  RETURN k,m
+
+Cypher transformation of: All windows in the room named Breakout space have min 0.05 m and max 11.38 m horizontal distances to edges.,  
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Breakout space" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.05, n.constr_distance_horizontal_max= 11.38 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:11.38,distance_hor_min:0.05, constraint_type: }]->(w)  RETURN k,m
+
+Cypher transformation of: All windows in the room named Breakout space have min 0.05 m and max 11.38 m horizontal distances to edges.,  
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Breakout space" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.05, n.constr_distance_horizontal_max= 11.38 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:11.38,distance_hor_min:0.05, constraint_type: }]->(w)  RETURN k,m
+
+Cypher transformation of: All windows in the room named Breakout space have min 0.0 m and max 11.38 m horizontal distances to edges.,  
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Breakout space" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.0, n.constr_distance_horizontal_max= 11.38 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:11.38,distance_hor_min:0.0, constraint_type: }]->(w)  RETURN k,m
+
+Cypher transformation of: All windows in the room named Open office have min 0.63 m and max 3.9 m horizontal distances to edges.,  
+MATCH (n:Element)-[:CONTAINS]->(m:Element) MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element)  WHERE n.room_name = "Open office" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.63, n.constr_distance_horizontal_max= 3.9 MERGE (m)-[k:CONSTRAINTS{distance_hor_max:3.9,distance_hor_min:0.63, constraint_type: }]->(w)  RETURN k,m
+

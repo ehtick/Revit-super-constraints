@@ -1,0 +1,3 @@
+windows, Open office,'Distance_to_edges_hor_mi' =0.63,'Distance_to_edges_hor_ma' = 3.9 
+
+

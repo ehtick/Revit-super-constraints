@@ -1,0 +1,22 @@
+Family,,Distance_to_nearest_mi,Distance_to_nearest_mean,Distance_to_nearest_ma
+Chair-Task,mean,1.4870192307692311,3.356262019230769,5.684615384615385
+Chair-Task,min,0.53,1.84,2.6
+Chair-Task,max,2.42,4.465,8.72
+Chair-Task Arms,mean,1.7738235294117648,3.0324264705882356,6.228529411764706
+Chair-Task Arms,min,1.0,1.84,3.52
+Chair-Task Arms,max,2.8,4.465,9.18
+Furniture_Table_Coffee_1,mean,2.02,3.724999999999999,6.727142857142858
+Furniture_Table_Coffee_1,min,1.7,3.2825,5.45
+Furniture_Table_Coffee_1,max,2.8,4.3100000000000005,9.65
+NBS_OffcDsks_OfficeDeskWithDrawer,mean,1.1159574468085105,2.151755319148936,3.4198936170212764
+NBS_OffcDsks_OfficeDeskWithDrawer,min,0.68,1.145,1.48
+NBS_OffcDsks_OfficeDeskWithDrawer,max,1.74,2.9000000000000004,5.23
+Plumbing_Fixtures_WC,mean,0.21,2.250783333333333,4.670000000000001
+Plumbing_Fixtures_WC,min,0.21,2.075,4.67
+Plumbing_Fixtures_WC,max,0.21,2.405,4.67
+Table-Conference2 w Chairs,mean,1.9105882352941175,3.0323529411764705,4.227058823529411
+Table-Conference2 w Chairs,min,1.06,1.84,2.6
+Table-Conference2 w Chairs,max,2.8,4.465,6.13
+Urinal (1),mean,0.0,1.7726157407407408,2.9499999999999997
+Urinal (1),min,0.0,1.63375,2.95
+Urinal (1),max,0.0,1.8588888888888888,2.95

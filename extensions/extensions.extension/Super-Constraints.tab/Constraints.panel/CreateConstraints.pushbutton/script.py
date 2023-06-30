@@ -156,6 +156,9 @@ class ModalForm(WPFWindow):
         text = self.lb_trends.SelectedItem
         self.tb_constr.Text = str(text)
     
+    def text_changed_event_handler(self,sender,args):
+        print(sender.Text)
+    
     def all_words_present(self,words,sentence):
         for word in words:
             if word not in sentence:
@@ -182,25 +185,43 @@ class ModalForm(WPFWindow):
                                 sentence_words.append(words)
         return sentence_words
     
-    def cypher_transform(self):
-        sentence = self.tb_constr.Text
-        if self.check_limit.IsChecked == True:
-            str_old = self.tb_constr.Text
-            sentence = str_old + ", limitation"
-            add_word = 'limitation'
-        elif self.check_adm.IsChecked == True:
-            str_old = self.tb_constr.Text
-            sentence = str_old + ", administrative"
-            add_word = 'administrative'
-        elif self.check_req.IsChecked == True:
-            str_old = self.tb_constr.Text
-            sentence = str_old + ", requirements"
+    def add_type(self):
+        if self.check_limit.IsChecked == True and self.check_adm.IsChecked == False and self.check_req.IsChecked == False:
+            add_word = '"limitation"'
+        elif self.check_adm.IsChecked == True and self.check_limit.IsChecked == False and self.check_req.IsChecked == False:
+            add_word = '"administrative"'
+        elif self.check_req.IsChecked == True and self.check_limit.IsChecked == False and self.check_adm.IsChecked == False:
             add_word = 'requirements'
+        elif self.check_limit.IsChecked == True and self.check_adm.IsChecked == True and self.check_req.IsChecked == False:
+            add_word = '"limitation,administrative"'
+        elif self.check_limit.IsChecked == True and self.check_req.IsChecked == True and self.check_adm.IsChecked == False:
+            add_word = '"limitation,requirements"'
+        elif self.check_req.IsChecked == True and self.check_adm.IsChecked == True and self.check_limit.IsChecked == False:
+            add_word = '"administrative,requirements"'
         else:
             add_word = ''
+        print(add_word)
+        return add_word
+    
+    def cypher_transform(self):
+        str_old = self.lb_trends.SelectedItem
+        str_new = self.tb_constr.Text
+        text_changed = False
+        if str_old != str_new:
+            text_changed = True
+            str_old_arr = str_old.split()
+            str_new_arr = str_new.split()
+            min_idx = str_new_arr.index('min') + 1
+            min_num = str_new_arr[min_idx]
+            try:
+                max_idx = str_new_arr.index('max') + 1
+                max_num = str_new_arr[max_idx]
+            except:
+                pass
+        sentence = self.tb_constr.Text
+        constr_type = self.add_type()
         sentence_words = self.recognize_key_words(sentence)
-        print(sentence_words)
-        print(sentence)
+
         # find category
         elem_word = sentence_words[0]
         elem = " "
@@ -218,6 +239,7 @@ class ModalForm(WPFWindow):
                 while sent_arr[named_idx + ind] != 'have':
                     trans_1 += " " + sent_arr[named_idx + 2]
                     ind += 1
+                cc_1 = trans_1
                 if elem_word == 'windows':
                     trans_1 = " WHERE n.room_name = "+ '"'+trans_1+'"' +" AND m.category = 'Windows'"
                 else:
@@ -254,40 +276,82 @@ class ModalForm(WPFWindow):
                         min_idx = sent_arr.index('min') + 1
                         min_num = sent_arr[min_idx]
                         constr_min = "constr_distance_vertical_min= " + min_num
+                        cc_21 = "'Distance_to_edges_vert_mi' ="+min_num
                     if attr_words[3] == 'max':
                         max_idx = sent_arr.index('max') + 1
                         max_num = sent_arr[max_idx]
                         # find vertical element that has whis distance
                         constr_max = "constr_distance_vertical_max= " + max_num
+                        cc_22 = "'Distance_to_edges_vert_ma' = " + max_num
                     constr_all = " SET n." + constr_min +", n."+ constr_max
                     elem_2 = "MATCH (m:Element)-[:DISTANCE_VERT]->(w:Element) "
-                    constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_vert_max:"+max_num+",distance_vert_min:"+ min_num + "}]->(w) "
+                    constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_vert_max:"+max_num+",distance_vert_min:"+ min_num + ", " + "constraint_type: " + constr_type +"}]->(w) "
                     ret_1 = "RETURN k,m"
+                    if text_changed:
+                        cc_2 = cc_21 + "," + cc_22
+                    else:
+                        cc_2 = ""
                 if att == "horizontal":
                     if attr_words[2] == 'min':
                         min_idx = sent_arr.index('min') + 1
                         min_num = sent_arr[min_idx]
                         print(min_num)
                         constr_min = "constr_distance_horizontal_min= " + min_num
+                        cc_21 = "'Distance_to_edges_hor_mi' ="+min_num
                     if attr_words[3] == 'max':
                         max_idx = sent_arr.index('max') + 1
                         max_num = sent_arr[max_idx]
                         print("test")
                         # find vertical element that has whis distance
                         constr_max = "constr_distance_horizontal_max= " + max_num
+                        cc_22 = "'Distance_to_edges_hor_ma' = " + max_num
                     constr_all = " SET n." + constr_min + ", n." + constr_max
                     elem_2 = "MATCH (m:Element)-[:DISTANCE_HOR]->(w:Element) "
-                    constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+max_num+",distance_hor_min:"+ min_num + "}]->(w) "
+                    constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+max_num+",distance_hor_min:"+ min_num + ", " + "constraint_type: " + constr_type +"}]->(w) "
                     ret_1 = "RETURN k,m"
+                    if text_changed:
+                        cc_2 = cc_21 + "," + cc_22
+                    else:
+                        cc_2 = ""
                 if att == "next":
                     if attr_words[1] == 'min':
                         min_idx = sent_arr.index('min') + 1
                         min_num = sent_arr[min_idx]
                         constr_all = " SET n.constr_distance_next_window_min = " + min_num
-                        constr_create = "MERGE (m)-[k:CONSTRAINTS{distance_next_window_min:"+min_num+"}]->(w)"
+                        constr_create = "MERGE (m)-[k:CONSTRAINTS{distance_next_window_min:"+min_num + ", " + "constraint_type: " + constr_type +"}]->(w)"
+                        if text_changed and elem_word == 'windows':
+                            cc_2 = "'Distance_to_next_win_min' ="+min_num
+                        else:
+                            cc_2 = ""
+                        if text_changed and elem_word == 'doors':
+                            cc_2 = "'Distance_to_next_door_min' ="+min_num
+                        else:
+                            cc_2 = ""
             
             transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m"
+            if text_changed:
+                controll_changes = elem_word + ", " + cc_1 + "," + cc_2
+                self.write_changes(controll_changes)
         return transformation
+    
+    def write_changes(self, controll_changes):
+        directory = os.path.dirname(os.path.abspath(__file__))
+        # data directory for filter categories
+        data_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(directory)))))
+        nameOfFile_txt = 'data\\tables\\windows_controll_changes.txt'
+        completename_txt = os.path.join(data_dir,nameOfFile_txt)
+        if os.path.exists(completename_txt):
+            with open(completename_txt,'a') as f:
+                f.write(controll_changes +" \n")
+                f.write('\n')
+                f.write('\n')
+                f.close()
+        else:
+            with open(completename_txt,'w+') as f:
+                f.write(controll_changes +" \n")
+                f.write('\n')
+                f.write('\n')
+                f.close()
 
     def apply_constraint(self,sender,args):
         directory = os.path.dirname(os.path.abspath(__file__))
@@ -296,18 +360,19 @@ class ModalForm(WPFWindow):
         nameOfFile_txt = 'data\\tables\\windows_cypher_transf.txt'
         completename_txt = os.path.join(data_dir,nameOfFile_txt)
         cp_transf = self.cypher_transform()
-        print(cp_transf)
-        print(os.path.exists(completename_txt))
+        # print(cp_transf)
+        # print(os.path.exists(completename_txt))
+        add_word = self.add_type()
         if os.path.exists(completename_txt):
             with open(completename_txt,'a') as f:
-                f.write("Cypher transformation of: " + self.tb_constr.Text +" \n")
+                f.write("Cypher transformation of: " + self.tb_constr.Text + ", "+ add_word +" \n")
                 f.write(cp_transf)
                 f.write('\n')
                 f.write('\n')
                 f.close()
         else:
             with open(completename_txt,'w+') as f:
-                f.write("Cypher transformation of: " + self.tb_constr.Text +" \n")
+                f.write("Cypher transformation of: " + self.tb_constr.Text +", "+ add_word +" \n")
                 f.write(cp_transf)
                 f.write('\n')
                 f.write('\n')
