@@ -181,7 +181,7 @@ str_e_hor_max = df_doors.agg({'Distance_to_edges_hor_ma':['max']}).values[0]
 str_e_vert_min = df_doors.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
 str_e_vert_mean = df_doors.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
 str_e_vert_max = df_doors.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-str_n_min = df_doors.agg({'Distance_to_next_win_min':['min']}).values[0]
+str_n_min = df_doors.agg({'Distance_to_next_door_min':['min']}).values[0]
 str_1 = pd.Series({'Category': 'Doors','Width':str_wh[0],'Height':str_wh[1],
                     'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                     'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
@@ -208,14 +208,14 @@ for key in df_elements_keys:
         #         'Distance_to_edges_mean':['mean','min','max'],
         #         'Distance_to_edges_ma':['mean','min','max'],
         #         'Distance_to_next_door_min':['mean','min','max']})
-        str_wh = df_win_sorted.agg({'Door_width':['min','mean','max'],'Door_height':['min','mean','max']}).values
-        str_e_hor_min = df_win_sorted.agg({'Distance_to_edges_hor_mi':['min']}).values[0]
-        str_e_hor_mean = df_win_sorted.agg({'Distance_to_edges_hor_mean':['mean']}).values[0]
-        str_e_hor_max = df_win_sorted.agg({'Distance_to_edges_hor_ma':['max']}).values[0]
-        str_e_vert_min = df_win_sorted.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
-        str_e_vert_mean = df_win_sorted.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
-        str_e_vert_max = df_win_sorted.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-        str_n_min = df_win_sorted.agg({'Distance_to_next_win_min':['min']}).values[0]
+        str_wh = df_doors_sorted.agg({'Door_width':['min','mean','max'],'Door_height':['min','mean','max']}).values
+        str_e_hor_min = df_doors_sorted.agg({'Distance_to_edges_hor_mi':['min']}).values[0]
+        str_e_hor_mean = df_doors_sorted.agg({'Distance_to_edges_hor_mean':['mean']}).values[0]
+        str_e_hor_max = df_doors_sorted.agg({'Distance_to_edges_hor_ma':['max']}).values[0]
+        str_e_vert_min = df_doors_sorted.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
+        str_e_vert_mean = df_doors_sorted.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
+        str_e_vert_max = df_doors_sorted.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
+        str_n_min = df_doors_sorted.agg({'Distance_to_next_door_min':['min']}).values[0]
         str_2 = pd.Series({'Room_name': key,'Width':str_wh[0],'Height':str_wh[1],
                            'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                            'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
@@ -243,14 +243,14 @@ for key in df_elements_keys:
         #         'Distance_to_edges_mean':['mean','min','max'],
         #         'Distance_to_edges_ma':['mean','min','max'],
         #         'Distance_to_next_door_min':['mean','min','max']})
-        str_wh = df_win_sorted.agg({'Door_width':['min','mean','max'],'Door_height':['min','mean','max']}).values
-        str_e_hor_min = df_win_sorted.agg({'Distance_to_edges_hor_mi':['min']}).values[0]
-        str_e_hor_mean = df_win_sorted.agg({'Distance_to_edges_hor_mean':['mean']}).values[0]
-        str_e_hor_max = df_win_sorted.agg({'Distance_to_edges_hor_ma':['max']}).values[0]
-        str_e_vert_min = df_win_sorted.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
-        str_e_vert_mean = df_win_sorted.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
-        str_e_vert_max = df_win_sorted.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-        str_n_min = df_win_sorted.agg({'Distance_to_next_win_min':['min']}).values[0]
+        str_wh = df_doors_sorted.agg({'Door_width':['min','mean','max'],'Door_height':['min','mean','max']}).values
+        str_e_hor_min = df_doors_sorted.agg({'Distance_to_edges_hor_mi':['min']}).values[0]
+        str_e_hor_mean = df_doors_sorted.agg({'Distance_to_edges_hor_mean':['mean']}).values[0]
+        str_e_hor_max = df_doors_sorted.agg({'Distance_to_edges_hor_ma':['max']}).values[0]
+        str_e_vert_min = df_doors_sorted.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
+        str_e_vert_mean = df_doors_sorted.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
+        str_e_vert_max = df_doors_sorted.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
+        str_n_min = df_doors_sorted.agg({'Distance_to_next_door_min':['min']}).values[0]
         str_3 = pd.Series({'Family': key,'Width':str_wh[0],'Height':str_wh[1],
                            'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                            'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],

@@ -622,6 +622,10 @@ for room in room_collection:
         com_dis = distance_dic[id]
         if len(com_dis) == 0:
             com_dis = [0]
+        if len(closest_dis_hor) == 0:
+            closest_dis_hor = [0]
+        if len(closest_dis_vert) == 0:
+            closest_dis_vert = [0]
         new_row_doors = pd.Series({'Room_Id':room.Id,
                                     'Room_uniqueId':room.UniqueId,
                                     'ElementId': id.IntegerValue,
