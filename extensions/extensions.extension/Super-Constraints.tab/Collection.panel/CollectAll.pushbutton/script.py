@@ -442,28 +442,73 @@ for room in room_collection:
                 parallel_floors.append(id)
             else:
                 roof.append(id)
-            room_bb = room.ClosedShell.GetBoundingBox()
-            room_bb_min = room_bb.Min
-            room_bb_max = room_bb.Max
-            dis = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,2)
-            floor_distance[id] = dis
-    for id in face_dic.keys():
-        dir = face_dic[id]
-        elem = doc.GetElement(ElementId(id))
-        if abs(dir.Z) == 1.0 or abs(dir.Z)> 0.:
-            new_par = []
-            for val in parallel_floors:
-                if val != id and id not in roof:
-                    new_par.append(val)
-            paral_floors_count = len(new_par)
-            new_row_floors = pd.Series({'Room_Id':room.Id,
-                                            'Room_uniqueId':room.UniqueId,
-                                            'ElementId': id,
-                                            'Element_uniqueId': elem.UniqueId,
-                                            'Parallel_floor_id':new_par,
-                                            'Parallel_floors_count':paral_floors_count,
-                                            'Distance_max':floor_distance[id]})
-            df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
+            if len(face_dic.keys()) == 1:
+                # room has only top and bottom floor
+                room_bb = room.ClosedShell.GetBoundingBox()
+                room_bb_min = room_bb.Min
+                room_bb_max = room_bb.Max
+                dis = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,2)
+                floor_distance[id] = dis
+            elif len(face_dic.keys()) > 1:
+                # room has additional ceiling
+                elem = doc.GetElement(ElementId(id))
+                elem_geom = elem.get_Geometry(Options())
+                for geomInst in elem_geom:
+                    if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
+                            floor_solid = geomInst
+                            for face in floor_solid.Faces:
+                                normal = face.ComputeNormal(UV(room_location.X,room_location.Y))
+                                if abs(normal.Z)==1 and face != None:
+                                    try:
+                                        dis = face.Project(room_location).Distance
+                                        floor_distance[id] = [dir.Z,dis]
+                                        break
+                                    except:
+                                        continue
+    if len(face_dic.keys()) == 1:
+        for id in face_dic.keys():
+            dir = face_dic[id]
+            elem = doc.GetElement(ElementId(id))
+            if abs(dir.Z) == 1.0 or abs(dir.Z)> 0.:
+                new_par = []
+                for val in parallel_floors:
+                    if val != id and id not in roof:
+                        new_par.append(val)
+                paral_floors_count = len(new_par)
+                new_row_floors = pd.Series({'Room_Id':room.Id,
+                                                'Room_uniqueId':room.UniqueId,
+                                                'ElementId': id,
+                                                'Element_uniqueId': elem.UniqueId,
+                                                'Parallel_floor_id':new_par,
+                                                'Parallel_floors_count':paral_floors_count,
+                                                'Distance_max':floor_distance[id]})
+                df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
+    elif len(face_dic.keys()) > 1:
+        distance_between_floors = {}
+        for id in floor_distance.keys():
+            val = floor_distance[id]
+            dir = val[0]
+            dis_to_room = val[1]
+            floor = doc.GetElement(ElementId(id))
+            for id_t in floor_distance.keys():
+                new_par = []
+                if id_t != id and id not in roof and id_t not in roof:
+                    val_t = floor_distance[id_t]
+                    dir_t = val_t[0]
+                    dis_to_room_t = val_t[1]
+                    if dir != dir_t:
+                        distance = dis_to_room + dis_to_room_t
+                        new_par.append(id_t)
+                        # distance_between_floors[distance] = [id,id_t]
+                paral_floors_count = len(new_par)
+                new_row_floors = pd.Series({'Room_Id':room.Id,
+                                                'Room_uniqueId':room.UniqueId,
+                                                'ElementId': id,
+                                                'Element_uniqueId': elem.UniqueId,
+                                                'Parallel_floor_id':new_par,
+                                                'Parallel_floors_count':paral_floors_count,
+                                                'Distance_max':round(distance*0.3048,3)})
+                df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
     # 
     # 
     # 
