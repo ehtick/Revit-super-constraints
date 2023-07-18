@@ -40,7 +40,7 @@ category = df_cat.values
 df_fur = df_cat.loc[df_cat['Furniture'] == "Yes"]
 furniture = df_fur.values
 
-#collect rooms from entire model
+#collect rooms and elements from entire model
 room_collection = FilteredElementCollector(doc).WherePasses(ElementCategoryFilter(BuiltInCategory.OST_Rooms)).WhereElementIsNotElementType().ToElements()
 all_collection = FilteredElementCollector(doc).WhereElementIsNotElementType().ToElements()
 
@@ -66,7 +66,7 @@ for elem in all_collection:
 
 #==============================================================================
 #  function ckecks if element locates in the room 
-#  otherwise check intersection between geometry representation
+#  otherwise checks intersection between geometry representation
 #  returns element id if element id located in the selected room
 def find_room_from_elem_location(elem,room,room_solid):
     location = elem.Location
@@ -108,26 +108,7 @@ def find_room_from_elem_location(elem,room,room_solid):
                             if room_elem != None:
                                 if room_elem.Id.Equals(room.Id):
                                     return elem.Id
-                elif inter == 0 and elem.Category.Name == "Windows":
-                    # in case it is a window
-                    # wall = elem.Host
-                    # wall_loc = wall.Location.Curve
-                    # dir = Line.CreateBound(loc_point,room.Location.Point).Direction
-                    # curve_loop = ExporterIFCUtils.GetInstanceCutoutFromWall(doc, wall, elem, dir)[0]
-                    # for c in curve_loop:
-                    #     dir_c = Line.CreateBound(c.GetEndPoint(0),c.GetEndPoint(1)).Direction
-                    #     if abs(dir_c.Z) == 1.:
-                    #         curve = c
-                    #         break
-                    # vec_1 = XYZ((curve.GetEndPoint(1).X + curve.GetEndPoint(0).X)/2,
-                    #             (curve.GetEndPoint(1).Y + curve.GetEndPoint(0).Y)/2,
-                    #             room.Location.Point.Z)
-                    # dir = Line.CreateBound(vec_1,room.Location.Point).Direction
-                    # print(dir)
-                    # vec_1_off= vec_1.Add(dir)
-                    # vec_1_off = XYZ(vec_1_off.X,vec_1_off.Y,room.Location.Point.Z)
-                    # print(doc.GetRoomAtPoint(vec_1_off,phase).Id)
-                    
+                elif inter == 0 and elem.Category.Name == "Windows":             
                     offset_x = 1.
                     offset_y = 1.
                     offset_z = 0.5
@@ -158,7 +139,6 @@ def find_room_from_elem_location(elem,room,room_solid):
                 inter = find_intersection_elemToRoomSolid(elem,room_solid)
                 if inter == 1:
                     return elem.Id
-        # elif location_type == "Location":
 
         else:
             # find intersections
@@ -167,6 +147,7 @@ def find_room_from_elem_location(elem,room,room_solid):
                 return elem.Id
 #==============================================================================
 # function finds opening cut in the wall
+# returns curve loop
 def get_opening_cut(door,wall,dir,room):
     elem_geom = door.get_Geometry(Options())
     door_solid = None
@@ -182,7 +163,6 @@ def get_opening_cut(door,wall,dir,room):
     wall_solid = None
     elem_geom = wall.get_Geometry(Options())
     for geomInst in elem_geom:
-        # if geomInst.GetType().ToString() == "Autodesk.Revit.DB.Solid":
         if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0 and geomInst.Volume > 0.0:
             wall_solid = geomInst
             dif_solid = BooleanOperationsUtils.ExecuteBooleanOperation(door_solid,wall_solid,BooleanOperationsType.Difference)
@@ -194,8 +174,8 @@ def get_opening_cut(door,wall,dir,room):
             if dir.IsAlmostEqualTo(dir_rm):
                 return face.GetEdgesAsCurveLoops()
 #==============================================================================
-#  function finds intersections between element solid and room solid
-#  returns i if intersections occured   
+#  function finds intersection between element solid and room solid
+#  returns 1 if intersection occur
 def find_intersection_elemToRoomSolid(elem, room_solid):
     elem_geom = elem.get_Geometry(Options())
     inter = 0
@@ -209,8 +189,7 @@ def find_intersection_elemToRoomSolid(elem, room_solid):
                             try:
                                 interSolid = BooleanOperationsUtils.ExecuteBooleanOperation(room_solid,furn_solid,BooleanOperationsType.Intersect)
                                 if interSolid.Volume > 0.0000001:
-                                    inter = 1 
-                                    return inter
+                                    return 1
                             except:
                                 pass
         elif geomInst.GetType().ToString() == "Autodesk.Revit.DB.Solid":
@@ -219,8 +198,7 @@ def find_intersection_elemToRoomSolid(elem, room_solid):
                     try:
                         interSolid = BooleanOperationsUtils.ExecuteBooleanOperation(room_solid,furn_solid,BooleanOperationsType.Intersect)
                         if interSolid.Volume > 0.0:
-                            inter = 1 
-                            return inter
+                            return 1
                     except:
                         pass
         elif geomInst.GetType().ToString() == "Autodesk.Revit.DB.Line":
@@ -244,6 +222,7 @@ df_all = pd.DataFrame()
 # script starts
 for room in room_collection:
     room_location = room.Location.Point
+    # convert room into solid
     options = SpatialElementBoundaryOptions()
     calculator = SpatialElementGeometryCalculator(doc,options)
     results = calculator.CalculateSpatialElementGeometry(room)
@@ -507,7 +486,6 @@ for room in room_collection:
         dir = face_dic[id_wall.IntegerValue]
         try:
             cut_loop = ExporterIFCUtils.GetInstanceCutoutFromWall(doc, wall, door, dir)[0]
-            # print('test')
         except:
             cut_loop = get_opening_cut(door,wall,dir,room)
             pass
