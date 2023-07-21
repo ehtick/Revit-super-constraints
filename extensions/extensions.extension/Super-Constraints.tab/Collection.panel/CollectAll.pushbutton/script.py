@@ -2,14 +2,15 @@
 import sys
 # print(sys.version)
 # for problems with packages once uncommet line below (with correct site-packages directory)
-# sys.path.append(r"C:\Users\elyah\AppData\Local\Programs\Python\Python38\Lib\site-packages")
+sys.path.append(r"C:\Users\elyah\AppData\Local\Programs\Python\Python38\Lib\site-packages")
 
 import os
 import os.path
 import numpy as np
 import pandas as pd
 import statistics
-from openpyxl.workbook import Workbook
+import bisect
+# from openpyxl.workbook import Workbook
 
 from Autodesk.Revit.DB import *
 from Autodesk.Revit.UI.Selection import *
@@ -26,7 +27,6 @@ uidoc = __revit__.ActiveUIDocument
 # t = Transaction(doc, "Get all elements in the model")
 # t.Start()
 
-
 # filter categories
 directory = os.path.dirname(os.path.abspath(__file__))
 name = "Revit-Categories-2022_arc.xlsx"
@@ -39,7 +39,6 @@ df_cat = df_cat.loc[df_cat['Support'] == "Yes"]
 category = df_cat.values
 df_fur = df_cat.loc[df_cat['Furniture'] == "Yes"]
 furniture = df_fur.values
-
 #collect rooms and elements from entire model
 room_collection = FilteredElementCollector(doc).WherePasses(ElementCategoryFilter(BuiltInCategory.OST_Rooms)).WhereElementIsNotElementType().ToElements()
 all_collection = FilteredElementCollector(doc).WhereElementIsNotElementType().ToElements()
@@ -357,10 +356,10 @@ for room in room_collection:
                                 if closest_pnt.Equals(start_point):
                                     direction = Line.CreateBound(end_point,start_point).Direction
                                     line = Line.CreateUnbound(start_point,direction)
-                                    distance = round((line.Project(start_point_an).Distance -width_1/2 - width_2/2)*0.3048,2)
+                                    distance = round((line.Project(start_point_an).Distance -width_1/2 - width_2/2)*0.3048,3)
                                     distances.append(distance)
                                 else:
-                                    distance = round((line.Project(start_point_an).Distance -width_1/2 - width_2/2)*0.3048,2)
+                                    distance = round((line.Project(start_point_an).Distance -width_1/2 - width_2/2)*0.3048,3)
                                     distances.append(distance)
                                 perpId.append(None)
                                 nearest_walls.append(None)
@@ -418,7 +417,7 @@ for room in room_collection:
                                         'Nearest_walls_id':nearest_walls,
                                         'Angles_to_walls':angles,
                                         'Angles_to_walls_mi':min(angles),
-                                        'Angles_to_walls_mean':statistics.mean(angles),
+                                        'Angles_to_walls_mean':round(statistics.mean(angles),3),
                                         'Angles_to_walls_ma':max(angles)})
             df_walls = pd.concat([df_walls,new_row_walls.to_frame().T],ignore_index= True)
     # 
@@ -426,89 +425,105 @@ for room in room_collection:
     # 
     # 
     #
-    # collect constraints from floors: parallelity!, angles?, distance!         
+    # collect constraints from floors: parallelity!, angles?, distance!     
+    #
+    floors = []
+    parallel_floors = []
+    roof = []
+    for id in face_dic.keys():
+        dir = face_dic[id]
+        if abs(dir.Z) == 1.0:
+            parallel_floors.append(id)
+            floors.append(id)
+        else:
+            roof.append(id)
+
+
     df_floors = pd.DataFrame()
     resultArray = IntersectionResultArray()
     floor_distance = {}
     dis_to_m = []
     dir_t = 0
     id_t = None
-    parallel_floors = []
-    roof = []
-    for id in face_dic.keys():
-        dir = face_dic[id]
-        if abs(dir.Z) == 1.0 or abs(dir.Z)> 0.:
-            if abs(dir.Z) == 1.0:
-                parallel_floors.append(id)
-            else:
-                roof.append(id)
-            if len(face_dic.keys()) == 1:
-                # room has only top and bottom floor
-                room_bb = room.ClosedShell.GetBoundingBox()
-                room_bb_min = room_bb.Min
-                room_bb_max = room_bb.Max
-                dis = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,2)
-                floor_distance[id] = dis
-            elif len(face_dic.keys()) > 1:
-                # room has additional ceiling
-                elem = doc.GetElement(ElementId(id))
-                elem_geom = elem.get_Geometry(Options())
-                for geomInst in elem_geom:
-                    if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
-                            floor_solid = geomInst
-                            for face in floor_solid.Faces:
-                                normal = face.ComputeNormal(UV(room_location.X,room_location.Y))
-                                if abs(normal.Z)==1 and face != None:
-                                    try:
-                                        dis = face.Project(room_location).Distance
-                                        floor_distance[id] = [dir.Z,dis]
-                                        break
-                                    except:
-                                        continue
-    if len(face_dic.keys()) == 1:
-        for id in face_dic.keys():
-            dir = face_dic[id]
-            elem = doc.GetElement(ElementId(id))
-            if abs(dir.Z) == 1.0 or abs(dir.Z)> 0.:
-                new_par = []
-                for val in parallel_floors:
-                    if val != id and id not in roof:
-                        new_par.append(val)
-                paral_floors_count = len(new_par)
-                new_row_floors = pd.Series({'Room_Id':room.Id,
-                                                'Room_uniqueId':room.UniqueId,
-                                                'ElementId': id,
-                                                'Element_uniqueId': elem.UniqueId,
-                                                'Parallel_floor_id':new_par,
-                                                'Parallel_floors_count':paral_floors_count,
-                                                'Distance_max':floor_distance[id]})
-                df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
-    elif len(face_dic.keys()) > 1:
-        distance_between_floors = {}
-        for id in floor_distance.keys():
-            val = floor_distance[id]
-            dir = val[0]
-            dis_to_room = val[1]
+
+    for id in floors:
+        if len(floors) <3:
+            # room has only top and bottom floor
             floor = doc.GetElement(ElementId(id))
-            for id_t in floor_distance.keys():
-                new_par = []
-                if id_t != id and id not in roof and id_t not in roof:
-                    val_t = floor_distance[id_t]
-                    dir_t = val_t[0]
-                    dis_to_room_t = val_t[1]
-                    if dir != dir_t:
-                        distance = dis_to_room + dis_to_room_t
-                        new_par.append(id_t)
-                        # distance_between_floors[distance] = [id,id_t]
-                paral_floors_count = len(new_par)
-                new_row_floors = pd.Series({'Room_Id':room.Id,
-                                                'Room_uniqueId':room.UniqueId,
-                                                'ElementId': id,
-                                                'Element_uniqueId': elem.UniqueId,
-                                                'Parallel_floor_id':new_par,
-                                                'Parallel_floors_count':paral_floors_count,
-                                                'Distance_max':round(distance*0.3048,3)})
-                df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
+            room_bb = room.ClosedShell.GetBoundingBox()
+            room_bb_min = room_bb.Min
+            room_bb_max = room_bb.Max
+            # floor_distance[id] = dis
+            new_par = None
+            paral_count = 0
+            dis_par = 0
+            dis_op = 0
+            for id_n in parallel_floors:
+                if id_n != id and id not in roof:
+                    new_par = id_n
+                    paral_count = 1
+                    dis_par = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,3)
+            for id_n in roof:
+                if id_n != id:
+                    dis_op = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,3)
+            new_row_floors = pd.Series({'Room_Id':room.Id,
+                                        'Room_uniqueId':room.UniqueId,
+                                        'ElementId': id,
+                                        'Element_uniqueId': floor.UniqueId,
+                                        'Parallel_floor_id':new_par,
+                                        'Parallel_floors_count':paral_count,
+                                        'Distance_to_nonparallel':[dis_op],
+                                        'Distance_to_parallel':[dis_par]})
+            df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
+        else:
+            # room has additional ceiling or floor
+            elem = doc.GetElement(ElementId(id))
+            elem_geom = elem.get_Geometry(Options())
+            for geomInst in elem_geom:
+                if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
+                        floor_solid = geomInst
+                        for face in floor_solid.Faces:
+                            normal = face.ComputeNormal(UV(room_location.X,room_location.Y))
+                            if abs(normal.Z)==1.0 and face != None:
+                                try:
+                                    dis = face.Project(room_location).Distance
+                                    floor_distance[id] = [normal.Z,dis]
+                                    break
+                                except:
+                                    continue
+
+    for id in floor_distance.keys():
+        val = floor_distance[id]
+        dir = val[0]
+        dis_to_room = val[1]
+        floor = doc.GetElement(ElementId(id))
+        paral_count = 0
+        distance = 0
+        new_par = []
+        distance_to_parallel = []
+        for id_t in floor_distance.keys():
+            if id_t != id and id not in roof and id_t not in roof and id_t in parallel_floors and id in parallel_floors:
+                paral_count = paral_count + 1
+                val_t = floor_distance[id_t]
+                dir_t = val_t[0]
+                dis_to_room_t = val_t[1]
+                new_par.append(id_t)
+                if dir != dir_t:
+                    distance = dis_to_room + dis_to_room_t
+                    distance_to_parallel.append(round(distance*0.3048,3))
+                else:
+                    distance = abs(dis_to_room - dis_to_room_t)
+                    distance_to_parallel.append(round(distance*0.3048,3))
+
+        new_row_floors = pd.Series({'Room_Id':room.Id,
+                                        'Room_uniqueId':room.UniqueId,
+                                        'ElementId': id,
+                                        'Element_uniqueId': floor.UniqueId,
+                                        'Parallel_floor_id':new_par,
+                                        'Parallel_floors_count':paral_count,
+                                        'Distance_to_nonparallel':[0],
+                                        'Distance_to_parallel': distance_to_parallel})
+        df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
     # 
     # 
     # 
@@ -583,12 +598,14 @@ for room in room_collection:
                                 for points in closest_pnt:
                                     first_point = points.XYZPointOnFirstCurve
                                     second_point = points.XYZPointOnSecondCurve
-                                    dis_to_cut = round(first_point.DistanceTo(second_point)*0.3048 - width_p/2*0.3048,2)
-                                    if id_el not in distance_ids:
-                                        closest_dis.append(dis_to_cut)
-                                        distance_ids.append(id_el)
-                                        closest_dis_hor.append(dis_to_cut)
-                                        distance_hor_ids.append(id_el)
+                                    dis_to_cut = round(first_point.DistanceTo(second_point)*0.3048 - width_p/2*0.3048,3)
+                                    closest_dis_hor.append(dis_to_cut)
+                                    distance_hor_ids.append(id_el)
+                                    # if id_el not in distance_ids:
+                                    #     closest_dis.append(dis_to_cut)
+                                    #     distance_ids.append(id_el)
+                                    #     closest_dis_hor.append(dis_to_cut)
+                                    #     distance_hor_ids.append(id_el)
                         if abs(dir_c.Z) == 0.0:
                             if face_dic[id_el].Z == 1.0:
                                 proj_pnt = curve.GetEndPoint(0)
@@ -609,11 +626,13 @@ for room in room_collection:
                                                             dis = 0.0
                                                             temp_dist.append(dis)
                                 min_dis = min(temp_dist)
-                                if id_el not in distance_ids:
-                                    distance_ids.append(id_el)
-                                    closest_dis.append(dis)
-                                    closest_dis_vert.append(dis)
-                                    distance_vert_ids.append(id_el)
+                                closest_dis_vert.append(dis)
+                                distance_vert_ids.append(id_el)
+                                # if id_el not in distance_ids:
+                                #     distance_ids.append(id_el)
+                                #     closest_dis.append(dis)
+                                #     closest_dis_vert.append(dis)
+                                #     distance_vert_ids.append(id_el)
                             elif face_dic[id_el].Z == -1.0:
                                 proj_pnt = curve.GetEndPoint(0)
                                 elem_geom = elem.get_Geometry(Options())
@@ -629,11 +648,13 @@ for room in room_collection:
                                                         dis = round(face.Project(proj_pnt).Distance*0.3084,3)
                                                         temp_dist.append(dis)
                                 min_dis = min(temp_dist)
-                                if id_el not in distance_ids:
-                                    distance_ids.append(id_el)
-                                    closest_dis.append(min_dis)
-                                    closest_dis_vert.append(dis)
-                                    distance_vert_ids.append(id_el)
+                                closest_dis_vert.append(dis)
+                                distance_vert_ids.append(id_el)
+                                # if id_el not in distance_ids:
+                                #     distance_ids.append(id_el)
+                                #     closest_dis.append(min_dis)
+                                #     closest_dis_vert.append(dis)
+                                #     distance_vert_ids.append(id_el)
         distance_dic[id] = closest_dis
         dType = doc.GetElement(door.GetTypeId())
         width = dType.get_Parameter(BuiltInParameter.DOOR_WIDTH).AsDouble() 
@@ -662,7 +683,7 @@ for room in room_collection:
                                     'Distance_to_edges_hor': closest_dis_hor,
                                     'Distance_to_edges_vert': closest_dis_vert,
                                     'Distance_to_edges_hor_mi': min(closest_dis_hor),
-                                    'Distance_to_edges_hor_mean': statistics.mean(closest_dis_hor),
+                                    'Distance_to_edges_hor_mean': round(statistics.mean(closest_dis_hor),3),
                                     'Distance_to_edges_hor_ma': max(closest_dis_hor),
                                     'Distance_to_edges_vert_mi': min(closest_dis_vert),
                                     'Distance_to_edges_vert_mean': round(statistics.mean(closest_dis_vert),3),
@@ -751,12 +772,15 @@ for room in room_collection:
                                 for points in closest_pnt:
                                     first_point = points.XYZPointOnFirstCurve
                                     second_point = points.XYZPointOnSecondCurve
-                                    dis_to_cut = round(first_point.DistanceTo(second_point)*0.3048 - width_p/2*0.3048,2)
-                                    if id_el not in distance_ids:
-                                        closest_dis.append(dis_to_cut)
-                                        distance_ids.append(id_el) 
-                                        closest_dis_hor.append(round(dis_to_cut,2))
-                                        distance_hor_ids.append(id_el)
+                                    dis_to_cut = round(first_point.DistanceTo(second_point)*0.3048 - width_p/2*0.3048,3)
+                                    distance_hor_ids.append(id_el)
+                                    closest_dis_hor.append(dis_to_cut)
+                                    # if dis_to_cut not in closest_dis_hor:         
+                                    # # if id_el not in distance_ids:
+                                    #     closest_dis.append(dis_to_cut)
+                                    #     distance_ids.append(id_el) 
+                                    #     closest_dis_hor.append(dis_to_cut)
+                                    #     distance_hor_ids.append(id_el)
                         if abs(dir_c.Z) == 0.0:
                             if face_dic[id_el].Z == 1.0:
                                 proj_pnt = curve.GetEndPoint(0)
@@ -773,11 +797,13 @@ for room in room_collection:
                                                         dis = round(face.Project(proj_pnt).Distance*0.3084,3)
                                                         temp_dist.append(dis)
                                 min_dis = min(temp_dist)
-                                if id_el not in distance_ids:
-                                    distance_ids.append(id_el)
-                                    closest_dis.append(dis)
-                                    distance_vert_ids.append(id_el)
-                                    closest_dis_vert.append(round(dis,2))
+                                distance_vert_ids.append(id_el)
+                                closest_dis_vert.append(dis)
+                                # if dis_to_cut not in distance_ids:
+                                #     distance_ids.append(id_el)
+                                #     closest_dis.append(dis)
+                                #     distance_vert_ids.append(id_el)
+                                #     closest_dis_vert.append(round(dis,3))
 
                             elif face_dic[id_el].Z == -1.0:
                                 proj_pnt = curve.GetEndPoint(0)
@@ -794,11 +820,13 @@ for room in room_collection:
                                                         dis = round(face.Project(proj_pnt).Distance*0.3084,3)
                                                         temp_dist.append(dis)
                                 min_dis = min(temp_dist)
-                                if id_el not in distance_ids:
-                                    distance_ids.append(id_el)
-                                    closest_dis.append(dis)
-                                    closest_dis_vert.append(round(dis,2))
-                                    distance_vert_ids.append(id_el)
+                                closest_dis_vert.append(dis)
+                                distance_vert_ids.append(id_el)
+                                # if id_el not in distance_ids:
+                                #     distance_ids.append(id_el)
+                                #     closest_dis.append(dis)
+                                #     closest_dis_vert.append(round(dis,3))
+                                #     distance_vert_ids.append(id_el)
         distance_dic[id.IntegerValue] = closest_dis
         wType = doc.GetElement(window.GetTypeId())
         w = min(dim_arr)
@@ -814,8 +842,8 @@ for room in room_collection:
                                         'Room_uniqueId':room.UniqueId,
                                         'ElementId': id.IntegerValue,
                                         'Element_uniqueId': window.UniqueId,
-                                        'Window_width':min(dim_arr)*0.3048,
-                                        'Window_height':max(dim_arr)*0.3048,
+                                        'Window_width':round(min(dim_arr)*0.3048,3),
+                                        'Window_height':round(max(dim_arr)*0.3048,3),
                                         'Nearest_elementIds':distance_ids,
                                         # 'Distance_to_edges':distance_dic[id.IntegerValue],
                                         'ElementId_vert': distance_vert_ids,
@@ -823,10 +851,10 @@ for room in room_collection:
                                         'Distance_to_edges_hor':closest_dis_hor,
                                         'Distance_to_edges_vert':closest_dis_vert,
                                         'Distance_to_edges_hor_mi': min(closest_dis_hor),
-                                        'Distance_to_edges_hor_mean': statistics.mean(closest_dis_hor),
+                                        'Distance_to_edges_hor_mean': round(statistics.mean(closest_dis_hor),3),
                                         'Distance_to_edges_hor_ma': max(closest_dis_hor),
                                         'Distance_to_edges_vert_mi': min(closest_dis_vert),
-                                        'Distance_to_edges_vert_mean': round(statistics.mean(closest_dis_vert),2),
+                                        'Distance_to_edges_vert_mean': round(statistics.mean(closest_dis_vert),3),
                                         'Distance_to_edges_vert_ma': max(closest_dis_vert),
                                         'ElementId_next_win':None,
                                         'Distance_to_next_win_min': None})
@@ -879,14 +907,14 @@ for room in room_collection:
                 if location_type == "Autodesk.Revit.DB.LocationPoint":
                     wall_point = wall_loc.Point
                     loc_furn_new = XYZ(loc_furn.X,loc_furn.Y,wall_point.Z)
-                    dist = round(wall_point.DistanceTo(loc_furn_new)*0.3048,2)
+                    dist = round(wall_point.DistanceTo(loc_furn_new)*0.3048,3)
                     closest_dis.append(dist)
                     distance_ids.append(b_el.IntegerValue)
                 if location_type == "Autodesk.Revit.DB.LocationCurve":
                     wall_curve = wall_loc.Curve
                     wall_w = wall.Width
                     loc_furn_new = XYZ(loc_furn.X,loc_furn.Y,wall_curve.GetEndPoint(0).Z)
-                    dist = round(wall_curve.Project(loc_furn_new).Distance*0.3048 - wall_w/2*0.3048,2)
+                    dist = round(wall_curve.Project(loc_furn_new).Distance*0.3048 - wall_w/2*0.3048,3)
                     closest_dis.append(dist)
                     distance_ids.append(b_el.IntegerValue)
 
@@ -905,7 +933,7 @@ for room in room_collection:
                                     'Nearest_elementIds_count':len(distance_ids),
                                     'Distance_to_nearest':distance_dic[id],
                                     'Distance_to_nearest_mi': min_com_dis,
-                                    'Distance_to_nearest_mean': statistics.mean(com_dis),
+                                    'Distance_to_nearest_mean': round(statistics.mean(com_dis),3),
                                     'Distance_to_nearest_ma': max(com_dis)})
         df_furn_dist = pd.concat([df_furn_dist,new_row_furn.to_frame().T],ignore_index= True)
     # 
@@ -949,32 +977,32 @@ for room in room_collection:
     df_all = pd.concat([df_all,df],ignore_index=True)
 
 # print all data frames
-nameOfFile_csv = 'data\\tables\\space_elements_bounds.csv'
+nameOfFile_csv = 'data\\tables\\room_elements_bounds.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_bound_all.to_csv(completename_csv)
 
-nameOfFile_csv = 'data\\tables\\space_elements_walls.csv'
+nameOfFile_csv = 'data\\tables\\room_elements_walls.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_walls_all.to_csv(completename_csv)
 
-nameOfFile_csv = 'data\\tables\\space_elements_floors.csv'
+nameOfFile_csv = 'data\\tables\\room_elements_floors.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_floors_all.to_csv(completename_csv)
 
-nameOfFile_csv = 'data\\tables\\space_elements_doors.csv'
+nameOfFile_csv = 'data\\tables\\room_elements_doors.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_doors_all.to_csv(completename_csv) 
 
-nameOfFile_csv = 'data\\tables\\space_elements_windows.csv'
+nameOfFile_csv = 'data\\tables\\room_elements_windows.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_windows_all.to_csv(completename_csv) 
 
-nameOfFile_csv = 'data\\tables\\space_elements_furniture.csv'
+nameOfFile_csv = 'data\\tables\\room_elements_furniture.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_furn_dist_all.to_csv(completename_csv)
 
-nameOfFile = 'data\\tables\\space_elements.xlsx'
-nameOfFile_csv = 'data\\tables\\space_elements.csv'
+nameOfFile = 'data\\tables\\room_elements.xlsx'
+nameOfFile_csv = 'data\\tables\\room_elements.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_all.to_csv(completename_csv)
 

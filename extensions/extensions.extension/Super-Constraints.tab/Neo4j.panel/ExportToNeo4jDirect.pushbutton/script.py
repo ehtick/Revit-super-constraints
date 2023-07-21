@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 import statistics
 import json
+import ast
 
 from Autodesk.Revit.DB import *
 # from Autodesk.Revit.UI.Selection import *
@@ -67,6 +68,7 @@ class App:
                                                         path: $doc_path})""",doc_name = doc_name,doc_path = doc_path,database = "neo4j").summary
 
         all_collection = FilteredElementCollector(doc).WhereElementIsNotElementType().ToElements()
+        supported_types = ['Wall','Door','Window','Floor','Furniture']
         for elem in all_collection:
             try:
                 filter_cat = elem.Category.Name
@@ -83,12 +85,16 @@ class App:
                         fam_name = elemType.FamilyName
                 except:
                     fam_name = elem.Symbol.Family.Nametype
+                label = 'Element'
+                for typ in supported_types:
+                    if typ in filter_cat:
+                        label = typ
                 
-                self.driver.execute_query("""MERGE (e:Element {category: $filter_cat,
+                self.driver.execute_query("""MERGE (e:%s {category: $filter_cat,
                                                                 id: $id,
                                                                 unique_id: $unique_Id,
                                                                 family_name: $fam_name,
-                                                                typ:$typ})""",
+                                                                typ:$typ})""" %label,
                                                                 id = id.IntegerValue,
                                                                 unique_Id = unique_Id,
                                                                 fam_name=fam_name,
@@ -104,7 +110,7 @@ class App:
             room_name = room.LookupParameter('Name').AsString()
             levelId = room.LevelId
             level_name = room.Level.Name
-            self.driver.execute_query("""MERGE (e:Element {category: $category,
+            self.driver.execute_query("""MERGE (e:Room {category: $category,
                                                                 id: $id,
                                                                 unique_id: $unique_Id,
                                                                 room_number: $room_num,
@@ -128,7 +134,7 @@ class App:
                 level_name = level.Name
                 level_elev = level.Elevation
 
-                self.driver.execute_query("""MERGE (e:Element {category: $category,
+                self.driver.execute_query("""MERGE (e:Level {category: $category,
                                                                     id: $id,
                                                                     unique_id: $unique_Id,
                                                                     level_name:$level_name,
@@ -140,45 +146,45 @@ class App:
                                                                     level_name = level_name,
                                                                 database = "neo4j").summary
         
-        self.driver.execute_query("""MATCH (a:Element{category:"Levels"}),
-                                            (b:Element{category:"Rooms"})
+        self.driver.execute_query("""MATCH (a:Level{category:"Levels"}),
+                                            (b:Room{category:"Rooms"})
                                             WHERE a.id = b.levelId
                                             MERGE (b) - [r:BELONGS] -> (a)""",database = "neo4j").summary
         self.driver.execute_query("""MATCH (a:Document),
-                                            (b:Element{category:"Levels"})
+                                            (b:Level{category:"Levels"})
                                             MERGE (b) - [r:BELONGS] -> (a)""",database = "neo4j").summary
         # get windows - successfull
-        nameOfFile_csv = 'data\\tables\\space_elements_windows.csv'
+        nameOfFile_csv = 'data\\tables\\room_elements_windows.csv'
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_win = pd.read_csv(completename_csv)
 
         # get doors - integrated, in progress
-        nameOfFile_csv = 'data\\tables\\space_elements_doors.csv'
+        nameOfFile_csv = 'data\\tables\\room_elements_doors.csv'
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_doors = pd.read_csv(completename_csv)
 
-        # get walls - not integrated
-        nameOfFile_csv = 'data\\tables\\space_elements_walls.csv'
+        # get walls - integrated
+        nameOfFile_csv = 'data\\tables\\room_elements_walls.csv'
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_walls = pd.read_csv(completename_csv)
 
         # get floors - not integrated
-        nameOfFile_csv = 'data\\tables\\space_elements_floors.csv'
+        nameOfFile_csv = 'data\\tables\\room_elements_floors.csv'
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_floors = pd.read_csv(completename_csv)
 
         # get furniture - not integrated
-        nameOfFile_csv = 'data\\tables\\space_elements_furniture.csv'
+        nameOfFile_csv = 'data\\tables\\room_elements_furniture.csv'
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_furniture = pd.read_csv(completename_csv)
 
         # get elements - successful
-        nameOfFile_csv = 'data\\tables\\space_elements.csv'
+        nameOfFile_csv = 'data\\tables\\room_elements.csv'
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_elements = pd.read_csv(completename_csv)
 
         # get elements bounds - successfull
-        nameOfFile_csv = 'data\\tables\\space_elements_bounds.csv'
+        nameOfFile_csv = 'data\\tables\\room_elements_bounds.csv'
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_bound = pd.read_csv(completename_csv)
 
@@ -188,8 +194,8 @@ class App:
             df_room = df_elements_gr.get_group(key)
             for item,row in df_room.iterrows():
                 # print(type(row['ElementId']))
-                self.driver.execute_query("""MATCH (a:Element),
-                                            (b:Element{category:"Rooms"})
+                self.driver.execute_query("""MATCH (a),
+                                            (b:Room{category:"Rooms"})
                                             WHERE a.id = $elemId AND b.id = $roomId
                                             MERGE (b) - [r:CONTAINS] -> (a)""",
                                             elemId = row['ElementId'],
@@ -200,8 +206,8 @@ class App:
             df_b= df_bound_gr.get_group(key)
             for item,row in df_b.iterrows():
                 # print(type(row['ElementId']))
-                self.driver.execute_query("""MATCH (a:Element),
-                                            (b:Element{category:"Rooms"})
+                self.driver.execute_query("""MATCH (a),
+                                            (b:Room{category:"Rooms"})
                                             WHERE a.id = $elemId AND b.id = $roomId
                                             MERGE (a) - [r:BOUNDS] -> (b)""",
                                             elemId = row['ElementId'],
@@ -219,8 +225,8 @@ class App:
             for el_v in elementId_vert:
                 index = elementId_vert.index(el_v)
                 dist = distance_vert[index]
-                self.driver.execute_query("""MATCH (a:Element),
-                                            (b:Element{category:"Windows"})
+                self.driver.execute_query("""MATCH (a),
+                                            (b:Window{category:"Windows"})
                                             WHERE b.unique_id = $unique_id AND a.id = $el_v
                                             MERGE (b) - [r:DISTANCE_VERT {distance: $dist}] -> (a)""",
                                             unique_id = unique_id,
@@ -229,15 +235,15 @@ class App:
             for el_h in elementId_hor:
                 index = elementId_hor.index(el_h)
                 dist = distance_hor[index]
-                self.driver.execute_query("""MATCH (a:Element),
-                                            (b:Element{category:"Windows"})
+                self.driver.execute_query("""MATCH (a),
+                                            (b:Window{category:"Windows"})
                                             WHERE b.unique_id = $unique_id AND a.id = $el_h
                                             MERGE (b) - [r:DISTANCE_HOR {distance: $dist}] -> (a)""",
                                             unique_id = unique_id,
                                             dist = dist,
                                             el_h = el_h, database = "neo4j").summary
                 
-            self.driver.execute_query("""MATCH (a:Element{category:"Windows"})
+            self.driver.execute_query("""MATCH (a:Window{category:"Windows"})
                                             WHERE a.unique_id = $unique_id
                                             SET a.distance_to_next_win_min = $dis_to_next,
                                                 a.width = $width,
@@ -260,8 +266,8 @@ class App:
             for el_v in elementId_vert:
                 index = elementId_vert.index(el_v)
                 dist = distance_vert[index]
-                self.driver.execute_query("""MATCH (a:Element),
-                                            (b:Element{category:"Doors"})
+                self.driver.execute_query("""MATCH (a),
+                                            (b:Door{category:"Doors"})
                                             WHERE b.unique_id = $unique_id AND a.id = $el_v
                                             MERGE (b) - [r:DISTANCE_VERT {distance: $dist}] -> (a)""",
                                             unique_id = unique_id,
@@ -270,15 +276,15 @@ class App:
             for el_h in elementId_hor:
                 index = elementId_hor.index(el_h)
                 dist = distance_hor[index]
-                self.driver.execute_query("""MATCH (a:Element),
-                                            (b:Element{category:"Doors"})
+                self.driver.execute_query("""MATCH (a),
+                                            (b:Door{category:"Doors"})
                                             WHERE b.unique_id = $unique_id AND a.id = $el_h
                                             MERGE (b) - [r:DISTANCE_HOR {distance: $dist}] -> (a)""",
                                             unique_id = unique_id,
                                             dist = dist,
                                             el_h = el_h, database = "neo4j").summary
                 
-            self.driver.execute_query("""MATCH (a:Element{category:"Doors"})
+            self.driver.execute_query("""MATCH (a:Door{category:"Doors"})
                                             WHERE a.unique_id = $unique_id
                                             SET a.distance_to_next_door_min = $dis_to_next,
                                                 a.width = $width,
@@ -288,10 +294,82 @@ class App:
                                             width = width,
                                             height = height,
                                             database = "neo4j").summary
+        # working with walls
+        for item,row in df_walls.iterrows():
+            unique_id = row['Element_uniqueId']
+            width = row['Width']
+            height = row['Height']
+            # elementId_perp = json.loads(row['Perpendicular_walls_id'])
+            # elementId_par = json.loads(row['Parallel_walls_id'])
+            # elementId_next = json.loads(row['Nearest_walls_id'])
+            # distance_par = json.loads(row['Distance_to_parall'])
+            elementId_perp = ast.literal_eval(row['Perpendicular_walls_id'])
+            elementId_par = ast.literal_eval(row['Parallel_walls_id'])
+            elementId_next = ast.literal_eval(row['Nearest_walls_id'])
+            distance_par = (row['Distance_to_parall'])
+
+            for el_v in elementId_par:
+                if el_v != None:
+                    index = elementId_par.index(el_v)
+                    dist = distance_par[index]
+                    self.driver.execute_query("""MATCH (a),
+                                                (b:Wall{category:"Walls"})
+                                                WHERE b.unique_id = $unique_id AND a.id = $el_v
+                                                MERGE (b) - [r:DISTANCE_PAR {distance: $dist}] -> (a)""",
+                                                unique_id = unique_id,
+                                                dist = dist, 
+                                                el_v = el_v, database = "neo4j").summary
+                    self.driver.execute_query("""MATCH (a),
+                                                (b:Wall{category:"Walls"})
+                                                WHERE b.unique_id = $unique_id AND a.id = $el_v
+                                                MERGE (b) - [r:PARALLEL] -> (a)""",
+                                                unique_id = unique_id,
+                                                el_v = el_v, database = "neo4j").summary
+            for el_p in elementId_perp:
+                if el_p != None:
+                    self.driver.execute_query("""MATCH (a),
+                                                (b:Wall{category:"Wall"})
+                                                WHERE b.unique_id = $unique_id AND a.id = $el_p
+                                                MERGE (b) - [r:PERPENDICULAR ] -> (a)""",
+                                                unique_id = unique_id,
+                                                el_p = el_p, database = "neo4j").summary
+            for el_n in elementId_next:
+                if el_n != None:
+                    self.driver.execute_query("""MATCH (a),
+                                                (b:Wall{category:"Wall"})
+                                                WHERE b.unique_id = $unique_id AND a.id = $el_n
+                                                MERGE (b) - [r:PERPENDICULAR ] -> (a)""",
+                                                unique_id = unique_id,
+                                                el_n = el_n, database = "neo4j").summary
+                
+            self.driver.execute_query("""MATCH (a:Wall{category:"Walls"})
+                                            WHERE a.unique_id = $unique_id
+                                            SET a.width = $width,
+                                                a.height = $height""",
+                                            unique_id = unique_id,
+                                            width = width,
+                                            height = height,
+                                            database = "neo4j").summary
 
 
 if __name__ == "__main__":
     # Aura queries use an encrypted connection using the "neo4j+s" URI scheme
+    directory = os.path.dirname(os.path.abspath(__file__))
+    filename = 'neo4j_key.txt'
+    completename_txt = os.path.join(directory,filename)
+    with open(completename_txt,'r') as f:
+        lines = []
+        for line in f:
+            if 'NEO4J_URI=' in line:
+                uri = line.split('NEO4J_URI=')[1]
+                print(uri)
+            if 'NEO4J_USERNAME=' in line:
+                user = line.split('NEO4J_USERNAME=')[1]
+                print(user)
+            if 'NEO4J_PASSWORD=' in line:
+                password = line.split('NEO4J_PASSWORD=')[1]
+                print(password)
+    
     uri = "neo4j+s://8e5153b5.databases.neo4j.io"
     user = "neo4j"
     password = "Mmte2MYxy73Y0_pUSmCFy_ZxgHvjUaMTS14m4d8A5d8"

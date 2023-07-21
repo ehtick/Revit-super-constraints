@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SuperConstraints"
-        Title="Apply design constraints" Height="450" Width="800" ResizeMode="NoResize">
+        Title="Super-Constraints" Height="600" Width="1100">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="45*"/>
@@ -14,23 +14,41 @@
             <RowDefinition Height="24*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="342*"/>
-            <ColumnDefinition Width="69*"/>
-            <ColumnDefinition Width="152*"/>
-            <ColumnDefinition Width="209*"/>
+            <ColumnDefinition Width="475*"/>
+            <ColumnDefinition Width="96*"/>
+            <ColumnDefinition Width="203*"/>
+            <ColumnDefinition Width="298*"/>
         </Grid.ColumnDefinitions>
         <Label Content="Recognized trends " HorizontalAlignment="Left" VerticalAlignment="Top" Height="31" Width="136" Margin="0,10,0,0" FontSize="14" FontWeight="Bold"/>
-        <Label Content="Design constraints" HorizontalAlignment="Left" VerticalAlignment="Top" Height="31" Width="187" Margin="0,10,0,0" Grid.Column="2" Grid.ColumnSpan="2" FontSize="14" FontWeight="Bold"/>
-        <ListBox x:Name="lb_trends" HorizontalAlignment="Left" Height="331" VerticalAlignment="Top" Width="343" Margin="0,1,0,0" Grid.Row="1" Grid.RowSpan="3" BorderThickness="2,1" Background="{x:Null}"/>
-        <Label Content="Limitation constraint" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="0,29,0,0" Grid.Row="2" Width="152" Height="26"/>
-        <Label Content="Administrative constraints" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="0,64,0,0" Grid.Row="2" Width="152" Height="26"/>
-        <Label Content="Requirements constraints" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="0,105,0,0" Grid.Row="2" Width="152" Height="26"/>
-        <CheckBox x:Name="check_limit" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="24,38,0,0" Grid.Row="2" Height="23" Width="16"/>
-        <CheckBox x:Name="check_adm" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="24,75,0,0" Grid.Row="2" Height="15" Width="16"/>
-        <CheckBox x:Name="check_req" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="24,108,0,0" Grid.Row="2" Height="15" Width="16"/>
-        <Button x:Name="btn_convert" Click ="convert_trend" Content="&gt;&gt;&gt;" HorizontalAlignment="Left" Width="59" Grid.Column="1" Margin="5,14,0,62" Grid.Row="2"/>
-        <Button x:Name="btn_apply" Content="Apply changes" Click="apply_constraint" HorizontalAlignment="Left" VerticalAlignment="Top" Width="189" Grid.Column="3" Margin="10,29,0,0" Grid.Row="3" Height="39"/>
-        <Button x:Name="open_file" Content="Load data" Click="open_and_load" HorizontalAlignment="Left" VerticalAlignment="Top" Width="179" Margin="154,15,0,0"/>
-        <TextBox x:Name="tb_constr" HorizontalAlignment="Left" TextChanged = "text_changed_event_handler" Height="72" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="341" Grid.Column="2" Margin="10,10,0,0" Grid.Row="1" Grid.ColumnSpan="2"/>
+        <Label Content="Design constraints" HorizontalAlignment="Left" VerticalAlignment="Top" Height="31" Width="187" Margin="0,10,0,0" Grid.Column="2" FontSize="14" FontWeight="Bold"/>
+        <ListBox x:Name="lb_trends" HorizontalAlignment="Left" Height="453" VerticalAlignment="Top" Width="474" Margin="0,1,0,0" Grid.Row="1" Grid.RowSpan="3" BorderThickness="2,1" Background="{x:Null}" RenderTransformOrigin="0.5,0.5">
+            <ListBox.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform/>
+                    <SkewTransform AngleY="0.152"/>
+                    <RotateTransform/>
+                    <TranslateTransform Y="0.497"/>
+                </TransformGroup>
+            </ListBox.RenderTransform>
+        </ListBox>
+        <Label Content="Interval (closed interval)" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="0,29,0,0" Grid.Row="2" Width="152" Height="26"/>
+        <Label Content="Requirements" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="5,136,0,0" Grid.Row="2" Width="152" Height="28"/>
+        <Label Content="Conseptual" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="5,164,0,0" Grid.Row="2" Width="152" Height="30"/>
+        <CheckBox x:Name="check_interval_closed" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="0,34,0,0" Grid.Row="2" Height="24" Width="14"/>
+        <CheckBox x:Name="check_cons" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="0,142,0,0" Grid.Row="2" Height="16" Width="14" RenderTransformOrigin="-0.429,0.438"/>
+        <CheckBox x:Name="check_req" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="0,170,0,0" Grid.Row="2" Height="16" Width="14" RenderTransformOrigin="0.286,0.5"/>
+        <Button x:Name="btn_convert" Click ="convert_trend" Content="&gt;&gt;&gt;" HorizontalAlignment="Left" Width="59" Grid.Column="1" Margin="20,16,0,60" Grid.Row="2"/>
+        <Button x:Name="btn_apply" Content="Apply changes" Click="apply_constraint" HorizontalAlignment="Left" VerticalAlignment="Top" Width="189" Grid.Column="3" Margin="91,58,0,0" Grid.Row="3" Height="39"/>
+        <Button x:Name="open_file" Content="Load data" Click="open_and_load" HorizontalAlignment="Left" VerticalAlignment="Top" Width="179" Margin="154,15,0,0" Height="26"/>
+        <TextBox x:Name="tb_constr" HorizontalAlignment="Left" TextChanged = "text_changed_event_handler" Height="118" TextWrapping="Wrap" Text="Select one trend and apply changes" VerticalAlignment="Top" Width="481" Grid.Column="2" Margin="10,10,0,0" Grid.Row="1" Grid.ColumnSpan="2"/>
+        <Label Content="Select constraint characteristics" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="5,3,0,0" Grid.Row="2" Width="196" FontWeight="Bold" Height="26"/>
+        <Label Content="Select constraint type" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="10,105,0,0" Grid.Row="2" Width="201" FontWeight="Bold" Grid.ColumnSpan="2" Height="26"/>
+        <Label Content="Interval (half-open interval)" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="0,55,0,0" Grid.Row="2" Width="162" Height="26"/>
+        <CheckBox x:Name="check_interval_hop" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="0,63,0,0" Grid.Row="2" Height="24" Width="14"/>
+        <Label Content="Select limit points" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="66,3,-1,0" Grid.Row="2" Width="233" FontWeight="Bold" Height="26"/>
+        <ComboBox x:Name="first_limit_p" HorizontalAlignment="Left" VerticalAlignment="Top" Width="99" Grid.Column="3" Margin="181,34,0,0" Grid.Row="2" Height="22"/>
+        <Label Content="First limit point" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="66,30,0,0" Grid.Row="2" Width="89" Height="26"/>
+        <ComboBox x:Name="second_limit_p" HorizontalAlignment="Left" VerticalAlignment="Top" Width="99" Grid.Column="3" Margin="181,67,0,0" Grid.Row="2" Height="22"/>
+        <Label Content="Second limit point" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="66,63,0,0" Grid.Row="2" Width="110" Height="26"/>
     </Grid>
 </Window>

@@ -1,69 +1,64 @@
 Analyse furniture 
 1. Analyse all furniture (by category: Furniture) 
+    Category                                         Distance_to_nearest
+0  Furniture  [1.5699466666666668, 4.447973333333334, 7.656733333333333]
 2. Analyse all furniture by room names 
-                     Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Room_name      0                                                                             
-Breakout space mean                    2.02                    3.7250                6.727143
-               min                     1.70                    3.2825                5.450000
-               max                     2.80                    4.3100                9.650000
-                                 Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Room_name                  0                                                                             
-Confidential meetings room mean                0.792424                  1.739621                2.863939
-                           min                 0.530000                  1.145000                1.480000
-                           max                 1.100000                  1.842500                3.870000
-                      Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Room_name       0                                                                             
-Enclosed office mean                1.063026                  2.141579                3.536842
-                min                 0.680000                  1.452500                1.940000
-                max                 1.440000                  2.432500                5.230000
-                   Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Room_name    0                                                                             
-Meeting room mean                1.644698                  3.461433                5.953578
-             min                 0.870000                  2.207500                2.980000
-             max                 2.800000                  4.465000                9.180000
-                  Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Room_name   0                                                                             
-Open office mean                    1.54                      2.65                    3.58
-            min                     1.34                      2.40                    2.76
-            max                     1.74                      2.90                    4.20
-                Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Room_name 0                                                                             
-Toilet    mean                    0.15                  2.114164                4.178571
-          min                     0.00                  1.633750                2.950000
-          max                     0.21                  2.405000                4.670000
+  Room_name                                 Distance_to_nearest
+0      Bath  [0.252625, 0.9677499999999999, 1.7872499999999998]
+          Room_name                                          Distance_to_nearest
+0  Kitchen & Dining  [1.9377179487179486, 5.3408974358974355, 9.523205128205129]
+  Room_name    Distance_to_nearest
+0   Laundry  [0.302, 1.283, 1.874]
+  Room_name                                         Distance_to_nearest
+0    Living  [1.7022173913043483, 4.855173913043478, 7.677347826086957]
+     Room_name                      Distance_to_nearest
+0  Master Bath  [0.17525000000000002, 1.15225, 2.52475]
 3. Analyse all furniture by their family name 
-                 Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Family     0                                                                             
-Chair-Task mean                1.487019                  3.356262                5.684615
-           min                 0.530000                  1.840000                2.600000
-           max                 2.420000                  4.465000                8.720000
-                      Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Family          0                                                                             
-Chair-Task Arms mean                1.773824                  3.032426                6.228529
-                min                 1.000000                  1.840000                3.520000
-                max                 2.800000                  4.465000                9.180000
-                               Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Family                   0                                                                             
-Furniture_Table_Coffee_1 mean                    2.02                    3.7250                6.727143
-                         min                     1.70                    3.2825                5.450000
-                         max                     2.80                    4.3100                9.650000
-                                        Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Family                            0                                                                             
-NBS_OffcDsks_OfficeDeskWithDrawer mean                1.115957                  2.151755                3.419894
-                                  min                 0.680000                  1.145000                1.480000
-                                  max                 1.740000                  2.900000                5.230000
-                           Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Family               0                                                                             
-Plumbing_Fixtures_WC mean                    0.21                  2.250783                    4.67
-                     min                     0.21                  2.075000                    4.67
-                     max                     0.21                  2.405000                    4.67
-                                 Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Family                     0                                                                             
-Table-Conference2 w Chairs mean                1.910588                  3.032353                4.227059
-                           min                 1.060000                  1.840000                2.600000
-                           max                 2.800000                  4.465000                6.130000
-                 Distance_to_nearest_mi  Distance_to_nearest_mean  Distance_to_nearest_ma
-Family     0                                                                             
-Urinal (1) mean                     0.0                  1.772616                    2.95
-           min                      0.0                  1.633750                    2.95
-           max                      0.0                  1.858889                    2.95
+      Family                           Distance_to_nearest
+0  Bar Chair  [2.27, 4.197500000000001, 8.305333333333332]
+                       Family    Distance_to_nearest
+0  Bathtub-TOTO-Nexus-FBF794S  [0.101, 1.633, 3.079]
+      Family   Distance_to_nearest
+0  Cabinet 1  [0.27, 5.831, 11.45]
+             Family          Distance_to_nearest
+0  Dining Chair (3)  [1.611125, 5.868, 10.19275]
+                                  Family    Distance_to_nearest
+0  Faucet-8inch_Reach-Kohler-Purist-7507  [2.865, 4.094, 8.338]
+                                           Family                  Distance_to_nearest
+0  Lavatory-TOTO-Luminist_Rectangle_Vessel_LLT151  [0.16, 0.9569999999999999, 1.85975]
+              Family                            Distance_to_nearest
+0  M_Shower Stall-2D  [0.0, 0.9809999999999999, 2.3436666666666666]
+               Family     Distance_to_nearest
+0  M_TV - Flat Screen  [0.105, 5.865, 11.615]
+                                     Family    Distance_to_nearest
+0  Miele Built-under Dishwasher G 4101 U CS  [2.622, 4.216, 7.512]
+                                Family    Distance_to_nearest
+0  Miele Induction Cooktop KM 6350 LPT  [0.517, 3.866, 8.262]
+                             Family    Distance_to_nearest
+0  Miele Washing Machine W 5820 WPS  [0.302, 1.283, 1.874]
+                                            Family                 Distance_to_nearest
+0  SH_Lighting-Pendant-Litecontrol-Mod66-8_Foot_09  [1.772, 4.8870000000000005, 8.928]
+                      Family  Distance_to_nearest
+0  Seat - Single with Island  [0.7, 4.731, 6.625]
+                             Family                 Distance_to_nearest
+0  Seating - Artemis - Lounge chair  [1.271, 4.734, 6.4399999999999995]
+             Family      Distance_to_nearest
+0  Side Table 2 (2)  [1.2405, 4.7375, 8.175]
+                            Family    Distance_to_nearest
+0  Sink-Offset-Kohler-Vault-3823_4  [2.926, 4.121, 8.263]
+           Family                                         Distance_to_nearest
+0  Sofa - Ottoman  [2.7214285714285715, 5.072285714285714, 7.651428571428572]
+                Family                    Distance_to_nearest
+0  Table-Dining 01 (M)  [2.1385, 5.8629999999999995, 10.1865]
+                                                                      Family        Distance_to_nearest
+0  Trck_BswySystms_Cooper_RSA_Profile Series_AR111 Closed Back Integral Xfmr  [1.602, 4.6265, 6.697375]
+                      Family                                Distance_to_nearest
+0  Walvit_Hung Bowl_604118 W  [0.49525, 0.9867499999999999, 1.7120000000000002]
+        Family           Distance_to_nearest
+0  Water Glass  [1.950625, 5.864375, 10.188]
+                  Family                     Distance_to_nearest
+0  White Porcelain Plate  [1.8791250000000002, 5.86625, 10.1915]
+              Family    Distance_to_nearest
+0  aalto vase - tall  [1.673, 4.524, 6.391]
+            Family    Distance_to_nearest
+0  fire place hang  [1.187, 3.781, 10.52]

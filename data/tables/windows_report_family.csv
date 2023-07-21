@@ -1,2 +1,2 @@
-,Family,Width,Height,Distance_to_edges_hor,Distance_to_edges_vert,Distance_to_next
-0,WIN_WoodWndwUnits_SpringSashWindow,[0.625 2.5  ],[1.05343137 2.5       ],"[0.0, 3.380032679738562, 12.0]","[0.71, 1.6200000000000006, 2.53]","[0.0, 0.0, 0.0]"
+Family,Width,Height,Distance_to_edges_hor,Distance_to_edges_vert,Distance_to_next
+Single Window,"[1.5, 1.5, 1.5]","[2.7, 2.7000000000000006, 2.7]","[-0.0, 4.325733333333333, 9.0]","[0.0, 1.379333333333333, 2.782]","[0.0, 0.0, 0.0]"

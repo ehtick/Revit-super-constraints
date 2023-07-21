@@ -1,4 +1,4 @@
-Family,,Distance_max
-Floor,mean,3.1999999999999997
-Floor,min,3.2
-Floor,max,3.2
+Family,Distance_to_nonparallel,Distance_to_parallel
+Basic Roof,"[2.75, 2.75, 2.75]","[2.75, 2.75, 2.75]"
+Compound Ceiling,"[0.0, 0.0, 0.0]","[2.9, 4.175, 5.45]"
+Floor,"[0.0, 3.371, 5.913]","[0.0, 1.786, 5.45]"
