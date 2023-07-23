@@ -1,34 +1,32 @@
 Analyse floors 
 1. Analyse all floors (by category: Floors) 
-Category Distance_to_nonparallel Distance_to_parallel
-  Floors     [0.0, 3.181, 5.913]   [0.0, 2.025, 5.45]
+Category Distance_to_nonparallel  Distance_to_parallel
+  Floors         [nan, nan, nan] [0.718, 2.756, 3.575]
 2. Analyse all floors by room names 
+     Room_name Distance_to_nonparallel  Distance_to_parallel
+Administration         [nan, nan, nan] [0.718, 2.756, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+ Corridor         [nan, nan, nan] [0.718, 2.756, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+  Kitchen         [nan, nan, nan] [0.718, 2.736, 3.575]
+   Room_name Distance_to_nonparallel  Distance_to_parallel
+Meeting room         [nan, nan, nan] [0.718, 2.756, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+   Office         [nan, nan, nan] [0.718, 2.756, 3.575]
+   Room_name Distance_to_nonparallel Distance_to_parallel
+Service room         [nan, nan, nan]  [2.8, 3.023, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+    Stair         [nan, nan, nan] [0.718, 2.756, 3.575]
 Room_name Distance_to_nonparallel Distance_to_parallel
-     Bath     [0.0, 3.405, 5.913]   [0.0, 1.738, 5.45]
-Room_name Distance_to_nonparallel Distance_to_parallel
-  Bedroom     [0.0, 4.092, 5.913]   [0.0, 1.332, 5.45]
- Room_name Distance_to_nonparallel Distance_to_parallel
-Entry Hall     [0.0, 4.092, 5.913]   [0.0, 1.332, 5.45]
-Room_name Distance_to_nonparallel Distance_to_parallel
-     Hall     [0.0, 3.371, 5.913]   [0.0, 1.786, 5.45]
-       Room_name Distance_to_nonparallel Distance_to_parallel
-Kitchen & Dining     [0.0, 3.226, 5.913]   [0.0, 1.959, 5.45]
-Room_name Distance_to_nonparallel Distance_to_parallel
-  Laundry     [0.0, 3.405, 5.913]   [0.0, 1.738, 5.45]
-Room_name Distance_to_nonparallel Distance_to_parallel
-    Linen     [0.0, 4.092, 5.913]   [0.0, 1.332, 5.45]
-Room_name Distance_to_nonparallel Distance_to_parallel
-   Living      [2.75, 2.75, 2.75]   [2.75, 2.75, 2.75]
-  Room_name Distance_to_nonparallel Distance_to_parallel
-Master Bath     [0.0, 4.092, 5.913]   [0.0, 1.332, 5.45]
-     Room_name Distance_to_nonparallel Distance_to_parallel
-Master Bedroom     [0.0, 4.092, 5.913]   [0.0, 1.332, 5.45]
-Room_name Distance_to_nonparallel Distance_to_parallel
-    Mech.     [0.0, 3.405, 5.913]   [0.0, 1.738, 5.45]
+    Vest.         [nan, nan, nan]  [2.8, 3.023, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+   WC Men         [nan, nan, nan] [0.718, 2.736, 3.575]
+   Room_name Distance_to_nonparallel  Distance_to_parallel
+WC Men Entr.         [nan, nan, nan] [0.718, 2.756, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+ WC Women         [nan, nan, nan] [0.718, 2.756, 3.575]
+     Room_name Distance_to_nonparallel  Distance_to_parallel
+WC Women Entr.         [nan, nan, nan] [0.718, 2.756, 3.575]
 3. Analyse all floors by their family name 
-    Family Distance_to_nonparallel Distance_to_parallel
-Basic Roof      [2.75, 2.75, 2.75]   [2.75, 2.75, 2.75]
-          Family Distance_to_nonparallel Distance_to_parallel
-Compound Ceiling         [0.0, 0.0, 0.0]   [2.9, 4.175, 5.45]
-Family Distance_to_nonparallel Distance_to_parallel
- Floor     [0.0, 3.371, 5.913]   [0.0, 1.786, 5.45]
+Family Distance_to_nonparallel  Distance_to_parallel
+ Floor         [nan, nan, nan] [0.718, 2.756, 3.575]

@@ -1,3 +1,0 @@
-Cypher transformation of: All walls in the room called Bath have [min,mean,max] [0.264, 2.372534722222222, 6.776] distance to parallel walls., "requirements" 
-MATCH (n:Room)-[:CONTAINS]->(m:Wall) MATCH (m)-[:DISTANCE_VERT]->(w)  WHERE n.room_name = "Bath" AND m.category = 'Walls' SET n.constr_distance_to_parall_min= 0.264, n.constr_distance_to_parallel_max=6.776, n.constr_characteristics="closed interval" MERGE (m)-[k:CONSTRAINTS{distance_to_parallel_max:6.776,distance_to_parallel_min:0.264,, constraint_type: "requirements"}]->(w)  RETURN k,m
-

@@ -47,7 +47,7 @@ elements  = List[ElementId]()
 all_doors_elements = List[ElementId]() 
 all_windows_elements = List[ElementId]()
 all_furniture_elements = List[ElementId]()
-
+all_ceiling_elements = List[ElementId]()
 # separate all elements into several categories
 for elem in all_collection:
     try:
@@ -62,6 +62,9 @@ for elem in all_collection:
             all_windows_elements.Add(elem.Id)
         if filter_cat in furniture:
             all_furniture_elements.Add(elem.Id)
+        if filter_cat == "Ceilings":
+            all_ceiling_elements.Add(elem.Id)
+
 
 #==============================================================================
 #  function ckecks if element locates in the room 
@@ -232,7 +235,7 @@ for room in room_collection:
     windows_elements = List[ElementId]()
     doors_elements = List[ElementId]()
     furniture_elements = List[ElementId]()
-    floor_elements = List[ElementId]()
+    ceiling_elements = List[ElementId]()
 
     for id in elements:
         elem = doc.GetElement(id)
@@ -247,6 +250,10 @@ for room in room_collection:
             if all_furniture_elements.Contains(id):
                 furniture_elements.Add(id)
                 room_elements.Add(id)
+            if all_ceiling_elements.Contains(id):
+                room_elements.Add(id)
+                ceiling_elements.Add(id)
+
     #       
     # 
     # 
@@ -357,13 +364,16 @@ for room in room_collection:
                                     direction = Line.CreateBound(end_point,start_point).Direction
                                     line = Line.CreateUnbound(start_point,direction)
                                     distance = round((line.Project(start_point_an).Distance -width_1/2 - width_2/2)*0.3048,3)
-                                    distances.append(distance)
+                                    if distance>0.0:
+                                        distances.append(distance)
+                                        parallel_walls.append(id_temp)
                                 else:
                                     distance = round((line.Project(start_point_an).Distance -width_1/2 - width_2/2)*0.3048,3)
-                                    distances.append(distance)
+                                    if distance>0.0:
+                                        distances.append(distance)
+                                        parallel_walls.append(id_temp)
                                 perpId.append(None)
                                 nearest_walls.append(None)
-                                parallel_walls.append(id_temp)
                             elif angle == 90:
                                 #perpendicular
                                 angles.append(90)
@@ -391,9 +401,9 @@ for room in room_collection:
             com_dis = [d for d in distances if d != None]    
             if len(com_dis) == 0:
                 com_dis = [0] 
-            min_dis = min(com_dis) 
-            mean_dis =  statistics.mean(com_dis)
-            max_dis =max(com_dis)
+            min_dis = round(min(com_dis),3)
+            mean_dis =  round(statistics.mean(com_dis),3)
+            max_dis =round(max(com_dis),3)
             if min_dis < 0.:
                 min_dis = 0.
             if mean_dis < 0.:
@@ -427,103 +437,209 @@ for room in room_collection:
     #
     # collect constraints from floors: parallelity!, angles?, distance!     
     #
+    ceiling_point_list = []
+    ceiling_point_dic = {}
+    for id in ceiling_elements:
+        ceiling = doc.GetElement(id)
+        elem_geom = ceiling.get_Geometry(Options())
+        for geomInst in elem_geom:
+            if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
+                    ceiling_solid = geomInst
+                    for edge in geomInst.Edges:
+                        for e in edge.Tessellate():
+                            p_z = e.Z
+                            if p_z not in ceiling_point_list:
+                                ceiling_point_list.append(p_z)
+        min_ceiling_p_z = min(ceiling_point_list)
+        max_ceiling_p_z = max(ceiling_point_list)
+        ceiling_point_dic[id] = [min_ceiling_p_z,max_ceiling_p_z]
+
     floors = []
     parallel_floors = []
     roof = []
+    room_bb = room.ClosedShell.GetBoundingBox()
+    room_bb_min = room_bb.Min
+    room_bb_max = room_bb.Max
+    df_floors = pd.DataFrame()
     for id in face_dic.keys():
         dir = face_dic[id]
-        if abs(dir.Z) == 1.0:
+        elem = doc.GetElement(ElementId(id))
+        category = elem.Category.Name
+        if abs(dir.Z) == 1.0 and ("Floors" in category or "Ceiling" in category):
             parallel_floors.append(id)
             floors.append(id)
-        else:
+        elif abs(dir.Z) > 0.0 :
             roof.append(id)
-
-
-    df_floors = pd.DataFrame()
-    resultArray = IntersectionResultArray()
-    floor_distance = {}
-    dis_to_m = []
-    dir_t = 0
-    id_t = None
-
+    
+    floor_points_dic = {}                               
     for id in floors:
-        if len(floors) <3:
-            # room has only top and bottom floor
-            floor = doc.GetElement(ElementId(id))
-            room_bb = room.ClosedShell.GetBoundingBox()
-            room_bb_min = room_bb.Min
-            room_bb_max = room_bb.Max
-            # floor_distance[id] = dis
-            new_par = None
-            paral_count = 0
-            dis_par = 0
-            dis_op = 0
-            for id_n in parallel_floors:
-                if id_n != id and id not in roof:
-                    new_par = id_n
-                    paral_count = 1
-                    dis_par = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,3)
-            for id_n in roof:
-                if id_n != id:
-                    dis_op = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,3)
-            new_row_floors = pd.Series({'Room_Id':room.Id,
-                                        'Room_uniqueId':room.UniqueId,
-                                        'ElementId': id,
-                                        'Element_uniqueId': floor.UniqueId,
-                                        'Parallel_floor_id':new_par,
-                                        'Parallel_floors_count':paral_count,
-                                        'Distance_to_nonparallel':[dis_op],
-                                        'Distance_to_parallel':[dis_par]})
-            df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
-        else:
-            # room has additional ceiling or floor
-            elem = doc.GetElement(ElementId(id))
-            elem_geom = elem.get_Geometry(Options())
-            for geomInst in elem_geom:
-                if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
-                        floor_solid = geomInst
-                        for face in floor_solid.Faces:
-                            normal = face.ComputeNormal(UV(room_location.X,room_location.Y))
-                            if abs(normal.Z)==1.0 and face != None:
-                                try:
-                                    dis = face.Project(room_location).Distance
-                                    floor_distance[id] = [normal.Z,dis]
-                                    break
-                                except:
-                                    continue
-
-    for id in floor_distance.keys():
-        val = floor_distance[id]
-        dir = val[0]
-        dis_to_room = val[1]
+        floor_point_list = []
         floor = doc.GetElement(ElementId(id))
-        paral_count = 0
-        distance = 0
-        new_par = []
-        distance_to_parallel = []
-        for id_t in floor_distance.keys():
-            if id_t != id and id not in roof and id_t not in roof and id_t in parallel_floors and id in parallel_floors:
-                paral_count = paral_count + 1
-                val_t = floor_distance[id_t]
-                dir_t = val_t[0]
-                dis_to_room_t = val_t[1]
-                new_par.append(id_t)
-                if dir != dir_t:
-                    distance = dis_to_room + dis_to_room_t
-                    distance_to_parallel.append(round(distance*0.3048,3))
-                else:
-                    distance = abs(dis_to_room - dis_to_room_t)
-                    distance_to_parallel.append(round(distance*0.3048,3))
+        elem_geom = floor.get_Geometry(Options())
+        for geomInst in elem_geom:
+            if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
+                    floor_solid = geomInst
+                    for edge in geomInst.Edges:
+                        for e in edge.Tessellate():
+                            p_z = e.Z
+                            if p_z not in floor_point_list:
+                                floor_point_list.append(p_z)
+        min_floor_point_z = min(floor_point_list)
+        max_floor_point_z = max(floor_point_list)
+        floor_points_dic[id] = [min_floor_point_z,max_floor_point_z]
 
+    for id in floor_points_dic.keys():
+        paral_floors_new = []
+        roof_new = []
+        distance_par_list = []
+        distance_nonpar_list = []
+        floor = doc.GetElement(ElementId(id))
+        min_val_floor = floor_points_dic[id][0]
+        max_val_floor = floor_points_dic[id][1]
+        for id_c in ceiling_point_dic.keys():
+            min_val_ceiling = ceiling_point_dic[id_c][0]
+            max_val_ceiling  = ceiling_point_dic[id_c][1]
+            dis_1 = abs(min_val_floor-max_val_ceiling)
+            dis_2 = abs(max_val_floor-min_val_ceiling)
+            if id in parallel_floors:
+                paral_floors_new.append(id_c)
+                if dis_1 > dis_2:
+                    distance_par = round(dis_2*0.3048,3)
+                    distance_par_list.append(distance_par)
+                else:
+                    distance_par = round(dis_1*0.3048,3)
+                    distance_par_list.append(distance_par)
+            if id in roof:
+                roof_new.append(id_c)
+                if dis_1 > dis_2:
+                    distance_nonpar = round(dis_2*0.3048,3)
+                    distance_nonpar_list.append(distance_nonpar)
+                else:
+                    distance_nonpar = round(dis_1*0.3048,3)
+                    distance_nonpar_list.append(distance_nonpar)
+        for id_f in floor_points_dic.keys():
+            min_val_floor_f = floor_points_dic[id_f][0]
+            max_val_floor_f = floor_points_dic[id_f][1]
+            dis_1 = abs(min_val_floor-max_val_floor_f)
+            dis_2 = abs(max_val_floor-min_val_floor_f)
+            if id != id_f:
+                if id in parallel_floors and id_f in parallel_floors:
+                    paral_floors_new.append(id_f)
+                    if dis_1 > dis_2:
+                        distance_par = round(dis_2*0.3048,3)
+                        distance_par_list.append(distance_par)
+                    else:
+                        distance_par = round(dis_1*0.3048,3)
+                        distance_par_list.append(distance_par)
+                if id in roof or id_f in roof:
+                    roof_new.append(id_f)
+                    if dis_1 > dis_2:
+                        distance_nonpar = round(dis_2*0.3048,3)
+                        distance_nonpar_list.append(distance_nonpar)
+                    else:
+                        distance_nonpar = round(dis_1*0.3048,3)
+                        distance_nonpar_list.append(distance_nonpar)
         new_row_floors = pd.Series({'Room_Id':room.Id,
                                         'Room_uniqueId':room.UniqueId,
                                         'ElementId': id,
                                         'Element_uniqueId': floor.UniqueId,
-                                        'Parallel_floor_id':new_par,
-                                        'Parallel_floors_count':paral_count,
-                                        'Distance_to_nonparallel':[0],
-                                        'Distance_to_parallel': distance_to_parallel})
+                                        'Parallel_floor_id':paral_floors_new,
+                                        'Nonparallel_floor_id': roof_new,
+                                        'Distance_to_parallel':distance_par_list,
+                                        'Distance_to_nonparallel':distance_nonpar_list})
         df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
+
+    
+
+    # df_floors = pd.DataFrame()
+    # resultArray = IntersectionResultArray()
+    # floor_distance = {}
+    # dis_to_m = []
+    # dir_t = 0
+    # id_t = None
+
+    # for id in floors:
+    #     if len(floors) <3:
+    #         # room has only top and bottom floor
+    #         floor = doc.GetElement(ElementId(id))
+    #         room_bb = room.ClosedShell.GetBoundingBox()
+    #         room_bb_min = room_bb.Min
+    #         room_bb_max = room_bb.Max
+    #         # floor_distance[id] = dis
+    #         new_par = None
+    #         paral_count = 0
+    #         dis_par = 0
+    #         dis_op = 0
+    #         roof_id = None
+    #         for id_n in parallel_floors:
+    #             if id_n != id and id not in roof:
+    #                 new_par = id_n
+    #                 paral_count = 1
+    #                 dis_par = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,3)
+    #         for id_n in roof:
+    #             if id_n != id:
+    #                 roof_id = id_n
+    #                 dis_op = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,3)
+    #         new_row_floors = pd.Series({'Room_Id':room.Id,
+    #                                     'Room_uniqueId':room.UniqueId,
+    #                                     'ElementId': id,
+    #                                     'Element_uniqueId': floor.UniqueId,
+    #                                     'Parallel_floor_id':[new_par],
+    #                                     'Parallel_floors_count':paral_count,
+    #                                     'Nonparallel_floor_id': [roof_id],
+    #                                     'Distance_to_nonparallel':[dis_op],
+    #                                     'Distance_to_parallel':[dis_par]})
+    #         df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
+    #     else:
+    #         # room has additional ceiling or floor
+    #         elem = doc.GetElement(ElementId(id))
+    #         elem_geom = elem.get_Geometry(Options())
+    #         for geomInst in elem_geom:
+    #             if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
+    #                     floor_solid = geomInst
+    #                     for face in floor_solid.Faces:
+    #                         normal = face.ComputeNormal(UV(room_location.X,room_location.Y))
+    #                         if abs(normal.Z)==1.0 and face != None:
+    #                             try:
+    #                                 dis = face.Project(room_location).Distance
+    #                                 floor_distance[id] = [normal.Z,dis]
+    #                                 break
+    #                             except:
+    #                                 pass
+
+    # for id in floor_distance.keys():
+    #     val = floor_distance[id]
+    #     dir = val[0]
+    #     dis_to_room = val[1]
+    #     floor = doc.GetElement(ElementId(id))
+    #     paral_count = 0
+    #     distance = 0
+    #     new_par = []
+    #     distance_to_parallel = []
+    #     for id_t in floor_distance.keys():
+    #         if id_t != id and id not in roof and id_t not in roof and id_t in parallel_floors and id in parallel_floors:
+    #             paral_count = paral_count + 1
+    #             val_t = floor_distance[id_t]
+    #             dir_t = val_t[0]
+    #             dis_to_room_t = val_t[1]
+    #             new_par.append(id_t)
+    #             if dir != dir_t:
+    #                 distance = dis_to_room + dis_to_room_t
+    #                 distance_to_parallel.append(round(distance*0.3048,3))
+    #             else:
+    #                 distance = abs(dis_to_room - dis_to_room_t)
+    #                 distance_to_parallel.append(round(distance*0.3048,3))
+
+    #     new_row_floors = pd.Series({'Room_Id':room.Id,
+    #                                     'Room_uniqueId':room.UniqueId,
+    #                                     'ElementId': id,
+    #                                     'Element_uniqueId': floor.UniqueId,
+    #                                     'Parallel_floor_id':new_par,
+    #                                     'Parallel_floors_count':paral_count,
+    #                                     'Nonparallel_floor_id': [None],
+    #                                     'Distance_to_nonparallel':[0],
+    #                                     'Distance_to_parallel': distance_to_parallel})
+    #     df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
     # 
     # 
     # 
@@ -599,62 +715,32 @@ for room in room_collection:
                                     first_point = points.XYZPointOnFirstCurve
                                     second_point = points.XYZPointOnSecondCurve
                                     dis_to_cut = round(first_point.DistanceTo(second_point)*0.3048 - width_p/2*0.3048,3)
-                                    closest_dis_hor.append(dis_to_cut)
-                                    distance_hor_ids.append(id_el)
-                                    # if id_el not in distance_ids:
-                                    #     closest_dis.append(dis_to_cut)
-                                    #     distance_ids.append(id_el)
-                                    #     closest_dis_hor.append(dis_to_cut)
-                                    #     distance_hor_ids.append(id_el)
-                        if abs(dir_c.Z) == 0.0:
-                            if face_dic[id_el].Z == 1.0:
-                                proj_pnt = curve.GetEndPoint(0)
-                                elem_geom = elem.get_Geometry(Options())
-                                dis = 1
-                                temp_dist = []
-                                for geomInst in elem_geom:
-                                    if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
-                                            floor_solid = geomInst
-                                            for face in floor_solid.Faces:
-                                                if dis != 0:
-                                                    normal = face.ComputeNormal(UV(proj_pnt.X,proj_pnt.Y))
-                                                    if normal.Z==-1.0 and face != None:
-                                                        try:
-                                                            dis = round(face.Project(proj_pnt).Distance*0.3084,3)
-                                                            temp_dist.append(dis)
-                                                        except:
-                                                            dis = 0.0
-                                                            temp_dist.append(dis)
-                                min_dis = min(temp_dist)
-                                closest_dis_vert.append(dis)
-                                distance_vert_ids.append(id_el)
-                                # if id_el not in distance_ids:
-                                #     distance_ids.append(id_el)
-                                #     closest_dis.append(dis)
-                                #     closest_dis_vert.append(dis)
-                                #     distance_vert_ids.append(id_el)
-                            elif face_dic[id_el].Z == -1.0:
-                                proj_pnt = curve.GetEndPoint(0)
-                                elem_geom = elem.get_Geometry(Options())
-                                dis = 1
-                                temp_dist = []
-                                for geomInst in elem_geom:
-                                    if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
-                                            floor_solid = geomInst
-                                            for face in floor_solid.Faces:
-                                                if dis != 0:
-                                                    normal = face.ComputeNormal(UV(proj_pnt.X,proj_pnt.Y))
-                                                    if normal.Z==1.0:
-                                                        dis = round(face.Project(proj_pnt).Distance*0.3084,3)
-                                                        temp_dist.append(dis)
-                                min_dis = min(temp_dist)
-                                closest_dis_vert.append(dis)
-                                distance_vert_ids.append(id_el)
-                                # if id_el not in distance_ids:
-                                #     distance_ids.append(id_el)
-                                #     closest_dis.append(min_dis)
-                                #     closest_dis_vert.append(dis)
-                                #     distance_vert_ids.append(id_el)
+                                    if dis_to_cut not in closest_dis_hor:
+                                        closest_dis_hor.append(dis_to_cut)
+                                        distance_hor_ids.append(id_el)
+
+                        for id_f in floor_points_dic.keys():
+                            dist_1 = round(abs(curve.GetEndPoint(0).Z - floor_points_dic[id_f][0])*0.3048,3)
+                            dist_2 = round(abs(curve.GetEndPoint(0).Z - floor_points_dic[id_f][1])*0.3048,3)
+                            if dist_1>dist_2:
+                                if dist_2 not in closest_dis_vert:
+                                    closest_dis_vert.append(dist_2)
+                                    distance_vert_ids.append(id_f)
+                            if dist_2>dist_1:
+                                if dist_1 not in closest_dis_vert:
+                                    closest_dis_vert.append(dist_1)
+                                    distance_vert_ids.append(id_f)
+                        for id_c in ceiling_point_dic.keys():
+                            dist_1 = round(abs(curve.GetEndPoint(0).Z - ceiling_point_dic[id_c][0])*0.3048,3)
+                            dist_2 = round(abs(curve.GetEndPoint(0).Z - ceiling_point_dic[id_c][1])*0.3048,3)
+                            if dist_1>dist_2:
+                                if dist_2 not in closest_dis_vert:
+                                    closest_dis_vert.append(dist_2)
+                                    distance_vert_ids.append(id_c.IntegerValue)
+                            if dist_2>dist_1:
+                                if dist_1 not in closest_dis_vert:
+                                    closest_dis_vert.append(dist_1)
+                                    distance_vert_ids.append(id_c.IntegerValue)
         distance_dic[id] = closest_dis
         dType = doc.GetElement(door.GetTypeId())
         width = dType.get_Parameter(BuiltInParameter.DOOR_WIDTH).AsDouble() 
@@ -773,60 +859,78 @@ for room in room_collection:
                                     first_point = points.XYZPointOnFirstCurve
                                     second_point = points.XYZPointOnSecondCurve
                                     dis_to_cut = round(first_point.DistanceTo(second_point)*0.3048 - width_p/2*0.3048,3)
-                                    distance_hor_ids.append(id_el)
-                                    closest_dis_hor.append(dis_to_cut)
-                                    # if dis_to_cut not in closest_dis_hor:         
-                                    # # if id_el not in distance_ids:
-                                    #     closest_dis.append(dis_to_cut)
-                                    #     distance_ids.append(id_el) 
-                                    #     closest_dis_hor.append(dis_to_cut)
-                                    #     distance_hor_ids.append(id_el)
-                        if abs(dir_c.Z) == 0.0:
-                            if face_dic[id_el].Z == 1.0:
-                                proj_pnt = curve.GetEndPoint(0)
-                                elem_geom = elem.get_Geometry(Options())
-                                dis = 1
-                                temp_dist = []
-                                for geomInst in elem_geom:
-                                    if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
-                                            floor_solid = geomInst
-                                            for face in floor_solid.Faces:
-                                                if dis != 0:
-                                                    normal = face.ComputeNormal(UV(proj_pnt.X,proj_pnt.Y))
-                                                    if normal.Z==-1.0:
-                                                        dis = round(face.Project(proj_pnt).Distance*0.3084,3)
-                                                        temp_dist.append(dis)
-                                min_dis = min(temp_dist)
-                                distance_vert_ids.append(id_el)
-                                closest_dis_vert.append(dis)
+                                    if dis_to_cut not in closest_dis_hor:
+                                        distance_hor_ids.append(id_el)
+                                        closest_dis_hor.append(dis_to_cut)
+
+                        # if abs(dir_c.Z) == 0.0:
+                        #     if face_dic[id_el].Z == 1.0:
+                        #         proj_pnt = curve.GetEndPoint(0)
+                        #         elem_geom = elem.get_Geometry(Options())
+                        #         dis = 1
+                        #         temp_dist = []
+                        #         for geomInst in elem_geom:
+                        #             if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
+                        #                     floor_solid = geomInst
+                        #                     for face in floor_solid.Faces:
+                        #                         if dis != 0:
+                        #                             normal = face.ComputeNormal(UV(proj_pnt.X,proj_pnt.Y))
+                        #                             if normal.Z==-1.0:
+                        #                                 dis = round(face.Project(proj_pnt).Distance*0.3084,3)
+                        #                                 temp_dist.append(dis)
+                        #         min_dis = min(temp_dist)
+                        #         distance_vert_ids.append(id_el)
+                        #         closest_dis_vert.append(dis)
                                 # if dis_to_cut not in distance_ids:
                                 #     distance_ids.append(id_el)
                                 #     closest_dis.append(dis)
                                 #     distance_vert_ids.append(id_el)
                                 #     closest_dis_vert.append(round(dis,3))
 
-                            elif face_dic[id_el].Z == -1.0:
-                                proj_pnt = curve.GetEndPoint(0)
-                                elem_geom = elem.get_Geometry(Options())
-                                dis = 1
-                                temp_dist = []
-                                for geomInst in elem_geom:
-                                    if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
-                                            floor_solid = geomInst
-                                            for face in floor_solid.Faces:
-                                                if dis != 0:
-                                                    normal = face.ComputeNormal(UV(proj_pnt.X,proj_pnt.Y))
-                                                    if normal.Z==1.0:
-                                                        dis = round(face.Project(proj_pnt).Distance*0.3084,3)
-                                                        temp_dist.append(dis)
-                                min_dis = min(temp_dist)
-                                closest_dis_vert.append(dis)
-                                distance_vert_ids.append(id_el)
-                                # if id_el not in distance_ids:
-                                #     distance_ids.append(id_el)
-                                #     closest_dis.append(dis)
-                                #     closest_dis_vert.append(round(dis,3))
-                                #     distance_vert_ids.append(id_el)
+                            # elif face_dic[id_el].Z == -1.0:
+                            #     proj_pnt = curve.GetEndPoint(0)
+                            #     elem_geom = elem.get_Geometry(Options())
+                            #     dis = 1
+                            #     temp_dist = []
+                            #     for geomInst in elem_geom:
+                            #         if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
+                            #                 floor_solid = geomInst
+                            #                 for face in floor_solid.Faces:
+                            #                     if dis != 0:
+                            #                         normal = face.ComputeNormal(UV(proj_pnt.X,proj_pnt.Y))
+                            #                         if normal.Z==1.0:
+                            #                             dis = round(face.Project(proj_pnt).Distance*0.3084,3)
+                            #                             temp_dist.append(dis)
+                            #     min_dis = min(temp_dist)
+                            #     closest_dis_vert.append(dis)
+                            #     distance_vert_ids.append(id_el)
+                            #     # if id_el not in distance_ids:
+                            #     #     distance_ids.append(id_el)
+                            #     #     closest_dis.append(dis)
+                            #     #     closest_dis_vert.append(round(dis,3))
+                            #     #     distance_vert_ids.append(id_el)
+                        for id_f in floor_points_dic.keys():
+                            dist_1 = round(abs(curve.GetEndPoint(0).Z - floor_points_dic[id_f][0])*0.3048,3)
+                            dist_2 = round(abs(curve.GetEndPoint(0).Z - floor_points_dic[id_f][1])*0.3048,3)
+                            if dist_1>dist_2:
+                                if dist_2 not in closest_dis_vert:
+                                    closest_dis_vert.append(dist_2)
+                                    distance_vert_ids.append(id_f)
+                            if dist_2>dist_1:
+                                if dist_1 not in closest_dis_vert:
+                                    closest_dis_vert.append(dist_1)
+                                    distance_vert_ids.append(id_f)
+                        for id_c in ceiling_point_dic.keys():
+                            dist_1 = round(abs(curve.GetEndPoint(0).Z - ceiling_point_dic[id_c][0])*0.3048,3)
+                            dist_2 = round(abs(curve.GetEndPoint(0).Z - ceiling_point_dic[id_c][1])*0.3048,3)
+                            if dist_1>dist_2:
+                                if dist_2 not in closest_dis_vert:
+                                    closest_dis_vert.append(dist_2)
+                                    distance_vert_ids.append(id_c.IntegerValue)
+                            if dist_2>dist_1:
+                                if dist_1 not in closest_dis_vert:
+                                    closest_dis_vert.append(dist_1)
+                                    distance_vert_ids.append(id_c.IntegerValue)
         distance_dic[id.IntegerValue] = closest_dis
         wType = doc.GetElement(window.GetTypeId())
         w = min(dim_arr)
@@ -917,6 +1021,24 @@ for room in room_collection:
                     dist = round(wall_curve.Project(loc_furn_new).Distance*0.3048 - wall_w/2*0.3048,3)
                     closest_dis.append(dist)
                     distance_ids.append(b_el.IntegerValue)
+            if dir.Z == 1.0:
+                # floors
+                for id_f in floor_points_dic.keys():
+                    distance_ids.append(id_f)
+                    dist_1 = abs(loc_furn.Z - floor_points_dic[id_f][0])
+                    dist_2 = abs(loc_furn.Z - floor_points_dic[id_f][1])
+                    if dist_1>dist_2:
+                        closest_dis.append(round(dist_2*0.3028,3))
+                    if dist_2>dist_1:
+                        closest_dis.append(round(dist_1*0.3028,3))
+        for id_c in ceiling_point_dic.keys():
+            distance_ids.append(id_c.IntegerValue)
+            dist_1 = abs(loc_furn.Z - ceiling_point_dic[id_c][0])
+            dist_2 = abs(loc_furn.Z - ceiling_point_dic[id_c][1])
+            if dist_1>dist_2:
+                closest_dis.append(round(dist_2*0.3028,3))
+            if dist_2>dist_1:
+                closest_dis.append(round(dist_1*0.3028,3))
 
         distance_dic[id] = closest_dis
         com_dis = distance_dic[id]

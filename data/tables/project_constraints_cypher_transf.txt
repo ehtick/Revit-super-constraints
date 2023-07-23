@@ -1,0 +1,9 @@
+Cypher transformation of: All walls in the room called Corridor have [min,mean,max] [1.2, 4.15956603773585, 11.038] distance to parallel walls., "requirements" 
+MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_PAR]->(w)  WHERE n.room_name = "Corridor" AND m.category = 'Walls' SET n.constr_distance_to_parall_min= 1.2n.constr_distance_to_parallel_max=inf, n.constr_characteristics="half-open interval" MERGE (m)-[k:CONSTRAINTS{distance_to_parallel_max:inf,distance_to_parallel_min:1.2,constraint_type: "requirements"}]->(w)  RETURN k,m
+
+Cypher transformation of: All walls in the room called Kitchen have [min,mean,max] [2.0, 3.4054285714285712, 8.0] distance to parallel walls., "requirements" 
+MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_PAR]->(w)  WHERE n.room_name = "Kitchen" AND m.category = 'Walls' SET n.constr_distance_to_parall_min= 2.0n.constr_distance_to_parallel_max=8.0, n.constr_characteristics="closed interval" MERGE (m)-[k:CONSTRAINTS{distance_to_parallel_max:8.0,distance_to_parallel_min:2.0,constraint_type: "requirements"}]->(w)  RETURN k,m
+
+Cypher transformation of: All walls in the room called WC Women Entr. have [min,mean,max] [1.7, 3.2037352941176467, 11.0] distance to parallel walls., "requirements" 
+MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_PAR]->(w)  WHERE n.room_name = "Women Entr." AND m.category = 'Walls' SET n.constr_distance_to_parall_min= 1.7n.constr_distance_to_parallel_max=11.0, n.constr_characteristics="closed interval" MERGE (m)-[k:CONSTRAINTS{distance_to_parallel_max:11.0,distance_to_parallel_min:1.7,constraint_type: "requirements"}]->(w)  RETURN k,m
+

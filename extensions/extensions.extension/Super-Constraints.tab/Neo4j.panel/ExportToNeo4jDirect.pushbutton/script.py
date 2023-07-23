@@ -18,10 +18,6 @@ import json
 import ast
 
 from Autodesk.Revit.DB import *
-# from Autodesk.Revit.UI.Selection import *
-# from System.Windows.Forms import FolderBrowserDialog
-# from System.Collections.Generic import List
-# from Autodesk.Revit.DB.IFC import *
 
 from openpyxl.workbook import Workbook
 
@@ -68,7 +64,7 @@ class App:
                                                         path: $doc_path})""",doc_name = doc_name,doc_path = doc_path,database = "neo4j").summary
 
         all_collection = FilteredElementCollector(doc).WhereElementIsNotElementType().ToElements()
-        supported_types = ['Wall','Door','Window','Floor','Furniture']
+        supported_types = ['Wall','Door','Window','Floor','Ceiling','Furniture']
         for elem in all_collection:
             try:
                 filter_cat = elem.Category.Name
@@ -158,22 +154,22 @@ class App:
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_win = pd.read_csv(completename_csv)
 
-        # get doors - integrated, in progress
+        # get doors - successful
         nameOfFile_csv = 'data\\tables\\room_elements_doors.csv'
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_doors = pd.read_csv(completename_csv)
 
-        # get walls - integrated
+        # get walls - successful
         nameOfFile_csv = 'data\\tables\\room_elements_walls.csv'
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_walls = pd.read_csv(completename_csv)
 
-        # get floors - not integrated
+        # get floors - successful
         nameOfFile_csv = 'data\\tables\\room_elements_floors.csv'
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_floors = pd.read_csv(completename_csv)
 
-        # get furniture - not integrated
+        # get furniture - successful
         nameOfFile_csv = 'data\\tables\\room_elements_furniture.csv'
         completename_csv =os.path.join(data_dir,nameOfFile_csv)
         df_furniture = pd.read_csv(completename_csv)
@@ -299,10 +295,6 @@ class App:
             unique_id = row['Element_uniqueId']
             width = row['Width']
             height = row['Height']
-            # elementId_perp = json.loads(row['Perpendicular_walls_id'])
-            # elementId_par = json.loads(row['Parallel_walls_id'])
-            # elementId_next = json.loads(row['Nearest_walls_id'])
-            # distance_par = json.loads(row['Distance_to_parall'])
             elementId_perp = ast.literal_eval(row['Perpendicular_walls_id'])
             elementId_par = ast.literal_eval(row['Parallel_walls_id'])
             elementId_next = ast.literal_eval(row['Nearest_walls_id'])
@@ -350,6 +342,63 @@ class App:
                                             width = width,
                                             height = height,
                                             database = "neo4j").summary
+        # working with floors
+        for item,row in df_floors.iterrows():
+            unique_id = row['Element_uniqueId']
+            elementId_par = ast.literal_eval(row['Parallel_floor_id'])
+            elementId_nonpar = ast.literal_eval(row['Nonparallel_floor_id'])
+            distance_nonpar = ast.literal_eval(row['Distance_to_nonparallel'])
+            distance_par = ast.literal_eval(row['Distance_to_parallel'])
+            for el_p in elementId_par:
+                if el_p != None:
+                    index = elementId_par.index(el_p)
+                    dist = distance_par[index]
+                    self.driver.execute_query("""MATCH (a),
+                                                (b:Floor)
+                                                WHERE b.unique_id = $unique_id AND a.id = $el_p
+                                                MERGE (b) - [r:DISTANCE_PAR {distance: $dist}] -> (a)""",
+                                                unique_id = unique_id,
+                                                dist = dist, 
+                                                el_p = el_p, database = "neo4j").summary
+                    self.driver.execute_query("""MATCH (a),
+                                                (b:Floor)
+                                                WHERE b.unique_id = $unique_id AND a.id = $el_p
+                                                MERGE (b) - [r:PARALLEL] -> (a)""",
+                                                unique_id = unique_id,
+                                                el_p = el_p, database = "neo4j").summary
+            for el_p in elementId_nonpar:
+                if el_p != None:
+                    index = elementId_nonpar.index(el_p)
+                    dist = distance_nonpar[index]
+                    self.driver.execute_query("""MATCH (a),
+                                                (b:Floor)
+                                                WHERE b.unique_id = $unique_id AND a.id = $el_p
+                                                MERGE (b) - [r:DISTANCE_NONPAR {distance: $dist}] -> (a)""",
+                                                unique_id = unique_id,
+                                                dist = dist, 
+                                                el_p = el_p, database = "neo4j").summary
+                    self.driver.execute_query("""MATCH (a),
+                                                (b:Floor)
+                                                WHERE b.unique_id = $unique_id AND a.id = $el_p
+                                                MERGE (b) - [r:NONPARALLEL] -> (a)""",
+                                                unique_id = unique_id,
+                                                el_p = el_p, database = "neo4j").summary
+        # woking with furniture
+        for item,row in df_furniture.iterrows():
+            unique_id = row['Element_uniqueId']
+            elementId_nearest = ast.literal_eval(row['Nearest_elementIds'])
+            distance_nearest = ast.literal_eval(row['Distance_to_nearest'])
+            for el_n in elementId_nearest:
+                if el_n != None:
+                    index = elementId_nearest.index(el_n)
+                    dist = distance_nearest[index]
+                    self.driver.execute_query("""MATCH (a),
+                                                (b:Furniture)
+                                                WHERE b.unique_id = $unique_id AND a.id = $el_n
+                                                MERGE (b) - [r:DISTANCE_NEAREST {distance: $dist}] -> (a)""",
+                                                unique_id = unique_id,
+                                                dist = dist, 
+                                                el_n = el_n, database = "neo4j").summary          
 
 
 if __name__ == "__main__":
@@ -369,8 +418,8 @@ if __name__ == "__main__":
             if 'NEO4J_PASSWORD=' in line:
                 password = line.split('NEO4J_PASSWORD=')[1]
                 print(password)
-    
-    uri = "neo4j+s://8e5153b5.databases.neo4j.io"
+    # neo4j+ssc enables to work from local device
+    uri = "neo4j+ssc://8e5153b5.databases.neo4j.io"
     user = "neo4j"
     password = "Mmte2MYxy73Y0_pUSmCFy_ZxgHvjUaMTS14m4d8A5d8"
     app = App(uri, user, password)
