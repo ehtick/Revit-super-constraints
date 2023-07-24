@@ -33,7 +33,7 @@
         </ListBox>
         <Label Content="Interval (closed interval)" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="0,29,0,0" Grid.Row="2" Width="152" Height="26"/>
         <Label Content="Requirements" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="5,136,0,0" Grid.Row="2" Width="152" Height="28"/>
-        <Label Content="Conseptual" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="5,164,0,0" Grid.Row="2" Width="152" Height="30"/>
+        <Label Content="Conceptual" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="2" Margin="5,164,0,0" Grid.Row="2" Width="152" Height="30"/>
         <CheckBox x:Name="check_interval_closed" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="0,34,0,0" Grid.Row="2" Height="24" Width="14"/>
         <CheckBox x:Name="check_cons" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="0,142,0,0" Grid.Row="2" Height="16" Width="14" RenderTransformOrigin="-0.429,0.438"/>
         <CheckBox x:Name="check_req" HorizontalAlignment="Left" VerticalAlignment="Top" Grid.Column="3" Margin="0,170,0,0" Grid.Row="2" Height="16" Width="14" RenderTransformOrigin="0.286,0.5"/>

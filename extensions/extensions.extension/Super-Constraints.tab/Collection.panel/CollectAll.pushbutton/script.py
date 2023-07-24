@@ -452,7 +452,7 @@ for room in room_collection:
                                 ceiling_point_list.append(p_z)
         min_ceiling_p_z = min(ceiling_point_list)
         max_ceiling_p_z = max(ceiling_point_list)
-        ceiling_point_dic[id] = [min_ceiling_p_z,max_ceiling_p_z]
+        ceiling_point_dic[id.IntegerValue] = [min_ceiling_p_z,max_ceiling_p_z]
 
     floors = []
     parallel_floors = []
@@ -723,24 +723,24 @@ for room in room_collection:
                             dist_1 = round(abs(curve.GetEndPoint(0).Z - floor_points_dic[id_f][0])*0.3048,3)
                             dist_2 = round(abs(curve.GetEndPoint(0).Z - floor_points_dic[id_f][1])*0.3048,3)
                             if dist_1>dist_2:
-                                if dist_2 not in closest_dis_vert:
+                                if dist_2 not in closest_dis_vert and dist_2 != 0.0:
                                     closest_dis_vert.append(dist_2)
                                     distance_vert_ids.append(id_f)
                             if dist_2>dist_1:
-                                if dist_1 not in closest_dis_vert:
+                                if dist_1 not in closest_dis_vert and dist_1 != 0.0:
                                     closest_dis_vert.append(dist_1)
                                     distance_vert_ids.append(id_f)
                         for id_c in ceiling_point_dic.keys():
                             dist_1 = round(abs(curve.GetEndPoint(0).Z - ceiling_point_dic[id_c][0])*0.3048,3)
                             dist_2 = round(abs(curve.GetEndPoint(0).Z - ceiling_point_dic[id_c][1])*0.3048,3)
                             if dist_1>dist_2:
-                                if dist_2 not in closest_dis_vert:
+                                if dist_2 not in closest_dis_vert and dist_2 != 0.0:
                                     closest_dis_vert.append(dist_2)
-                                    distance_vert_ids.append(id_c.IntegerValue)
+                                    distance_vert_ids.append(id_c)
                             if dist_2>dist_1:
-                                if dist_1 not in closest_dis_vert:
+                                if dist_1 not in closest_dis_vert and dist_1 != 0.0:
                                     closest_dis_vert.append(dist_1)
-                                    distance_vert_ids.append(id_c.IntegerValue)
+                                    distance_vert_ids.append(id_c)
         distance_dic[id] = closest_dis
         dType = doc.GetElement(door.GetTypeId())
         width = dType.get_Parameter(BuiltInParameter.DOOR_WIDTH).AsDouble() 
@@ -762,7 +762,7 @@ for room in room_collection:
                                     'Element_uniqueId': door.UniqueId,
                                     'Door_width':round(width*0.3048,3),
                                     'Door_height':round(height*0.3048,3),
-                                    'Nearest_elementIds':distance_ids,
+                                    #'Nearest_elementIds':distance_ids,
                                     # 'Distance_to_edges':distance_dic[id],
                                     'ElementId_hor':distance_hor_ids,
                                     'ElementId_vert': distance_vert_ids,
@@ -776,7 +776,7 @@ for room in room_collection:
                                     'Distance_to_edges_vert_ma': max(closest_dis_vert),
                                     # 'Distance_to_edges_mi':min(com_dis),
                                     # 'Distance_to_edges_mean':round(statistics.mean(com_dis),3),
-                                    'Distance_to_edges_ma':max(com_dis),
+                                    #'Distance_to_edges_ma':max(com_dis),
                                     'ElementId_next_door':None,
                                     'Distance_to_next_door_min': None})
         df_doors = pd.concat([df_doors,new_row_doors.to_frame().T],ignore_index= True) 
@@ -926,11 +926,11 @@ for room in room_collection:
                             if dist_1>dist_2:
                                 if dist_2 not in closest_dis_vert:
                                     closest_dis_vert.append(dist_2)
-                                    distance_vert_ids.append(id_c.IntegerValue)
+                                    distance_vert_ids.append(id_c)
                             if dist_2>dist_1:
                                 if dist_1 not in closest_dis_vert:
                                     closest_dis_vert.append(dist_1)
-                                    distance_vert_ids.append(id_c.IntegerValue)
+                                    distance_vert_ids.append(id_c)
         distance_dic[id.IntegerValue] = closest_dis
         wType = doc.GetElement(window.GetTypeId())
         w = min(dim_arr)
@@ -948,7 +948,7 @@ for room in room_collection:
                                         'Element_uniqueId': window.UniqueId,
                                         'Window_width':round(min(dim_arr)*0.3048,3),
                                         'Window_height':round(max(dim_arr)*0.3048,3),
-                                        'Nearest_elementIds':distance_ids,
+                                        #'Nearest_elementIds':distance_ids,
                                         # 'Distance_to_edges':distance_dic[id.IntegerValue],
                                         'ElementId_vert': distance_vert_ids,
                                         'ElementId_hor':distance_hor_ids,
@@ -1032,7 +1032,7 @@ for room in room_collection:
                     if dist_2>dist_1:
                         closest_dis.append(round(dist_1*0.3028,3))
         for id_c in ceiling_point_dic.keys():
-            distance_ids.append(id_c.IntegerValue)
+            distance_ids.append(id_c)
             dist_1 = abs(loc_furn.Z - ceiling_point_dic[id_c][0])
             dist_2 = abs(loc_furn.Z - ceiling_point_dic[id_c][1])
             if dist_1>dist_2:
