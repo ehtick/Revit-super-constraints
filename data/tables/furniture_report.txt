@@ -1,0 +1,40 @@
+Analyse furniture 
+1. Analyse all furniture (by category: Furniture) 
+    Category                        Distance_to_nearest
+0  Furniture  [0.00015625, 1.905375, 3.748385416666667]
+2. Analyse all furniture by room names 
+        Room_name                Distance_to_nearest
+0  Administration  [0.0, 1.5443333333333333, 3.1915]
+  Room_name                                             Distance_to_nearest
+0   Kitchen  [0.002142857142857143, 2.2977142857142856, 4.7504285714285714]
+      Room_name                           Distance_to_nearest
+0  Meeting room  [0.0, 1.585666666666667, 3.3116666666666665]
+  Room_name                           Distance_to_nearest
+0    Office  [0.0, 2.1472500000000005, 3.986692307692307]
+  Room_name  Distance_to_nearest
+0    WC Men  [0.0, 1.561, 3.476]
+      Room_name                Distance_to_nearest
+0  WC Men Entr.  [0.0, 1.3599999999999999, 3.1915]
+  Room_name               Distance_to_nearest
+0  WC Women  [0.0, 1.3536666666666666, 2.996]
+        Room_name                Distance_to_nearest
+0  WC Women Entr.  [0.0, 1.3599999999999999, 3.1915]
+3. Analyse all furniture by their family name 
+           Family                  Distance_to_nearest
+0  M_Chair-Breuer  [0.0, 1.7740624999999999, 3.748875]
+         Family                            Distance_to_nearest
+0  M_Chair-Desk  [0.0, 2.0802777777777774, 3.7323888888888885]
+   Family                            Distance_to_nearest
+0  M_Desk  [0.0, 2.0802777777777774, 3.4357222222222226]
+       Family                          Distance_to_nearest
+0  M_Shelving  [0.0, 2.080222222222222, 4.316388888888889]
+                  Family    Distance_to_nearest
+0  M_Sink Kitchen-Island  [0.015, 2.182, 4.399]
+                 Family                Distance_to_nearest
+0  M_Sink Vanity-Square  [0.0, 1.3599999999999999, 3.1915]
+         Family    Distance_to_nearest
+0  M_Sofa-Corbu  [0.0, 2.1594, 4.6576]
+                          Family                            Distance_to_nearest
+0  M_Table-Dining Round w Chairs  [0.0, 1.7734999999999999, 3.7487500000000002]
+                        Family                Distance_to_nearest
+0  M_Toilet-Commercial-Wall-3D  [0.0, 1.4055, 3.1159999999999997]

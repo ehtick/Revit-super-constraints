@@ -90,12 +90,24 @@ class ModalForm(WPFWindow):
                             self.lb_trends.Items.Add(str_4)
                             self.lb_trends.Items.Add(str_5)
 
-                        elif 'family' in tail:
+                        elif 'family' in tail and 'freq' not in tail:
                             # str_1 = "All windows of the family " + row[0] + " have [min,mean,max] " + row[1] + " width."
                             # str_2 = "All windows of the family " + row[0] + " have [min,mean,max] " + row[2]  + " height."
                             str_3 = "All windows of the family " + row[0] + " have [min,mean,max] " + row[3]  + " horizontal distances to edges."
                             str_4 = "All windows of the family " + row[0] + " have [min,mean,max] " + row[4]  + " vertical distances to edges."
                             str_5 = "All windows of the family " + row[0] + " have [min,mean,max] " + row[5]  + " distance to next windows."
+                            
+                            # self.lb_trends.Items.Add(str_1)
+                            # self.lb_trends.Items.Add(str_2)
+                            self.lb_trends.Items.Add(str_3)
+                            self.lb_trends.Items.Add(str_4)
+                            self.lb_trends.Items.Add(str_5)
+                        elif 'family' in tail and 'freq' in tail:
+                            # str_1 = "All windows of the family " + row[0] + " have [min,mean,max] " + row[1] + " width."
+                            # str_2 = "All windows of the family " + row[0] + " have [min,mean,max] " + row[2]  + " height."
+                            str_3 = "All windows of the family " + row[0] + " have the most common [min,max] " + row[3]  + " horizontal distances to edges."
+                            str_4 = "All windows of the family " + row[0] + " have the most common [min,max] " + row[4]  + " vertical distances to edges."
+                            str_5 = "All windows of the family " + row[0] + " have the most common [min,max] " + row[5]  + " distance to next windows."
                             
                             # self.lb_trends.Items.Add(str_1)
                             # self.lb_trends.Items.Add(str_2)
@@ -139,12 +151,24 @@ class ModalForm(WPFWindow):
                             self.lb_trends.Items.Add(str_4)
                             self.lb_trends.Items.Add(str_5)
 
-                        elif 'family' in tail:
+                        elif 'family' in tail and 'freq' not in tail:
                             # str_1 = "All doors of the family " + row[0] + " have [min,mean,max] " + row[1] + " width."
                             # str_2 = "All doors of the family " + row[0] + " have [min,mean,max] " + row[2]  + " height."
                             str_3 = "All doors of the family " + row[0] + " have [min,mean,max] " + row[3]  + " horizontal distances to edges."
                             str_4 = "All doors of the family " + row[0] + " have [min,mean,max] " + row[4]  + " vertical distances to edges."
                             str_5 = "All doors of the family " + row[0] + " have [min,mean,max] " + row[5]  + " distance to next doors."
+                            
+                            # self.lb_trends.Items.Add(str_1)
+                            # self.lb_trends.Items.Add(str_2)
+                            self.lb_trends.Items.Add(str_3)
+                            self.lb_trends.Items.Add(str_4)
+                            self.lb_trends.Items.Add(str_5)
+                        elif 'family' in tail  and 'freq' in tail:
+                            # str_1 = "All doors of the family " + row[0] + " have [min,mean,max] " + row[1] + " width."
+                            # str_2 = "All doors of the family " + row[0] + " have [min,mean,max] " + row[2]  + " height."
+                            str_3 = "All doors of the family " + row[0] + " have the most common [min,max] " + row[3]  + " horizontal distances to edges."
+                            str_4 = "All doors of the family " + row[0] + " have the most common [min,max] " + row[4]  + " vertical distances to edges."
+                            str_5 = "All doors of the family " + row[0] + " have the most common [min,max] " + row[5]  + " distance to next doors."
                             
                             # self.lb_trends.Items.Add(str_1)
                             # self.lb_trends.Items.Add(str_2)
@@ -219,6 +243,7 @@ class ModalForm(WPFWindow):
         text = self.lb_trends.SelectedItem
         self.tb_constr.Text = str(text)
         if 'the most common' not in text:
+            self.lb_trends.Items.Clear()
             self.first_limit_p.Items.Add('min')
             self.first_limit_p.Items.Add('mean')
             self.first_limit_p.Items.Add('max')
@@ -228,6 +253,7 @@ class ModalForm(WPFWindow):
             self.second_limit_p.Items.Add('max')
             self.second_limit_p.Items.Add('inf')
         else:
+            self.lb_trends.Items.Clear()
             self.first_limit_p.Items.Add('min')
             self.first_limit_p.Items.Add('max')
             self.first_limit_p.Items.Add('inf')
@@ -235,7 +261,6 @@ class ModalForm(WPFWindow):
             self.second_limit_p.Items.Add('max')
             self.second_limit_p.Items.Add('inf')
             
-    
     def text_changed_event_handler(self,sender,args):
         print(sender.Text)
     
@@ -304,87 +329,261 @@ class ModalForm(WPFWindow):
                 s_val = '"inf"'  
         return [f_val,s_val,int_info]
 
+# get transformation   
+    def get_transform_dis_hor(self,str_new,name):
+        cat_name = str_new.split('All')[1].split()[0]
+        if name == 'room called':
+            str_splited = str_new.split("All " + cat_name +" in the room called")[1].split()
+        if name == 'category':
+            str_splited = str_new.split("All " + cat_name +" in the category")[1].split()
+        if name == 'family':
+            str_splited = str_new.split("All " + cat_name +" of the family")[1].split()
+        i = 0
+        paste = str_splited[i]
+        while  str_splited[i+1] != 'have':
+            paste = str_splited[i] + ' ' + str_splited[i+1]
+            i = i+1
+        if name == 'room called':
+            if 'windows' in str_new:
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Windows'"
+            elif 'doors' in str_new:
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Doors'"
+        if name == 'category':
+            if 'windows' in str_new:
+                trans_1 = " WHERE m.category = 'Windows'"
+            elif 'doors' in str_new:
+                trans_1 = " WHERE m.category = 'Doors'"
+        if name == 'family':
+            trans_1 = " WHERE m.family_name = " + '"'+paste + '"'
+        values = str_splited[i+3:i+6]
+        values_new = []
+        for val in values:
+            val = val.replace('[',"")
+            val = val.replace(']',"")
+            val = val.replace(',',"")
+            values_new.append(val)
+        values = values_new
+        int_val = self.interval_check(values)
+        constr_type = self.add_type()
+        elem = "MATCH (n)-[:CONTAINS]->(m) "
+        elem_2 = "MATCH (m)-[:DISTANCE_HOR]->(w) "
+        constr_all = " SET n.constr_distance_horizontal_min= " + int_val[0] + ", n.constr_distance_horizontal_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
+        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+int_val[1]+",distance_hor_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,w,m"
+        return transformation
+    def get_transform_dis_vert(self,str_new,name):
+        cat_name = str_new.split('All')[1].split()[0]
+        if name == 'room called':
+            str_splited = str_new.split("All " + cat_name +" in the room called")[1].split()
+        if name == 'category':
+            str_splited = str_new.split("All " + cat_name +" in the category")[1].split()
+        if name == 'family':
+            str_splited = str_new.split("All " + cat_name +" of the family")[1].split()
+        i = 0
+        paste = str_splited[i]
+        while  str_splited[i+1] != 'have':
+            paste = str_splited[i] + ' ' + str_splited[i+1]
+            i = i+1
+        if name == 'room called':
+            if 'windows' in str_new:
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Windows'"
+            elif 'doors' in str_new:
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Doors'"
+        if name == 'category':
+            if 'windows' in str_new:
+                trans_1 = " WHERE m.category = 'Windows'"
+            elif 'doors' in str_new:
+                trans_1 = " WHERE m.category = 'Doors'"
+        if name == 'family':
+            trans_1 = " WHERE m.family_name = " + '"'+paste + '"'
+        values = str_splited[i+3:i+6]
+        values_new = []
+        for val in values:
+            val = val.replace('[',"")
+            val = val.replace(']',"")
+            val = val.replace(',',"")
+            values_new.append(val)
+        values = values_new
+        int_val = self.interval_check(values)
+        constr_type = self.add_type()
+        elem = "MATCH (n)-[:CONTAINS]->(m) "
+        elem_2 = "MATCH (m)-[:DISTANCE_VERT]->(w) "
+        constr_all = " SET n.constr_distance_vertical_min= " + int_val[0] + ", n.constr_distance_vertical_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
+        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_vert_max:"+int_val[1]+",distance_vert_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+        return transformation
+    def get_transform_dis_next(self,str_new,name):
+        cat_name = str_new.split('All')[1].split()[0]
+        if name == 'room called':
+            str_splited = str_new.split("All " + cat_name +" in the room called")[1].split()
+        if name == 'category':
+            str_splited = str_new.split("All " + cat_name +" in the category")[1].split()
+        if name == 'family':
+            str_splited = str_new.split("All " + cat_name +" of the family")[1].split()
+        i = 0
+        paste = str_splited[i]
+        while  str_splited[i+1] != 'have':
+            paste = str_splited[i] + ' ' + str_splited[i+1]
+            i = i+1
+        if name == 'room called':
+            if 'windows' in str_new:
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Windows'"
+            elif 'doors' in str_new:
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Doors'"
+        if name == 'category':
+            if 'windows' in str_new:
+                trans_1 = " WHERE m.category = 'Windows'"
+            elif 'doors' in str_new:
+                trans_1 = " WHERE m.category = 'Doors'"
+        if name == 'family':
+            trans_1 = " WHERE m.family_name = " + '"'+paste + '"'
+        values = str_splited[i+3:i+6]
+        values_new = []
+        for val in values:
+            val = val.replace('[',"")
+            val = val.replace(']',"")
+            val = val.replace(',',"")
+            values_new.append(val)
+        values = values_new
+        int_val = self.interval_check(values)
+        constr_type = self.add_type()
+        elem = "MATCH (n)-[:CONTAINS]->(m) "
+        elem_2 = "MATCH (m)-[:DISTANCE_NEXT]->(w) "
+        constr_all = " SET n.constr_distance_next_min= " + int_val[0] + ", n.constr_distance_next_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
+        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_next_max:"+int_val[1]+",distance_next_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+        return transformation
+    def get_transform_dis_par(self,str_new,name):
+        cat_name = str_new.split('All')[1].split()[0]
+        if name == 'room called':
+            str_splited = str_new.split("All " + cat_name +" in the room called")[1].split()
+        if name == 'category':
+            str_splited = str_new.split("All " + cat_name +" in the category")[1].split()
+        if name == 'family':
+            str_splited = str_new.split("All " + cat_name +" of the family")[1].split()
+        i = 0
+        paste = str_splited[i]
+        while  str_splited[i+1] != 'have':
+            paste = str_splited[i] + ' ' + str_splited[i+1]
+            i = i+1
+        if name == 'room called':
+            if 'walls' in str_new:
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Walls'"
+            elif 'floors' in str_new:
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Floors'"
+        if name == 'category':
+            if 'walls' in str_new:
+                trans_1 = " WHERE m.category = 'Walls'"
+            elif 'floors' in str_new:
+                trans_1 = " WHERE m.category = 'Floors'"
+        if name == 'family':
+            trans_1 = " WHERE m.family_name = " + '"'+paste + '"'
+        values = str_splited[i+3:i+6]
+        values_new = []
+        for val in values:
+            val = val.replace('[',"")
+            val = val.replace(']',"")
+            val = val.replace(',',"")
+            values_new.append(val)
+        values = values_new
+        int_val = self.interval_check(values)
+        constr_type = self.add_type()
+        elem = "MATCH (n)-[:CONTAINS]->(m) "
+        elem_2 = "MATCH (m)-[:DISTANCE_PAR]->(w) "
+        constr_all = " SET n.constr_distance_parall_min= " + int_val[0] + ", n.constr_distance_parall_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
+        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_parall_max:"+int_val[1]+",distance_parall_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+        return transformation
+    def get_transform_dis_nonpar(self,str_new,name):
+        cat_name = str_new.split('All')[1].split()[0]
+        if name == 'room called':
+            str_splited = str_new.split("All " + cat_name +" in the room called")[1].split()
+        if name == 'category':
+            str_splited = str_new.split("All " + cat_name +" in the category")[1].split()
+        if name == 'family':
+            str_splited = str_new.split("All " + cat_name +" of the family")[1].split()
+        i = 0
+        paste = str_splited[i]
+        while  str_splited[i+1] != 'have':
+            paste = str_splited[i] + ' ' + str_splited[i+1]
+            i = i+1
+        if name == 'room called':
+            if 'walls' in str_new:
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Walls'"
+            elif 'floors' in str_new:
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Floors'"
+        if name == 'category':
+            if 'walls' in str_new:
+                trans_1 = " WHERE m.category = 'Walls'"
+            elif 'floors' in str_new:
+                trans_1 = " WHERE m.category = 'Floors'"
+        if name == 'family':
+            trans_1 = " WHERE m.family_name = " + '"'+paste + '"'
+        values = str_splited[i+3:i+6]
+        values_new = []
+        for val in values:
+            val = val.replace('[',"")
+            val = val.replace(']',"")
+            val = val.replace(',',"")
+            values_new.append(val)
+        values = values_new
+        int_val = self.interval_check(values)
+        constr_type = self.add_type()
+        elem = "MATCH (n)-[:CONTAINS]->(m) "
+        elem_2 = "MATCH (m)-[:DISTANCE_NONPAR]->(w) "
+        constr_all = " SET n.constr_distance_parall_min= " + int_val[0] + ", n.constr_distance_parall_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
+        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_parall_max:"+int_val[1]+",distance_parall_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+        return transformation
+    def get_transform_dis_nearest(self,str_new,name):
+        cat_name = str_new.split('All')[1].split()[0]
+        if name == 'room called':
+            str_splited = str_new.split("All " + cat_name +" in the room called")[1].split()
+        if name == 'category':
+            str_splited = str_new.split("All " + cat_name +" in the category")[1].split()
+        if name == 'family':
+            str_splited = str_new.split("All " + cat_name +" of the family")[1].split()
+        i = 0
+        paste = str_splited[i]
+        while  str_splited[i+1] != 'have':
+            paste = str_splited[i] + ' ' + str_splited[i+1]
+            i = i+1
+        if name == 'room called':
+            if 'furniture' in str_new:
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Furniture'"
+        if name == 'category':
+            if 'furniture' in str_new:
+                trans_1 = " WHERE m.category = 'Furniture'"
+        if name == 'family':
+            trans_1 = " WHERE m.family_name = " + '"'+paste + '"'
+        values = str_splited[i+3:i+6]
+        values_new = []
+        for val in values:
+            val = val.replace('[',"")
+            val = val.replace(']',"")
+            val = val.replace(',',"")
+            values_new.append(val)
+        values = values_new
+        int_val = self.interval_check(values)
+        constr_type = self.add_type()
+        elem = "MATCH (n)-[:CONTAINS]->(m) "
+        elem_2 = "MATCH (m)-[:DISTANCE_NEAREST]->(w) "
+        constr_all = " SET n.constr_distance_parall_min= " + int_val[0] + ", n.constr_distance_parall_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
+        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_parall_max:"+int_val[1]+",distance_parall_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+        return transformation
+
     def cypher_transform(self):
         str_new = self.tb_constr.Text
         transformation = 'This part is not implemented yet.'
         if "windows" in str_new:
+            #room called
             if 'room called' in str_new and 'horizontal' in str_new and 'the most common ' not in str_new :
-                str_splited = str_new.split("All windows in the room called")[1].split()
-                i = 0
-                room_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    room_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (n)-[:CONTAINS]->(m) "
-                trans_1 = " WHERE n.room_name = "+ '"'+room_name+'"' +" AND m.category = 'Windows'"
-                elem_2 = "MATCH (m)-[:DISTANCE_HOR]->(w) "
-                constr_all = " SET n.constr_distance_horizontal_min= " + int_val[0] + ", n.constr_distance_horizontal_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+int_val[1]+",distance_hor_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
-                
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,w,m"
-
+                transformation = self.get_transform_dis_hor(str_new,'room called')
             if 'room called' in str_new and 'vertical' in str_new and 'the most common ' not in str_new :
-                str_splited = str_new.split("All windows in the room called")[1].split()
-                i = 0
-                room_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    room_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                #values = str_splited[i+3:i+6]
-                i=0
-                while str_splited[i] != "]":
-                    values = str_splited[0:i]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                print(int_val)
-                constr_type = self.add_type()
-                elem = "MATCH (n)-[:CONTAINS]->(m) "
-                trans_1 = " WHERE n.room_name = "+ '"'+room_name+'"' +" AND m.category = 'Windows'"
-                elem_2 = "MATCH (m)-[:DISTANCE_VERT]->(w) "
-                constr_all = " SET n.constr_distance_vertical_min= " + int_val[0] + ", n.constr_distance_vertical_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_vert_max:"+int_val[1]+",distance_vert_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-
+                transformation = self.get_transform_dis_vert(str_new,'room called')
             if 'room called' in str_new and 'next' in str_new and 'the most common ' not in str_new :
-                str_splited = str_new.split("All windows in the room called")[1].split()
-                i = 0
-                room_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    room_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (n)-[:CONTAINS]->(m) "
-                trans_1 = " WHERE n.room_name = "+ '"'+room_name+'"' +" AND m.category = 'Windows'"
-                elem_2 = "MATCH (m)-[:DISTANCE_NEXT]->(w) "
-                constr_all = " SET n.constr_distance_next_min= " + int_val[0] + ", n.constr_distance_next_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_next_max:"+int_val[1]+",distance_next_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-
+                transformation = self.get_transform_dis_next(str_new,'room called')
             # in case room and  frequency 
             if 'room called' in str_new and 'the most common ' in str_new  and 'horizontal' in str_new:
                 str_splited = str_new.split("All windows in the room called")[1].split()
@@ -415,7 +614,6 @@ class ModalForm(WPFWindow):
                 constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+int_val[1]+",distance_hor_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
                 
                 transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-
             if 'room called' in str_new  and 'the most common ' in str_new and 'vertical' in str_new:
                 str_splited = str_new.split("All windows in the room called")[1].split()
                 i = 0
@@ -443,7 +641,6 @@ class ModalForm(WPFWindow):
                 constr_all = " SET n.constr_distance_vertical_min= " + int_val[0] + ", n.constr_distance_vertical_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
                 constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_vert_max:"+int_val[1]+",distance_vert_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
                 transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-
             if 'room called' in str_new  and 'the most common ' in str_new and 'next' in str_new:
                 str_splited = str_new.split("All windows in the room called")[1].split()
                 i = 0
@@ -470,85 +667,33 @@ class ModalForm(WPFWindow):
                 constr_all = " SET n.constr_distance_next_min= " + int_val[0] + ", n.constr_distance_next_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
                 constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_next_max:"+int_val[1]+",distance_next_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
                 transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-    
+            # category
             if 'category' in str_new and 'horizontal' in str_new:
-                str_splited = str_new.split("All windows in the category")[1].split()
-                i = 0
-                category = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    category = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (m)-[:DISTANCE_HOR]->(w) "
-                trans_1 = " WHERE m.category = 'Windows'"
-                elem_2 = ""
-                constr_all = " SET n.constr_distance_horizontal_min= " + int_val[0] + ", n.constr_distance_horizontal_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+int_val[1]+",distance_hor_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
-                
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+                transformation = self.get_transform_dis_hor(str_new,'category')
             if 'category' in str_new and 'vertical' in str_new:
-                str_splited = str_new.split("All windows in the category")[1].split()
-                i = 0
-                category = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    category = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (m)-[:DISTANCE_VERT]->(w) "
-                trans_1 = " WHERE m.category = 'Windows'"
-                elem_2 = ""
-                constr_all = " SET n.constr_distance_vertical_min= " + int_val[0] + ", n.constr_distance_vertical_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_vert_max:"+int_val[1]+",distance_vert_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+                transformation = self.get_transform_dis_vert(str_new,'category')
             if 'category' in str_new and 'next' in str_new:
-                str_splited = str_new.split("All windows in the category")[1].split()
-                i = 0
-                category = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    category = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (m)-[:DISTANCE_NEXT]->(w) "
-                trans_1 = " WHERE m.category = 'Windows'"
-                elem_2 = ""
-                constr_all = " SET n.constr_distance_next_min= " + int_val[0] + ", n.constr_distance_next_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_next_max:"+int_val[1]+",distance_next_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-            if 'family' in str_new and 'horizontal' in str_new:
+                transformation = self.get_transform_dis_next(str_new,'category')
+            # family name   
+            if 'family' in str_new and 'horizontal' in str_new and 'the most common ' not in str_new:
+                transformation = self.get_transform_dis_hor(str_new,'family')
+            if 'family' in str_new and 'vertical' in str_new  and 'the most common ' not in str_new:
+                transformation = self.get_transform_dis_vert(str_new,'family')
+            if 'family' in str_new and 'next' in str_new  and 'the most common ' not in str_new:
+                transformation = self.get_transform_dis_next(str_new,'family')
+            # family name and frequency
+            if 'family' in str_new and 'horizontal' in str_new  and 'the most common ' in str_new:
                 str_splited = str_new.split("All windows of the family")[1].split()
                 i = 0
                 fam_name = str_splited[i]
                 while  str_splited[i+1] != 'have':
                     fam_name = str_splited[i] + ' ' + str_splited[i+1]
                     i = i+1
-                values = str_splited[i+3:i+6]
+                str_splited = str_new.split('the most common')[1].split()
+                i=0
+                while str_splited[i] != "horizontal":
+                    values = str_splited[1:i+1]
+                    i= i+1
                 values_new = []
                 for val in values:
                     val = val.replace('[',"")
@@ -564,14 +709,18 @@ class ModalForm(WPFWindow):
                 constr_all = " SET n.constr_distance_horizontal_min= " + int_val[0] + ", n.constr_distance_horizontal_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
                 constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+int_val[1]+",distance_hor_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
                 transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-            if 'family' in str_new and 'vertical' in str_new:
+            if 'family' in str_new and 'vertical' in str_new  and 'the most common ' in str_new:
                 str_splited = str_new.split("All windows of the family")[1].split()
                 i = 0
                 fam_name = str_splited[i]
                 while  str_splited[i+1] != 'have':
                     fam_name = str_splited[i] + ' ' + str_splited[i+1]
                     i = i+1
-                values = str_splited[i+3:i+6]
+                str_splited = str_new.split('the most common')[1].split()
+                i=0
+                while str_splited[i] != "vertical":
+                    values = str_splited[1:i+1]
+                    i= i+1
                 values_new = []
                 for val in values:
                     val = val.replace('[',"")
@@ -587,14 +736,18 @@ class ModalForm(WPFWindow):
                 constr_all = " SET n.constr_distance_vertical_min= " + int_val[0] + ", n.constr_distance_vertical_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
                 constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_vert_max:"+int_val[1]+",distance_vert_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
                 transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-            if 'family' in str_new and 'next' in str_new:
+            if 'family' in str_new and 'next' in str_new  and 'the most common ' in str_new:
                 str_splited = str_new.split("All windows of the family")[1].split()
                 i = 0
                 fam_name = str_splited[i]
                 while  str_splited[i+1] != 'have':
                     fam_name = str_splited[i] + ' ' + str_splited[i+1]
                     i = i+1
-                values = str_splited[i+3:i+6]
+                str_splited = str_new.split('the most common')[1].split()
+                i=0
+                while str_splited[i] != "next":
+                    values = str_splited[1:i+1]
+                    i= i+1
                 values_new = []
                 for val in values:
                     val = val.replace('[',"")
@@ -611,76 +764,13 @@ class ModalForm(WPFWindow):
                 constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_next_max:"+int_val[1]+",distance_next_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
                 transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
         if "doors" in str_new:
+            #room called
             if 'room called' in str_new and 'horizontal' in str_new and 'the most common ' not in str_new :
-                str_splited = str_new.split("All doors in the room called")[1].split()
-                i = 0
-                room_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    room_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (n)-[:CONTAINS]->(m) "
-                trans_1 = " WHERE n.room_name = "+ '"'+room_name+'"' +" AND m.category = 'Doors'"
-                elem_2 = "MATCH (m)-[:DISTANCE_HOR]->(w) "
-                constr_all = " SET n.constr_distance_horizontal_min= " + int_val[0] + ", n.constr_distance_horizontal_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+int_val[1]+",distance_hor_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-
+                transformation = self.get_transform_dis_hor(str_new,'room called')
             if 'room called' in str_new and 'vertical' in str_new and 'the most common ' not in str_new :
-                str_splited = str_new.split("All doors in the room called")[1].split()
-                i = 0
-                room_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    room_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (n)-[:CONTAINS]->(m) "
-                trans_1 = " WHERE n.room_name = "+ '"'+room_name+'"' +" AND m.category = 'Doors'"
-                elem_2 = "MATCH (m)-[:DISTANCE_VERT]->(w) "
-                constr_all = " SET n.constr_distance_vertical_min= " + int_val[0] + ", n.constr_distance_vertical_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_vert_max:"+int_val[1]+",distance_vert_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-            if 'room called' in str_new and 'next' in str_new and 'the most common ' not in str_new:
-                str_splited = str_new.split("All doors in the room called")[1].split()
-                i = 0
-                room_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    room_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (n)-[:CONTAINS]->(m) "
-                trans_1 = " WHERE n.room_name = "+ '"'+room_name+'"' +" AND m.category = 'Doors'"
-                elem_2 = "MATCH (m)-[:DISTANCE_NEXT]->(w) "
-                constr_all = " SET n.constr_distance_next_min= " + int_val[0] + ", n.constr_distance_next_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_next_max:"+int_val[1]+",distance_next_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+                transformation = self.get_transform_dis_vert(str_new,'room called')
+            if 'room called' in str_new and 'next' in str_new and 'the most common ' not in str_new :
+                transformation = self.get_transform_dis_next(str_new,'room called')
             # in case room with freuency
             if 'room called' in str_new and 'horizontal' in str_new and 'the most common ' in str_new :
                 str_splited = str_new.split("All doors in the room called")[1].split()
@@ -709,7 +799,6 @@ class ModalForm(WPFWindow):
                 constr_all = " SET n.constr_distance_horizontal_min= " + int_val[0] + ", n.constr_distance_horizontal_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
                 constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+int_val[1]+",distance_hor_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
                 transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-
             if 'room called' in str_new and 'vertical' in str_new and 'the most common ' in str_new :
                 str_splited = str_new.split("All doors in the room called")[1].split()
                 i = 0
@@ -764,63 +853,33 @@ class ModalForm(WPFWindow):
                 constr_all = " SET n.constr_distance_next_min= " + int_val[0] + ", n.constr_distance_next_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
                 constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_next_max:"+int_val[1]+",distance_next_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
                 transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-
+            # category
             if 'category' in str_new and 'horizontal' in str_new:
-                # do something
-                print('This part is not implemented yet.') 
+                transformation = self.get_transform_dis_hor(str_new,'category')
             if 'category' in str_new and 'vertical' in str_new:
-                # do something
-                print('This part is not implemented yet.') 
+                transformation = self.get_transform_dis_vert(str_new,'category')
             if 'category' in str_new and 'next' in str_new:
-                # do something
-                print('This part is not implemented yet.') 
-            if 'family' in str_new and 'horizontal' in str_new:
-                # do something
-                print('This part is not implemented yet.') 
-            if 'family' in str_new and 'vertical' in str_new:
-                # do something
-                print('This part is not implemented yet.') 
-            if 'family' in str_new and 'next' in str_new:
-                # do something
-                print('This part is not implemented yet.') 
-        if "walls" in str_new:
-            if 'room called' in str_new and 'parallel' in str_new:
-                str_splited = str_new.split("All walls in the room called")[1].split()
-                i = 0
-                room_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    room_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (n)-[:CONTAINS]->(m) "
-                trans_1 = " WHERE n.room_name = "+ '"'+room_name+'"' +" AND m.category = 'Walls'"
-                elem_2 = "MATCH (m)-[:DISTANCE_PAR]->(w) "
-                constr_all = " SET n.constr_distance_to_parall_min= " + int_val[0] + ", n.constr_distance_to_parallel_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_to_parallel_max:"+int_val[1]+",distance_to_parallel_min:"+ int_val[0] + ",constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
-            if 'room called' in str_new and 'angles' in str_new:
-                print('This part is not implemented yet.') 
-            if 'category' in str_new and 'parallel' in str_new:
-                print('This part is not implemented yet.') 
-            if 'category' in str_new and 'angles' in str_new:
-                print('This part is not implemented yet.') 
-            if 'family' in str_new and 'parallel' in str_new:
-                str_splited = str_new.split("All walls of the family")[1].split()
+                transformation = self.get_transform_dis_next(str_new,'category')
+            # family name   
+            if 'family' in str_new and 'horizontal' in str_new and 'the most common ' not in str_new:
+                transformation = self.get_transform_dis_hor(str_new,'family')
+            if 'family' in str_new and 'vertical' in str_new  and 'the most common ' not in str_new:
+                transformation = self.get_transform_dis_vert(str_new,'family')
+            if 'family' in str_new and 'next' in str_new  and 'the most common ' not in str_new:
+                transformation = self.get_transform_dis_next(str_new,'family')
+            # family name and frequency
+            if 'family' in str_new and 'horizontal' in str_new  and 'the most common ' in str_new:
+                str_splited = str_new.split("All doors of the family")[1].split()
                 i = 0
                 fam_name = str_splited[i]
                 while  str_splited[i+1] != 'have':
                     fam_name = str_splited[i] + ' ' + str_splited[i+1]
                     i = i+1
-                values = str_splited[i+3:i+6]
+                str_splited = str_new.split('the most common')[1].split()
+                i=0
+                while str_splited[i] != "horizontal":
+                    values = str_splited[1:i+1]
+                    i= i+1
                 values_new = []
                 for val in values:
                     val = val.replace('[',"")
@@ -830,139 +889,99 @@ class ModalForm(WPFWindow):
                 values = values_new
                 int_val = self.interval_check(values)
                 constr_type = self.add_type()
-                elem = "MATCH (m)-[:DISTANCE_PAR]->(w) "
+                elem = "MATCH (m)-[:DISTANCE_HOR]->(w) "
                 trans_1 = " WHERE m.family_name = " + '"'+fam_name+'"'
                 elem_2 = ""
-                constr_all = " SET n.constr_distance_to_parall_min= " + int_val[0] + ", n.constr_distance_to_parallel_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_to_parallel_max:"+int_val[1]+",distance_to_parallel_min:"+ int_val[0] + ",constraint_type: " + constr_type +"}]->(w) "
+                constr_all = " SET n.constr_distance_horizontal_min= " + int_val[0] + ", n.constr_distance_horizontal_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
+                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+int_val[1]+",distance_hor_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
                 transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+            if 'family' in str_new and 'vertical' in str_new  and 'the most common ' in str_new:
+                str_splited = str_new.split("All doors of the family")[1].split()
+                i = 0
+                fam_name = str_splited[i]
+                while  str_splited[i+1] != 'have':
+                    fam_name = str_splited[i] + ' ' + str_splited[i+1]
+                    i = i+1
+                str_splited = str_new.split('the most common')[1].split()
+                i=0
+                while str_splited[i] != "vertical":
+                    values = str_splited[1:i+1]
+                    i= i+1
+                values_new = []
+                for val in values:
+                    val = val.replace('[',"")
+                    val = val.replace(']',"")
+                    val = val.replace(',',"")
+                    values_new.append(val)
+                values = values_new
+                int_val = self.interval_check(values)
+                constr_type = self.add_type()
+                elem = "MATCH (m)-[:DISTANCE_VERT]->(w) "
+                trans_1 = " WHERE m.family_name = " + '"'+fam_name+'"'
+                elem_2 = ""
+                constr_all = " SET n.constr_distance_vertical_min= " + int_val[0] + ", n.constr_distance_vertical_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
+                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_vert_max:"+int_val[1]+",distance_vert_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+            if 'family' in str_new and 'next' in str_new  and 'the most common ' in str_new:
+                str_splited = str_new.split("All doors of the family")[1].split()
+                i = 0
+                fam_name = str_splited[i]
+                while  str_splited[i+1] != 'have':
+                    fam_name = str_splited[i] + ' ' + str_splited[i+1]
+                    i = i+1
+                str_splited = str_new.split('the most common')[1].split()
+                i=0
+                while str_splited[i] != "next":
+                    values = str_splited[1:i+1]
+                    i= i+1
+                values_new = []
+                for val in values:
+                    val = val.replace('[',"")
+                    val = val.replace(']',"")
+                    val = val.replace(',',"")
+                    values_new.append(val)
+                values = values_new
+                int_val = self.interval_check(values)
+                constr_type = self.add_type()
+                elem = "MATCH (m)-[:DISTANCE_NEXT]->(w) "
+                trans_1 = " WHERE m.category = " + '"'+fam_name+'"'
+                elem_2 = ""
+                constr_all = " SET n.constr_distance_next_min= " + int_val[0] + ", n.constr_distance_next_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
+                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_next_max:"+int_val[1]+",distance_next_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+        if "walls" in str_new:
+            if 'room called' in str_new and 'parallel' in str_new:
+                transformation = self.get_transform_dis_par(str_new,'room called')
+            if 'room called' in str_new and 'angles' in str_new:
+                print('This part is not implemented yet.') 
+            if 'category' in str_new and 'parallel' in str_new:
+                transformation = self.get_transform_dis_par(str_new,'category')
+            if 'category' in str_new and 'angles' in str_new:
+                print('This part is not implemented yet.') 
+            if 'family' in str_new and 'parallel' in str_new:
+                transformation = self.get_transform_dis_par(str_new,'family')
             if 'family' in str_new and 'angles' in str_new:
                 print('This part is not implemented yet.') 
         if "floors" in str_new:
             if 'room called' in str_new and 'nonparallel' in str_new:
-                str_splited = str_new.split("All floors in the room called")[1].split()
-                i = 0
-                room_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    room_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (n)-[:CONTAINS]->(m) "
-                trans_1 = " WHERE n.room_name = "+ '"'+room_name+'"' +" AND m.category = 'Floors'"
-                elem_2 = "MATCH (m)-[:DISTANCE_NONPAR]->(w) "
-                constr_all = " SET n.constr_distance_nonparall_min= " + int_val[0] + ", n.constr_distance_nonparall_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_nonparall_max:"+int_val[1]+",distance_nonparall_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+                transformation = self.get_transform_dis_nonpar(str_new,'room called')
             if 'room called' in str_new and 'parallel' in str_new:
-                str_splited = str_new.split("All floors in the room called")[1].split()
-                i = 0
-                room_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    room_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (n)-[:CONTAINS]->(m) "
-                trans_1 = " WHERE n.room_name = "+ '"'+room_name+'"' +" AND m.category = 'Floors'"
-                elem_2 = "MATCH (m)-[:DISTANCE_PAR]->(w) "
-                constr_all = " SET n.constr_distance_parall_min= " + int_val[0] + ", n.constr_distance_parall_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_parall_max:"+int_val[1]+",distance_parall_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+                transformation = self.get_transform_dis_par(str_new,'room called')
             if 'category' in str_new and 'nonparallel' in str_new:
-                print('This part is not implemented yet.') 
+                transformation = self.get_transform_dis_nonpar(str_new,'category')
             if 'category' in str_new and 'parallel' in str_new:
-                print('This part is not implemented yet.') 
+                transformation = self.get_transform_dis_par(str_new,'category')
             if 'family' in str_new and 'nonparallel' in str_new:
-                print('This part is not implemented yet.') 
+                transformation = self.get_transform_dis_nonpar(str_new,'family')
             if 'family' in str_new and 'parallel' in str_new:
-                print('This part is not implemented yet.') 
+                transformation = self.get_transform_dis_par(str_new,'family')
         if 'furniture' in str_new:# completed
             if 'room called' in str_new:
-                str_splited = str_new.split("All walls in the room called")[1].split()
-                i = 0
-                room_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    room_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (n)-[:CONTAINS]->(m:Furniture) "
-                trans_1 = " WHERE n.room_name = "+ '"'+room_name+'"'
-                elem_2 = "MATCH (m)-[:DISTANCE_NEAREST]->(w) "
-                constr_all = " SET n.constr_distance_to_nearest_min= " + int_val[0] + ",n.constr_distance_to_nearest_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_to_nearest_max:"+int_val[1]+",distance_to_nearest_min:"+ int_val[0] + ",constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+                transformation = self.get_transform_dis_nearest(str_new,'room called')
             if 'category' in str_new:
-                str_splited = str_new.split("All walls of the family")[1].split()
-                i = 0
-                fam_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    fam_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (m:Furniture)-[:DISTANCE_NEAREST]->(w) "
-                trans_1 = ""
-                elem_2 = ""
-                constr_all = " SET n.constr_distance_to_nearest_min= " + int_val[0] + ",n.constr_distance_to_nearest_max=" + int_val[1] + ", n.constr_characteristics=" + int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_to_nearest_max:"+int_val[1]+",distance_to_nearest_min:"+ int_val[0] + ",constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+                transformation = self.get_transform_dis_nearest(str_new,'category')
             if 'family' in str_new:
-                str_splited = str_new.split("All walls of the family")[1].split()
-                i = 0
-                fam_name = str_splited[i]
-                while  str_splited[i+1] != 'have':
-                    fam_name = str_splited[i] + ' ' + str_splited[i+1]
-                    i = i+1
-                values = str_splited[i+3:i+6]
-                values_new = []
-                for val in values:
-                    val = val.replace('[',"")
-                    val = val.replace(']',"")
-                    val = val.replace(',',"")
-                    values_new.append(val)
-                values = values_new
-                int_val = self.interval_check(values)
-                constr_type = self.add_type()
-                elem = "MATCH (m)-[:DISTANCE_NEAREST]->(w) "
-                trans_1 = " WHERE m.family_name = " + '"'+fam_name+'"'
-                elem_2 = ""
-                constr_all = " SET n.constr_distance_to_nearest_min= " + int_val[0] + ", n.constr_distance_to_nearest_max=" + int_val[1] + ", n.constr_characteristics= " + int_val[2]
-                constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_to_nearest_max:"+int_val[1]+",distance_to_nearest_min:"+ int_val[0] + ",constraint_type: " + constr_type +"}]->(w) "
-                transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
+                transformation = self.get_transform_dis_nearest(str_new,'family')
 
         return transformation
 

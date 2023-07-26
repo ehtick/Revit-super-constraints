@@ -1,0 +1,32 @@
+Analyse floors 
+1. Analyse all floors (by category: Floors) 
+Category Distance_to_nonparallel  Distance_to_parallel
+  Floors         [nan, nan, nan] [0.718, 2.756, 3.575]
+2. Analyse all floors by room names 
+     Room_name Distance_to_nonparallel  Distance_to_parallel
+Administration         [nan, nan, nan] [0.718, 2.756, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+ Corridor         [nan, nan, nan] [0.718, 2.756, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+  Kitchen         [nan, nan, nan] [0.718, 2.736, 3.575]
+   Room_name Distance_to_nonparallel  Distance_to_parallel
+Meeting room         [nan, nan, nan] [0.718, 2.756, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+   Office         [nan, nan, nan] [0.718, 2.756, 3.575]
+   Room_name Distance_to_nonparallel Distance_to_parallel
+Service room         [nan, nan, nan]  [2.8, 3.023, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+    Stair         [nan, nan, nan] [0.718, 2.756, 3.575]
+Room_name Distance_to_nonparallel Distance_to_parallel
+    Vest.         [nan, nan, nan]  [2.8, 3.023, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+   WC Men         [nan, nan, nan] [0.718, 2.736, 3.575]
+   Room_name Distance_to_nonparallel  Distance_to_parallel
+WC Men Entr.         [nan, nan, nan] [0.718, 2.756, 3.575]
+Room_name Distance_to_nonparallel  Distance_to_parallel
+ WC Women         [nan, nan, nan] [0.718, 2.756, 3.575]
+     Room_name Distance_to_nonparallel  Distance_to_parallel
+WC Women Entr.         [nan, nan, nan] [0.718, 2.756, 3.575]
+3. Analyse all floors by their family name 
+Family Distance_to_nonparallel  Distance_to_parallel
+ Floor         [nan, nan, nan] [0.718, 2.756, 3.575]

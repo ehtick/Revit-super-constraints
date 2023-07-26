@@ -37,26 +37,37 @@ Category                    Width                          Height       Distance
 0  M_Fixed  [0.915, 1.0026923076923078, 1.2]  [1.83, 1.8299999999999998, 1.83]  [0.193, 2.4901153846153843, 10.215]  [0.305, 1.5940384615384617, 3.27]  [0.0, 0.0, 0.0]
                                   Family                             Width           Height               Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
 0  M_Window-Casement-Triple-Side-Transom  [1.35, 1.3499999999999999, 1.35]  [1.8, 1.8, 1.8]  [0.415, 1.3536666666666666, 2.281]  [0.55, 1.5125, 2.675]  [0.0, 0.0, 0.0]
+3. Analyse all windows by their family name and frequency 
 2. Analyse all doors by room names and frequency 
-        Room_name      Width     Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
-0  Administration  [[0.915]]  [[2.134]]        [0.224, 7.184]          [0.716, 2.85]            [0.0]
-  Room_name      Width     Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
-0  Corridor  [[0.915]]  [[2.134]]          [0.1, 1.996]           [0.75, 2.85]            [0.0]
+        Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0  Administration  [0.915]  [2.134]        [0.224, 7.184]          [0.716, 2.85]            [0.0]
   Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
-0   Kitchen  [[1.8]]  [[2.0]]        [0.065, 6.035]           [0.7, 3.575]            [0.0]
-      Room_name      Width     Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
-0  Meeting room  [[0.915]]  [[2.134]]          [0.2, 2.431]         [0.666, 3.575]            [0.0]
-      Room_name      Width     Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
-0  Service room  [[0.915]]  [[2.134]]         [0.2, 10.431]          [0.716, 2.85]            [0.0]
-  Room_name     Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
-0     Stair  [[1.35]]  [[2.0]]        [0.546, 1.996]           [0.75, 2.85]            [0.0]
-  Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
-0     Vest.  [[2.1]]  [[2.0]]       [0.119, 10.557]           [0.75, 2.85]            [0.0]
-  Room_name      Width     Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
-0    WC Men  [[0.762]]  [[2.032]]         [0.109, 2.47]         [0.768, 3.575]            [0.0]
+0  Corridor  [0.915]  [2.134]          [0.1, 1.996]           [0.75, 2.85]            [0.0]
+  Room_name  Width Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0   Kitchen  [1.8]  [2.0]        [0.065, 6.035]           [0.7, 3.575]            [0.0]
       Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
-0  WC Men Entr.  [[0.9]]  [[2.1]]           [0.1, 2.47]           [0.65, 2.85]            [0.0]
-  Room_name      Width     Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
-0  WC Women  [[0.762]]  [[2.032]]         [0.119, 2.46]          [0.818, 2.85]            [0.0]
-        Room_name      Width     Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
-0  WC Women Entr.  [[0.762]]  [[2.032]]         [0.119, 2.46]          [0.818, 2.85]            [0.0]
+0  Meeting room  [0.915]  [2.134]          [0.2, 2.431]         [0.666, 3.575]            [0.0]
+      Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0  Service room  [0.915]  [2.134]         [0.2, 10.431]          [0.716, 2.85]            [0.0]
+  Room_name   Width Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0     Stair  [1.35]  [2.0]        [0.546, 1.996]           [0.75, 2.85]            [0.0]
+  Room_name  Width Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0     Vest.  [2.1]  [2.0]       [0.119, 10.557]           [0.75, 2.85]            [0.0]
+  Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0    WC Men  [0.762]  [2.032]         [0.109, 2.47]         [0.768, 3.575]            [0.0]
+      Room_name  Width Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0  WC Men Entr.  [0.9]  [2.1]           [0.1, 2.47]           [0.65, 2.85]            [0.0]
+  Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0  WC Women  [0.762]  [2.032]         [0.119, 2.46]          [0.818, 2.85]            [0.0]
+        Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0  WC Women Entr.  [0.762]  [2.032]         [0.119, 2.46]          [0.818, 2.85]            [0.0]
+                         Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0  M_Door-Exterior-Double-Two_Lite  [0.762]  [2.032]         [0.119, 2.46]          [0.818, 2.85]            [0.0]
+                     Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0  M_Door-Passage-Single-Flush  [0.762]  [2.032]         [0.119, 2.46]          [0.818, 2.85]            [0.0]
+                        Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0  M_Door-Passage-Single-Two_Lite  [0.762]  [2.032]         [0.119, 2.46]          [0.818, 2.85]            [0.0]
+                     Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0  M_Door-Passage-Uneven-Flush  [0.762]  [2.032]         [0.119, 2.46]          [0.818, 2.85]            [0.0]
+        Room_name    Width   Height Distance_to_edges_hor Distance_to_edges_vert Distance_to_next
+0  M_Single-Flush  [0.762]  [2.032]         [0.119, 2.46]          [0.818, 2.85]            [0.0]

@@ -36,3 +36,4 @@ Category                            Width                          Height       
 0  M_Door-Passage-Uneven-Flush  [1.35, 1.35, 1.35]  [2.0, 2.0, 2.0]  [0.546, 2.666, 7.492]  [0.7, 2.0782499999999997, 3.575]  [0.0, 0.0, 0.0]
            Family                   Width                              Height     Distance_to_edges_hor  Distance_to_edges_vert Distance_to_next
 0  M_Single-Flush  [0.762, 0.8538, 0.915]  [2.032, 2.0931999999999995, 2.134]  [0.109, 2.42275, 10.431]  [0.666, 2.0157, 3.575]  [0.0, 0.0, 0.0]
+3. Analyse all doors by their family name and frequency 

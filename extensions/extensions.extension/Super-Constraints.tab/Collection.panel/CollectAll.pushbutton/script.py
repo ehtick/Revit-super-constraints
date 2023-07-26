@@ -777,8 +777,8 @@ for room in room_collection:
                                     # 'Distance_to_edges_mi':min(com_dis),
                                     # 'Distance_to_edges_mean':round(statistics.mean(com_dis),3),
                                     #'Distance_to_edges_ma':max(com_dis),
-                                    'ElementId_next_door':None,
-                                    'Distance_to_next_door_min': None})
+                                    'ElementId_next_door':[],
+                                    'Distance_to_next_door_min': []})
         df_doors = pd.concat([df_doors,new_row_doors.to_frame().T],ignore_index= True) 
     for wall,doors in wall_door.items():
         for d in doors:
@@ -960,8 +960,8 @@ for room in room_collection:
                                         'Distance_to_edges_vert_mi': min(closest_dis_vert),
                                         'Distance_to_edges_vert_mean': round(statistics.mean(closest_dis_vert),3),
                                         'Distance_to_edges_vert_ma': max(closest_dis_vert),
-                                        'ElementId_next_win':None,
-                                        'Distance_to_next_win_min': None})
+                                        'ElementId_next_win':[],
+                                        'Distance_to_next_win_min': []})
         df_windows = pd.concat([df_windows,new_row_windows.to_frame().T],ignore_index= True)
     for wall,wins in wall_win.items():
         for w in wins:

@@ -55,6 +55,8 @@ class App:
         df_cat = pd.DataFrame(data_cat)
         df_cat = df_cat.loc[df_cat['Support'] == "Yes"]
         categories = df_cat.values
+        df_fur = df_cat.loc[df_cat['Furniture'] == "Yes"]
+        furniture = df_fur.values
 
         #collect all elements direct from Revit
         # create document as node
@@ -65,6 +67,7 @@ class App:
 
         all_collection = FilteredElementCollector(doc).WhereElementIsNotElementType().ToElements()
         supported_types = ['Wall','Door','Window','Floor','Ceiling','Furniture']
+
         for elem in all_collection:
             try:
                 filter_cat = elem.Category.Name
@@ -82,9 +85,11 @@ class App:
                 except:
                     fam_name = elem.Symbol.Family.Nametype
                 label = 'Element'
-                for typ in supported_types:
-                    if typ in filter_cat:
-                        label = typ
+                for t in supported_types:
+                    if t in filter_cat:
+                        label = t
+                if filter_cat in furniture:
+                    label = 'Furniture'
                 
                 self.driver.execute_query("""MERGE (e:%s {category: $filter_cat,
                                                                 id: $id,
@@ -215,6 +220,8 @@ class App:
             height = row['Window_height']
             elementId_vert = json.loads(row['ElementId_vert'])
             elementId_hor = json.loads(row['ElementId_hor'])
+            elementId_next = row['ElementId_next_win']
+            print(elementId_next)
             distance_vert = json.loads(row['Distance_to_edges_vert'])
             distance_hor = json.loads(row['Distance_to_edges_hor'])
             dis_to_next = row['Distance_to_next_win_min']
@@ -238,7 +245,14 @@ class App:
                                             unique_id = unique_id,
                                             dist = dist,
                                             el_h = el_h, database = "neo4j").summary
-                
+            if dis_to_next != 'nan' and elementId_next != 'nan':
+                self.driver.execute_query("""MATCH (a),
+                                            (b:Window{category:"Windows"})
+                                            WHERE b.unique_id = $unique_id AND a.id = $el_h
+                                            MERGE (b) - [r:DISTANCE_NEXT {distance: $dist}] -> (a)""",
+                                            unique_id = unique_id,
+                                            dist = dist,
+                                            el_h = elementId_next, database = "neo4j").summary
             self.driver.execute_query("""MATCH (a:Window{category:"Windows"})
                                             WHERE a.unique_id = $unique_id
                                             SET a.distance_to_next_win_min = $dis_to_next,
@@ -249,6 +263,7 @@ class App:
                                             width = width,
                                             height = height,
                                             database = "neo4j").summary
+
         # working with doors
         for item,row in df_doors.iterrows():
             unique_id = row['Element_uniqueId']
@@ -256,6 +271,7 @@ class App:
             height = row['Door_height']
             elementId_vert = json.loads(row['ElementId_vert'])
             elementId_hor = json.loads(row['ElementId_hor'])
+            elementId_next = row['ElementId_next_door']
             distance_vert = json.loads(row['Distance_to_edges_vert'])
             distance_hor = json.loads(row['Distance_to_edges_hor'])
             dis_to_next = row['Distance_to_next_door_min']
@@ -279,6 +295,14 @@ class App:
                                             unique_id = unique_id,
                                             dist = dist,
                                             el_h = el_h, database = "neo4j").summary
+            if dis_to_next != 'nan' and elementId_next != 'nan':
+                self.driver.execute_query("""MATCH (a),
+                                            (b:Window{category:"Doors"})
+                                            WHERE b.unique_id = $unique_id AND a.id = $el_h
+                                            MERGE (b) - [r:DISTANCE_NEXT {distance: $dist}] -> (a)""",
+                                            unique_id = unique_id,
+                                            dist = dist,
+                                            el_h = elementId_next, database = "neo4j").summary
                 
             self.driver.execute_query("""MATCH (a:Door{category:"Doors"})
                                             WHERE a.unique_id = $unique_id
@@ -290,6 +314,19 @@ class App:
                                             width = width,
                                             height = height,
                                             database = "neo4j").summary
+        elementId_next = df_doors['ElementId_next_door'].values.tolist()
+        dis_to_next = df_doors['Distance_to_next_door_min'].values.tolist()
+        for el_h in elementId_next:
+                index = elementId_next.index(el_h)
+                dist = dis_to_next[index]
+                if dist !=0:
+                    self.driver.execute_query("""MATCH (a),
+                                                (b:Window{category:"Doors"})
+                                                WHERE b.unique_id = $unique_id AND a.id = $el_h
+                                                MERGE (b) - [r:DISTANCE_NEXT {distance: $dist}] -> (a)""",
+                                                unique_id = unique_id,
+                                                dist = dist,
+                                                el_h = el_h, database = "neo4j").summary
         # working with walls
         for item,row in df_walls.iterrows():
             unique_id = row['Element_uniqueId']

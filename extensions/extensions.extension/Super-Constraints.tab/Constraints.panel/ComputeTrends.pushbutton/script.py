@@ -220,6 +220,55 @@ for key in df_elements_keys:
 nameOfFile_csv = 'data\\tables\\windows_report_family.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_win_new_famname.to_csv(completename_csv,index=False)
+
+# analyse by family and frequency- completed
+win_file.write('3. Analyse all windows by their family name and frequency \n')
+df_elements_groped = df_elements.groupby('Family')
+df_elements_keys = df_elements_groped.groups.keys()
+df_win_new_famname_fr = pd.DataFrame()
+for key in df_elements_keys:
+    dupl_width = find_frequency_value(df_win_sorted['Window_width'].values.tolist())
+    if len(dupl_width)>1:
+        dupl_width = [dupl_width[0]]
+        dupl_height = find_frequency_value(df_win_sorted['Window_height'].values.tolist())
+        if len(dupl_height)>1:
+            dupl_height = [dupl_height[0]]
+        dupl_hor_dis_min = find_frequency_value(df_win_sorted['Distance_to_edges_hor_mi'].values.tolist())
+        if len(dupl_hor_dis_min)>1:
+            dupl_hor_dis_min = dupl_hor_dis_min[0]
+        else:
+            dupl_hor_dis_min = dupl_hor_dis_min[0]
+        dupl_hor_dis_max = find_frequency_value(df_win_sorted['Distance_to_edges_hor_ma'].values.tolist())
+        if len(dupl_hor_dis_max)>1:
+            dupl_hor_dis_max = dupl_hor_dis_max[1]
+        else:
+            dupl_hor_dis_max = dupl_hor_dis_max[0]
+        dupl_ver_dis_min = find_frequency_value(df_win_sorted['Distance_to_edges_vert_mi'].values.tolist())
+        if len(dupl_ver_dis_min)>1:
+            dupl_ver_dis_min = dupl_ver_dis_min[0]
+        else:
+            dupl_ver_dis_min = dupl_ver_dis_min[0]
+        dupl_ver_dis_max = find_frequency_value(df_win_sorted['Distance_to_edges_vert_ma'].values.tolist())
+        if len(dupl_ver_dis_max)>1:
+            dupl_ver_dis_max = dupl_ver_dis_max[1]
+        else:
+            dupl_ver_dis_max = dupl_ver_dis_max[0]
+        dupl_next_dis_min = find_frequency_value(df_win_sorted['Distance_to_next_win_min'].values.tolist())
+        if len(dupl_next_dis_min)>1:
+            dupl_next_dis_min = dupl_next_dis_min[0]
+        else:
+            dupl_next_dis_min = dupl_next_dis_min[0]
+
+        str_2 = pd.Series({'Room_name': key,'Width':dupl_width,'Height':dupl_height,
+                        'Distance_to_edges_hor':[dupl_hor_dis_min,dupl_hor_dis_max],
+                        'Distance_to_edges_vert':[dupl_ver_dis_min,dupl_ver_dis_max],
+                        'Distance_to_next':[dupl_next_dis_min]})
+        win_file.write(str_2.to_frame().T.to_string()  + '\n')
+        df_win_new_roomname_fr = pd.concat([df_win_new_roomname_fr,str_2.to_frame().T],ignore_index=True)
+
+nameOfFile_csv = 'data\\tables\\windows_report_family_freq.csv'
+completename_csv = os.path.join(data_dir,nameOfFile_csv)
+df_win_new_famname_fr.to_csv(completename_csv,index=False)
 #
 #
 #
@@ -359,6 +408,59 @@ for key in df_elements_keys:
 nameOfFile_csv = 'data\\tables\\doors_report_family.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_doors_new_famname.to_csv(completename_csv,index=False)
+
+# analyse by families with frequency - completed
+door_file.write('3. Analyse all doors by their family name and frequency \n')
+df_elements_groped = df_elements.groupby('Family')
+df_elements_keys = df_elements_groped.groups.keys()
+df_doors_new_famname_fr = pd.DataFrame()
+for key in df_elements_keys:
+    df_elements_gr = df_elements_groped.get_group(key)
+    uniqueid = df_elements_gr['Element_uniqueId'].values
+    df_doors_sorted = df_doors.loc[df_doors['Element_uniqueId'].isin(uniqueid)]
+    if len(df_doors_sorted)>0:
+        dupl_width = find_frequency_value(df_door_sorted['Door_width'].values.tolist())
+        if len(dupl_width)>1:
+            dupl_width = [dupl_width[0]]
+        dupl_height = find_frequency_value(df_door_sorted['Door_height'].values.tolist())
+        if len(dupl_height)>1:
+            dupl_height = [dupl_height[0]]
+        dupl_hor_dis_min = find_frequency_value(df_door_sorted['Distance_to_edges_hor_mi'].values.tolist())
+        if len(dupl_hor_dis_min)>1:
+            dupl_hor_dis_min = dupl_hor_dis_min[0]
+        else:
+            dupl_hor_dis_min = dupl_hor_dis_min[0]
+        dupl_hor_dis_max = find_frequency_value(df_door_sorted['Distance_to_edges_hor_ma'].values.tolist())
+        if len(dupl_hor_dis_max)>1:
+            dupl_hor_dis_max = dupl_hor_dis_max[1]
+        else:
+            dupl_hor_dis_max = dupl_hor_dis_max[0]
+        dupl_ver_dis_min = find_frequency_value(df_door_sorted['Distance_to_edges_vert_mi'].values.tolist())
+        if len(dupl_ver_dis_min)>1:
+            dupl_ver_dis_min = dupl_ver_dis_min[0]
+        else:
+            dupl_ver_dis_min = dupl_ver_dis_min[0]
+        dupl_ver_dis_max = find_frequency_value(df_door_sorted['Distance_to_edges_vert_ma'].values.tolist())
+        if len(dupl_ver_dis_max)>1:
+            dupl_ver_dis_max = dupl_ver_dis_max[1]
+        else:
+            dupl_ver_dis_max = dupl_ver_dis_max[0]
+        dupl_next_dis_min = find_frequency_value(df_door_sorted['Distance_to_next_door_min'].values.tolist())
+        if len(dupl_next_dis_min)>1:
+            dupl_next_dis_min = dupl_next_dis_min[0]
+        else:
+            dupl_next_dis_min = dupl_next_dis_min[0]
+
+        str_2 = pd.Series({'Room_name': key,'Width':dupl_width,'Height':dupl_height,
+                           'Distance_to_edges_hor':[dupl_hor_dis_min,dupl_hor_dis_max],
+                           'Distance_to_edges_vert':[dupl_ver_dis_min,dupl_ver_dis_max],
+                           'Distance_to_next':[dupl_next_dis_min]})
+        win_file.write(str_2.to_frame().T.to_string()  + '\n')
+        df_doors_new_famname_fr = pd.concat([df_doors_new_famname_fr,str_2.to_frame().T],ignore_index=True)
+
+nameOfFile_csv = 'data\\tables\\doors_report_family_freq.csv'
+completename_csv = os.path.join(data_dir,nameOfFile_csv)
+df_doors_new_famname_fr.to_csv(completename_csv,index=False)
 #
 #
 #
