@@ -76,7 +76,6 @@ class ModalForm(WPFWindow):
                             self.lb_trends.Items.Add(str_4)
                             self.lb_trends.Items.Add(str_5)
 
-
                         elif 'category' in tail:
                             # str_1 = "All windows in the category " + row[0] + " have [min,mean,max] " + row[1] + " width."
                             # str_2 = "All windows in the category " + row[0] + " have [min,mean,max] " + row[2]  + " height."
@@ -243,7 +242,8 @@ class ModalForm(WPFWindow):
         text = self.lb_trends.SelectedItem
         self.tb_constr.Text = str(text)
         if 'the most common' not in text:
-            self.lb_trends.Items.Clear()
+            self.first_limit_p.Items.Clear()
+            self.second_limit_p.Items.Clear()
             self.first_limit_p.Items.Add('min')
             self.first_limit_p.Items.Add('mean')
             self.first_limit_p.Items.Add('max')
@@ -253,7 +253,8 @@ class ModalForm(WPFWindow):
             self.second_limit_p.Items.Add('max')
             self.second_limit_p.Items.Add('inf')
         else:
-            self.lb_trends.Items.Clear()
+            self.first_limit_p.Items.Clear()
+            self.second_limit_p.Items.Clear()
             self.first_limit_p.Items.Add('min')
             self.first_limit_p.Items.Add('max')
             self.first_limit_p.Items.Add('inf')
@@ -265,10 +266,10 @@ class ModalForm(WPFWindow):
         print(sender.Text)
     
     def add_type(self):
-        if self.check_interval_closed.IsChecked == True:
+        if self.check_req.IsChecked == True:
             add_word = '"requirements"'
         elif self.check_cons.IsChecked == True:
-            add_word = '"conseptual"'
+            add_word = '"conceptual"'
         else:
             add_word = '""'
         return add_word
@@ -285,22 +286,22 @@ class ModalForm(WPFWindow):
             int_info = '"closed interval"'
             first_int = self.first_limit_p.SelectedItem.ToString()
             second_int = self.second_limit_p.SelectedItem.ToString()
-            if first_int == '"min"':
+            if first_int == 'min':
                 f_val = values[0]
-            elif first_int == '"mean"':
+            elif first_int == 'mean':
                 f_val = values[1]
-            elif first_int == '"max"':
+            elif first_int == 'max':
                 if len(values)==2:
                     f_val = values[1]
                 else:
                     f_val = values[2]
             else:
                 f_val = '"inf"'    
-            if second_int == '"min"':
+            if second_int == 'min':
                 s_val = values[0]
-            elif second_int == '"mean"':
+            elif second_int == 'mean':
                 s_val = values[1]
-            elif second_int == '"max"':
+            elif second_int == 'max':
                 if len(values)==2:
                     s_val = values[1]
                 else:
@@ -311,19 +312,19 @@ class ModalForm(WPFWindow):
             int_info = '"half-open interval"'
             first_int = self.first_limit_p.SelectedItem.ToString()
             second_int = self.second_limit_p.SelectedItem.ToString()
-            if first_int == '"min"':
+            if first_int == 'min':
                 f_val = values[0]
-            elif first_int == '"mean"':
+            elif first_int == 'mean':
                 f_val = values[1]
-            elif first_int == '"max"':
+            elif first_int == 'max':
                 f_val = values[2]
             else:
-                f_val = '"inf"'    
-            if second_int == '"min"':
+                f_val = 'inf'    
+            if second_int == 'min':
                 s_val = values[0]
-            elif second_int == '"mean"':
+            elif second_int == 'mean':
                 s_val = values[1]
-            elif second_int == '"max"':
+            elif second_int == 'max':
                 s_val = values[2]
             else:
                 s_val = '"inf"'  
@@ -364,9 +365,14 @@ class ModalForm(WPFWindow):
             values_new.append(val)
         values = values_new
         int_val = self.interval_check(values)
+        print(int_val)
+        print(self.first_limit_p.SelectedItem)
         constr_type = self.add_type()
+        print(constr_type)
         elem = "MATCH (n)-[:CONTAINS]->(m) "
         elem_2 = "MATCH (m)-[:DISTANCE_HOR]->(w) "
+        # constr_all = " SET n.constr_distance_horizontal_min= " + int_val[0] + ", n.constr_distance_horizontal_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
+        # constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+int_val[1]+",distance_hor_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
         constr_all = " SET n.constr_distance_horizontal_min= " + int_val[0] + ", n.constr_distance_horizontal_max=" + int_val[1] + ", n.constr_characteristics=" +int_val[2]
         constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"+int_val[1]+",distance_hor_min:"+ int_val[0] + ", " + "constraint_type: " + constr_type +"}]->(w) "
         transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,w,m"

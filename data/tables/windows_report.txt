@@ -1,7 +1,7 @@
 Analyse windows 
 1. Analyse all windows (by category:Windows) 
-Category                    Width                          Height       Distance_to_edges_hor            Distance_to_edges_vert Distance_to_next
- Windows [0.915, 1.0678125, 1.35] [1.8, 1.8243749999999999, 1.83] [0.193, 2.27703125, 10.215] [0.305, 1.5787499999999999, 3.27]  [0.0, 0.0, 0.0]
+Category                    Width                          Height       Distance_to_edges_hor            Distance_to_edges_vert    Distance_to_next
+ Windows [0.915, 1.0678125, 1.35] [1.8, 1.8243749999999999, 1.83] [0.193, 2.27703125, 10.215] [0.305, 1.5787499999999999, 3.27] [0.2, 0.665, 1.687]
 2. Analyse all windows by room names 
         Room_name               Width           Height  Distance_to_edges_hor             Distance_to_edges_vert Distance_to_next
 0  Administration  [1.35, 1.35, 1.35]  [1.8, 1.8, 1.8]  [0.465, 1.365, 2.265]  [0.55, 1.5125000000000002, 2.675]  [0.0, 0.0, 0.0]

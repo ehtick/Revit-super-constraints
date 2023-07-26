@@ -97,17 +97,20 @@ str_e_hor_max = df_win.agg({'Distance_to_edges_hor_ma':['max']}).values[0]
 str_e_vert_min = df_win.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
 str_e_vert_mean = df_win.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
 str_e_vert_max = df_win.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-str_n_min = df_win.agg({'Distance_to_next_win_min':['min']}).values[0]
+str_n_ = df_win['Distance_to_next_win_min'].values
+str_n_min = min(str_n_[str_n_!=0])
+str_n_max = max(str_n_[str_n_!=0])
+str_n_mean = round(statistics.mean(str_n_[str_n_!=0]),3)
 str_1 = pd.Series({'Category': 'Windows','Width':list(str_wh[0]),'Height':list(str_wh[1]),
                     'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                     'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
-                    'Distance_to_next':[str_n_min[0],0.,0.]})
+                    'Distance_to_next':[str_n_min,str_n_mean,str_n_max]})
 win_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
 df_win_new_cat = pd.concat([df_win_new,str_1.to_frame().T],ignore_index=True)
 
-nameOfFile_csv = 'data\\tables\\windows_report_cateqory.csv'
+nameOfFile_csv = 'data\\tables\\windows_report_category.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
-df_win_new_cat.to_csv(completename_csv)
+df_win_new_cat.to_csv(completename_csv,index=False)
 
 # analyse by room names - completed
 win_file.write('2. Analyse all windows by room names \n')
@@ -126,11 +129,15 @@ for key in df_elements_keys:
         str_e_vert_min = df_win_sorted.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
         str_e_vert_mean = df_win_sorted.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
         str_e_vert_max = df_win_sorted.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-        str_n_min = df_win_sorted.agg({'Distance_to_next_win_min':['min']}).values[0]
+        #str_n_min = df_win_sorted.agg({'Distance_to_next_win_min':['min']}).values[0]
+        str_n_ = df_win['Distance_to_next_win_min'].values
+        str_n_min = min(str_n_[str_n_!=0])
+        str_n_max = max(str_n_[str_n_!=0])
+        str_n_mean = round(statistics.mean(str_n_[str_n_!=0]),3)
         str_2 = pd.Series({'Room_name': key,'Width':list(str_wh[0]),'Height':list(str_wh[1]),
                            'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                            'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
-                           'Distance_to_next':[str_n_min[0],0.,0.]})
+                           'Distance_to_next':[str_n_min,str_n_mean,str_n_max]})
         win_file.write(str_2.to_frame().T.to_string()  + '\n')
         df_win_new_roomname = pd.concat([df_win_new_roomname,str_2.to_frame().T],ignore_index=True)
 
@@ -209,11 +216,14 @@ for key in df_elements_keys:
         str_e_vert_min = df_win_sorted.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
         str_e_vert_mean = df_win_sorted.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
         str_e_vert_max = df_win_sorted.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-        str_n_min = df_win_sorted.agg({'Distance_to_next_win_min':['min']}).values[0]
+        str_n_ = df_win['Distance_to_next_win_min'].values
+        str_n_min = min(str_n_[str_n_!=0])
+        str_n_max = max(str_n_[str_n_!=0])
+        str_n_mean = round(statistics.mean(str_n_[str_n_!=0]),3)
         str_2 = pd.Series({'Family': key,'Width':list(str_wh[0]),'Height':list(str_wh[1]),
                            'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                            'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
-                           'Distance_to_next':[str_n_min[0],0.,0.]})
+                           'Distance_to_next':[str_n_min,str_n_mean,str_n_max]})
         win_file.write(str_2.to_frame().T.to_string()  + '\n')
         df_win_new_famname = pd.concat([df_win_new_famname,str_2.to_frame().T],ignore_index=True)
 
