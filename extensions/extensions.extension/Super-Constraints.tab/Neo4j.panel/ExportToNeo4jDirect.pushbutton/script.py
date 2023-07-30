@@ -251,7 +251,7 @@ class App:
                                             WHERE b.unique_id = $unique_id AND a.id = $el_h
                                             MERGE (b) - [r:DISTANCE_NEXT {distance: $dist}] -> (a)""",
                                             unique_id = unique_id,
-                                            dist = dist,
+                                            dist = dis_to_next,
                                             el_h = elementId_next, database = "neo4j").summary
             self.driver.execute_query("""MATCH (a:Window{category:"Windows"})
                                             WHERE a.unique_id = $unique_id
@@ -297,11 +297,11 @@ class App:
                                             el_h = el_h, database = "neo4j").summary
             if dis_to_next != 'nan' and elementId_next != 'nan':
                 self.driver.execute_query("""MATCH (a),
-                                            (b:Window{category:"Doors"})
+                                            (b:Door{category:"Doors"})
                                             WHERE b.unique_id = $unique_id AND a.id = $el_h
                                             MERGE (b) - [r:DISTANCE_NEXT {distance: $dist}] -> (a)""",
                                             unique_id = unique_id,
-                                            dist = dist,
+                                            dist = dis_to_next,
                                             el_h = elementId_next, database = "neo4j").summary
                 
             self.driver.execute_query("""MATCH (a:Door{category:"Doors"})

@@ -98,9 +98,19 @@ str_e_vert_min = df_win.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
 str_e_vert_mean = df_win.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
 str_e_vert_max = df_win.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
 str_n_ = df_win['Distance_to_next_win_min'].values
-str_n_min = min(str_n_[str_n_!=0])
-str_n_max = max(str_n_[str_n_!=0])
-str_n_mean = round(statistics.mean(str_n_[str_n_!=0]),3)
+if len(str_n_) == 0:
+    str_n_min = 0.
+    str_n_max = 0.
+    str_n_mean = 0.
+else:
+    try:
+        str_n_min = min(str_n_[str_n_!=0])
+        str_n_max = max(str_n_[str_n_!=0])
+        str_n_mean = round(statistics.mean(str_n_[str_n_!=0]),3)
+    except:
+        str_n_min = 0.
+        str_n_max = 0.
+        str_n_mean = 0.
 str_1 = pd.Series({'Category': 'Windows','Width':list(str_wh[0]),'Height':list(str_wh[1]),
                     'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                     'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
@@ -130,10 +140,20 @@ for key in df_elements_keys:
         str_e_vert_mean = df_win_sorted.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
         str_e_vert_max = df_win_sorted.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
         #str_n_min = df_win_sorted.agg({'Distance_to_next_win_min':['min']}).values[0]
-        str_n_ = df_win['Distance_to_next_win_min'].values
-        str_n_min = min(str_n_[str_n_!=0])
-        str_n_max = max(str_n_[str_n_!=0])
-        str_n_mean = round(statistics.mean(str_n_[str_n_!=0]),3)
+        str_n_ = df_win_sorted['Distance_to_next_win_min'].values
+        if len(str_n_) == 0:
+            str_n_min = 0.
+            str_n_max = 0.
+            str_n_mean = 0.
+        else:
+            try:
+                str_n_min = min(str_n_[str_n_!=0])
+                str_n_max = max(str_n_[str_n_!=0])
+                str_n_mean = round(statistics.mean(str_n_[str_n_!=0]),3)
+            except:
+                str_n_min = 0.
+                str_n_max = 0.
+                str_n_mean = 0.
         str_2 = pd.Series({'Room_name': key,'Width':list(str_wh[0]),'Height':list(str_wh[1]),
                            'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                            'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
@@ -216,10 +236,20 @@ for key in df_elements_keys:
         str_e_vert_min = df_win_sorted.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
         str_e_vert_mean = df_win_sorted.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
         str_e_vert_max = df_win_sorted.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-        str_n_ = df_win['Distance_to_next_win_min'].values
-        str_n_min = min(str_n_[str_n_!=0])
-        str_n_max = max(str_n_[str_n_!=0])
-        str_n_mean = round(statistics.mean(str_n_[str_n_!=0]),3)
+        str_n_ = df_win_sorted['Distance_to_next_win_min'].values
+        if len(str_n_) == 0:
+            str_n_min = 0.
+            str_n_max = 0.
+            str_n_mean = 0.
+        else:
+            try:
+                str_n_min = min(str_n_[str_n_!=0])
+                str_n_max = max(str_n_[str_n_!=0])
+                str_n_mean = round(statistics.mean(str_n_[str_n_!=0]),3)
+            except:
+                str_n_min = 0.
+                str_n_max = 0.
+                str_n_mean = 0.
         str_2 = pd.Series({'Family': key,'Width':list(str_wh[0]),'Height':list(str_wh[1]),
                            'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                            'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
@@ -237,9 +267,13 @@ df_elements_groped = df_elements.groupby('Family')
 df_elements_keys = df_elements_groped.groups.keys()
 df_win_new_famname_fr = pd.DataFrame()
 for key in df_elements_keys:
-    dupl_width = find_frequency_value(df_win_sorted['Window_width'].values.tolist())
-    if len(dupl_width)>1:
-        dupl_width = [dupl_width[0]]
+    df_elements_gr = df_elements_groped.get_group(key)
+    uniqueid = df_elements_gr['Element_uniqueId'].values
+    df_win_sorted = df_win.loc[df_win['Element_uniqueId'].isin(uniqueid)]
+    if len(df_win_sorted)>0:
+        dupl_width = find_frequency_value(df_win_sorted['Window_width'].values.tolist())
+        if len(dupl_width)>1:
+            dupl_width = [dupl_width[0]]
         dupl_height = find_frequency_value(df_win_sorted['Window_height'].values.tolist())
         if len(dupl_height)>1:
             dupl_height = [dupl_height[0]]
@@ -274,7 +308,7 @@ for key in df_elements_keys:
                         'Distance_to_edges_vert':[dupl_ver_dis_min,dupl_ver_dis_max],
                         'Distance_to_next':[dupl_next_dis_min]})
         win_file.write(str_2.to_frame().T.to_string()  + '\n')
-        df_win_new_roomname_fr = pd.concat([df_win_new_roomname_fr,str_2.to_frame().T],ignore_index=True)
+        df_win_new_famname_fr = pd.concat([df_win_new_famname_fr,str_2.to_frame().T],ignore_index=True)
 
 nameOfFile_csv = 'data\\tables\\windows_report_family_freq.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
@@ -297,11 +331,11 @@ str_e_hor_max = df_doors.agg({'Distance_to_edges_hor_ma':['max']}).values[0]
 str_e_vert_min = df_doors.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
 str_e_vert_mean = df_doors.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
 str_e_vert_max = df_doors.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-str_n_min = df_doors.agg({'Distance_to_next_door_min':['min']}).values[0]
+str_n_min = df_doors.agg({'Distance_to_next_door_min':['min','mean','max']}).T.values
 str_1 = pd.Series({'Category': 'Doors','Width':list(str_wh[0]),'Height':list(str_wh[1]),
                     'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                     'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
-                    'Distance_to_next':[str_n_min[0],0.,0.]})
+                    'Distance_to_next':list(str_n_min[0])})
 door_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
 df_door_new_cat = pd.concat([df_door_new_cat,str_1.to_frame().T],ignore_index=True)
 nameOfFile_csv = 'data\\tables\\doors_report_category.csv'
@@ -325,11 +359,11 @@ for key in df_elements_keys:
         str_e_vert_min = df_doors_sorted.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
         str_e_vert_mean = df_doors_sorted.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
         str_e_vert_max = df_doors_sorted.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-        str_n_min = df_doors_sorted.agg({'Distance_to_next_door_min':['min']}).values[0]
+        str_n_min = df_doors_sorted.agg({'Distance_to_next_door_min':['min','mean','max']}).T.values
         str_2 = pd.Series({'Room_name': key,'Width':list(str_wh[0]),'Height':list(str_wh[1]),
                            'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                            'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
-                           'Distance_to_next':[str_n_min[0],0.,0.]})
+                           'Distance_to_next':list(str_n_min[0])})
         door_file.write(str_2.to_frame().T.to_string()  + '\n')
         df_doors_new_roomname = pd.concat([df_doors_new_roomname,str_2.to_frame().T])
 
@@ -407,11 +441,11 @@ for key in df_elements_keys:
         str_e_vert_min = df_doors_sorted.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
         str_e_vert_mean = df_doors_sorted.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
         str_e_vert_max = df_doors_sorted.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-        str_n_min = df_doors_sorted.agg({'Distance_to_next_door_min':['min']}).values[0]
+        str_n_min = df_doors_sorted.agg({'Distance_to_next_door_min':['min','mean','max']}).T.values
         str_3 = pd.Series({'Family': key,'Width':list(str_wh[0]),'Height':list(str_wh[1]),
                            'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
                            'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
-                           'Distance_to_next':[str_n_min[0],0.,0.]})
+                           'Distance_to_next':list(str_n_min[0])})
         door_file.write(str_3.to_frame().T.to_string()  + '\n')
         df_doors_new_famname = pd.concat([df_doors_new_famname,str_3.to_frame().T])
 

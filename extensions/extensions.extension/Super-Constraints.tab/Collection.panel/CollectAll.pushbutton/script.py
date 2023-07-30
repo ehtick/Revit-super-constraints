@@ -470,6 +470,9 @@ for room in room_collection:
             floors.append(id)
         elif abs(dir.Z) > 0.0 :
             roof.append(id)
+        for c in ceiling_elements:
+            floors.append(c.IntegerValue)
+            parallel_floors.append(c.IntegerValue)
     
     floor_points_dic = {}                               
     for id in floors:
@@ -501,7 +504,7 @@ for room in room_collection:
             max_val_ceiling  = ceiling_point_dic[id_c][1]
             dis_1 = abs(min_val_floor-max_val_ceiling)
             dis_2 = abs(max_val_floor-min_val_ceiling)
-            if id in parallel_floors:
+            if id in parallel_floors and id != id_c:
                 paral_floors_new.append(id_c)
                 if dis_1 > dis_2:
                     distance_par = round(dis_2*0.3048,3)

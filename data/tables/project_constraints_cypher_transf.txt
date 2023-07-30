@@ -1,12 +1,9 @@
-Cypher transformation of: All windows in the category Windows have [min,mean,max] [0.193, 2.27703125, 10.215] horizontal distances to edges., "conceptual" 
-MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_HOR]->(w)  WHERE m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.193, n.constr_distance_horizontal_max=10.215, n.constr_characteristics="closed interval" MERGE (m)-[k:CONSTRAINTS{distance_hor_max:10.215,distance_hor_min:0.193, constraint_type: "conceptual"}]->(w)  RETURN k,w,m
+Cypher transformation of: All windows in the room called Office have [min,mean,max] [0.361, 2.0655, 3.745] horizontal distances to edges., "conceptual" 
+MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_HOR]->(w)  WHERE n.room_name = "Office" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= 0.361, n.constr_distance_horizontal_max="inf", n.constr_characteristics="half-open interval" MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"inf",distance_hor_min:0.361, constraint_type: "conceptual"}]->(w)  RETURN k,w,m
 
-Cypher transformation of: All windows in the category Windows have [min,mean,max] [0.305, 1.5787499999999999, 3.27] vertical distances to edges., "conceptual" 
-MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_VERT]->(w)  WHERE m.category = 'Windows' SET n.constr_distance_vertical_min= 0.305, n.constr_distance_vertical_max=3.27, n.constr_characteristics="closed interval" MERGE (m)-[k:CONSTRAINTS{distance_vert_max:3.27,distance_vert_min:0.305, constraint_type: "conceptual"}]->(w)  RETURN k,m,w
+Cypher transformation of: All windows in the room called Office have [min,mean,max] [0.305, 1.5715000000000001, 3.27] vertical distances to edges., "conceptual" 
+MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_VERT]->(w)  WHERE n.room_name = "Office" AND m.category = 'Windows' SET n.constr_distance_vertical_min= 0.305, n.constr_distance_vertical_max="inf", n.constr_characteristics="half-open interval" MERGE (m)-[k:CONSTRAINTS{distance_vert_max:"inf",distance_vert_min:0.305, constraint_type: "conceptual"}]->(w)  RETURN k,m,w
 
-Cypher transformation of: All windows in the category Windows have [min,mean,max] [0.0, 0.0, 0.0] distance to next windows., "conceptual" 
-MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_NEXT]->(w)  WHERE m.category = 'Windows' SET n.constr_distance_next_min= 0.0, n.constr_distance_next_max="inf", n.constr_characteristics="half-open interval" MERGE (m)-[k:CONSTRAINTS{distance_next_max:"inf",distance_next_min:0.0, constraint_type: "conceptual"}]->(w)  RETURN k,m,w
-
-Cypher transformation of: All windows in the category Windows have [min,mean,max] [0.2, 0.665, 1.687] distance to next windows., "conceptual" 
-MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_NEXT]->(w)  WHERE m.category = 'Windows' SET n.constr_distance_next_min= 0.2, n.constr_distance_next_max=1.687, n.constr_characteristics="closed interval" MERGE (m)-[k:CONSTRAINTS{distance_next_max:1.687,distance_next_min:0.2, constraint_type: "conceptual"}]->(w)  RETURN k,m,w
+Cypher transformation of: All windows in the room called Office have [min,mean,max] [0.2, 0.2, 0.2] distance to next windows., "conceptual" 
+MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_NEXT]->(w)  WHERE n.room_name = "Office" AND m.category = 'Windows' SET n.constr_distance_next_min= 0.2, n.constr_distance_next_max="inf", n.constr_characteristics="half-open interval" MERGE (m)-[k:CONSTRAINTS{distance_next_max:"inf",distance_next_min:0.2, constraint_type: "conceptual"}]->(w)  RETURN k,m,w
 
