@@ -1,9 +1,0 @@
-Cypher transformation of: All windows in the room called Office have [min,mean,max] [0.361, 2.0655, 3.745] horizontal distances to edges., "" 
-MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_HOR]->(w)  WHERE n.room_name = "Office" AND m.category = 'Windows' SET n.constr_distance_horizontal_min= "inf", n.constr_distance_horizontal_max="inf", n.constr_characteristics="half-open interval" MERGE (m)-[k:CONSTRAINTS{distance_hor_max:"inf",distance_hor_min:"inf", constraint_type: ""}]->(w)  RETURN k,w,m
-
-Cypher transformation of: All windows in the room called Office have [min,mean,max] [0.305, 1.5715000000000001, 3.27] vertical distances to edges., "" 
-MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_VERT]->(w)  WHERE n.room_name = "Office" AND m.category = 'Windows' SET n.constr_distance_vertical_min= "inf", n.constr_distance_vertical_max="inf", n.constr_characteristics="half-open interval" MERGE (m)-[k:CONSTRAINTS{distance_vert_max:"inf",distance_vert_min:"inf", constraint_type: ""}]->(w)  RETURN k,m,w
-
-Cypher transformation of: All windows in the room called Office have [min,mean,max] [0.2, 0.0, 0.0] distance to next windows., "" 
-MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_NEXT]->(w)  WHERE n.room_name = "Office" AND m.category = 'Windows' SET n.constr_distance_next_min= "inf", n.constr_distance_next_max="inf", n.constr_characteristics="half-open interval" MERGE (m)-[k:CONSTRAINTS{distance_next_max:"inf",distance_next_min:"inf", constraint_type: ""}]->(w)  RETURN k,m,w
-
