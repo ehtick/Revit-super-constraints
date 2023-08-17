@@ -169,9 +169,9 @@ str_1 = pd.Series({'Category': 'Windows','Width':win_w,'Height':win_h,
 win_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
 df_win_new_cat = pd.concat([df_win_new,str_1.to_frame().T],ignore_index=True)
 
-nameOfFile_csv = 'data\\tables\\windows_report_cateqory.csv'
+nameOfFile_csv = 'data\\tables\\windows_report_category.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
-df_win_new_cat.to_csv(completename_csv)
+df_win_new_cat.to_csv(completename_csv,index=False)
 
 # analyse by room names - completed
 win_file.write('2. Analyse all windows by room names \n')

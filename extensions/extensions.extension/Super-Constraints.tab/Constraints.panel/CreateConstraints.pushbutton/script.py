@@ -67,8 +67,8 @@ class ModalForm(WPFWindow):
                             # str_1 = "All windows in the category " + row[0] + " have [min,mean,max] " + row[1] + " width."
                             # str_2 = "All windows in the category " + row[0] + " have [min,mean,max] " + row[2]  + " height."
                             str_3 = "All windows in the category " + row[0] + " have [min,mean,max,mode] " + row[3]  + " horizontal distances to edges."
-                            str_4 = "All windows in the category " + row[0] + " have [min,mean,max] " + row[4]  + " vertical distances to edges."
-                            str_5 = "All windows in the category " + row[0] + " have [min,mean,max] " + row[5]  + " distance to next windows."
+                            str_4 = "All windows in the category " + row[0] + " have [min,mean,max,mode] " + row[4]  + " vertical distances to edges."
+                            str_5 = "All windows in the category " + row[0] + " have [min,mean,max,mode] " + row[5]  + " distance to next windows."
                             
                             # self.lb_trends.Items.Add(str_1)
                             # self.lb_trends.Items.Add(str_2)
@@ -296,9 +296,9 @@ class ModalForm(WPFWindow):
             i = i+1
         if name == 'room called':
             if 'windows' in str_new:
-                trans_1 = " WHERE m.room_name = "+ '"'+paste+'"' +" AND m.category = 'Windows'"
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Windows'"
             elif 'doors' in str_new:
-                trans_1 = " WHERE m.room_name = "+ '"'+paste+'"' +" AND m.category = 'Doors'"
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Doors'"
         if name == 'category':
             if 'windows' in str_new:
                 trans_1 = " WHERE m.category = 'Windows'"
@@ -320,7 +320,7 @@ class ModalForm(WPFWindow):
         elem = "MATCH (n)-[:CONTAINS]->(m) "
         elem_2 = "MATCH (m)-[:DISTANCE_HOR]->(w) "
         constr_all = " SET m.constr_distance_horizontal_min= " + int_val[0] + ", m.constr_distance_horizontal_max=" + int_val[1]+ ", m.constr_characteristics=" +int_val[2]
-        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_hor_min:"+int_val[0]+",distance_hor_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        constr_create = " MERGE (m)-[k:CONSTRAINT{distance_hor_min:"+int_val[0]+",distance_hor_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
         transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,w,m"
         return transformation
     def get_transform_dis_vert(self,str_new,name):
@@ -338,9 +338,9 @@ class ModalForm(WPFWindow):
             i = i+1
         if name == 'room called':
             if 'windows' in str_new:
-                trans_1 = " WHERE m.room_name = "+ '"'+paste+'"' +" AND m.category = 'Windows'"
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Windows'"
             elif 'doors' in str_new:
-                trans_1 = " WHERE m.room_name = "+ '"'+paste+'"' +" AND m.category = 'Doors'"
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Doors'"
         if name == 'category':
             if 'windows' in str_new:
                 trans_1 = " WHERE m.category = 'Windows'"
@@ -361,7 +361,7 @@ class ModalForm(WPFWindow):
         elem = "MATCH (n)-[:CONTAINS]->(m) "
         elem_2 = "MATCH (m)-[:DISTANCE_VERT]->(w) "
         constr_all = " SET m.constr_distance_vertical_min= " + int_val[0] + ", m.constr_distance_vertical_max=" + int_val[1] + ", m.constr_characteristics=" +int_val[2]
-        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_vert_min:"+int_val[0]+",distance_vert_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        constr_create = " MERGE (m)-[k:CONSTRAINT{distance_vert_min:"+int_val[0]+",distance_vert_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
         transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
         return transformation
     def get_transform_dis_next(self,str_new,name):
@@ -379,9 +379,9 @@ class ModalForm(WPFWindow):
             i = i+1
         if name == 'room called':
             if 'windows' in str_new:
-                trans_1 = " WHERE m.room_name = "+ '"'+paste+'"' +" AND m.category = 'Windows'"
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Windows'"
             elif 'doors' in str_new:
-                trans_1 = " WHERE m.room_name = "+ '"'+paste+'"' +" AND m.category = 'Doors'"
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Doors'"
         if name == 'category':
             if 'windows' in str_new:
                 trans_1 = " WHERE m.category = 'Windows'"
@@ -389,7 +389,7 @@ class ModalForm(WPFWindow):
                 trans_1 = " WHERE m.category = 'Doors'"
         if name == 'family':
             trans_1 = " WHERE m.family_name = " + '"'+paste + '"'
-        values = str_splited[i+3:i+6]
+        values = str_splited[i+3:i+7]
         values_new = []
         for val in values:
             val = val.replace('[',"")
@@ -402,7 +402,7 @@ class ModalForm(WPFWindow):
         elem = "MATCH (n)-[:CONTAINS]->(m) "
         elem_2 = "MATCH (m)-[:DISTANCE_NEXT]->(w) "
         constr_all = " SET m.constr_distance_next_min= " + int_val[0] + ", m.constr_distance_next_max=" + int_val[1] + ", m.constr_characteristics=" +int_val[2]
-        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_next_min:"+int_val[0]+",distance_next_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        constr_create = " MERGE (m)-[k:CONSTRAINT{distance_next_min:"+int_val[0]+",distance_next_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
         transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
         return transformation
     def get_transform_dis_par(self,str_new,name):
@@ -420,9 +420,9 @@ class ModalForm(WPFWindow):
             i = i+1
         if name == 'room called':
             if 'walls' in str_new:
-                trans_1 = " WHERE m.room_name = "+ '"'+paste+'"' +" AND m.category = 'Walls'"
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Walls'"
             elif 'floors' in str_new:
-                trans_1 = " WHERE m.room_name = "+ '"'+paste+'"' +" AND m.category = 'Floors'"
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Floors'"
         if name == 'category':
             if 'walls' in str_new:
                 trans_1 = " WHERE m.category = 'Walls'"
@@ -443,7 +443,7 @@ class ModalForm(WPFWindow):
         elem = "MATCH (n)-[:CONTAINS]->(m) "
         elem_2 = "MATCH (m)-[:DISTANCE_PAR]->(w) "
         constr_all = " SET m.constr_distance_parall_min= " + int_val[0] + ", m.constr_distance_parall_max=" + int_val[1] + ", m.constr_characteristics=" + int_val[2]
-        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_parall_min:"+int_val[0]+",distance_parall_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        constr_create = " MERGE (m)-[k:CONSTRAINT{distance_parall_min:"+int_val[0]+",distance_parall_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
         transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
         return transformation
     def get_transform_dis_nonpar(self,str_new,name):
@@ -461,9 +461,9 @@ class ModalForm(WPFWindow):
             i = i+1
         if name == 'room called':
             if 'walls' in str_new:
-                trans_1 = " WHERE m.room_name = "+ '"'+paste+'"' +" AND m.category = 'Walls'"
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Walls'"
             elif 'floors' in str_new:
-                trans_1 = " WHERE m.room_name = "+ '"'+paste+'"' +" AND m.category = 'Floors'"
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Floors'"
         if name == 'category':
             if 'walls' in str_new:
                 trans_1 = " WHERE m.category = 'Walls'"
@@ -484,7 +484,7 @@ class ModalForm(WPFWindow):
         elem = "MATCH (n)-[:CONTAINS]->(m) "
         elem_2 = "MATCH (m)-[:DISTANCE_NONPAR]->(w) "
         constr_all = " SET m.constr_distance_parall_min= " + int_val[0] + ", m.constr_distance_parall_max=" + int_val[1] + ", m.constr_characteristics=" + int_val[2]
-        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_parall_min:"+int_val[0]+",distance_parall_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        constr_create = " MERGE (m)-[k:CONSTRAINT{distance_parall_min:"+int_val[0]+",distance_parall_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
         transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
         return transformation
     def get_transform_dis_nearest(self,str_new,name):
@@ -502,7 +502,7 @@ class ModalForm(WPFWindow):
             i = i+1
         if name == 'room called':
             if 'furniture' in str_new:
-                trans_1 = " WHERE m.room_name = "+ '"'+paste+'"' +" AND m.category = 'Furniture'"
+                trans_1 = " WHERE n.room_name = "+ '"'+paste+'"' +" AND m.category = 'Furniture'"
         if name == 'category':
             if 'furniture' in str_new:
                 trans_1 = " WHERE m.category = 'Furniture'"
@@ -521,7 +521,7 @@ class ModalForm(WPFWindow):
         elem = "MATCH (n)-[:CONTAINS]->(m) "
         elem_2 = "MATCH (m)-[:DISTANCE_NEAREST]->(w) "
         constr_all = " SET m.constr_distance_parall_min= " + int_val[0] + ", m.constr_distance_parall_max=" + int_val[1] + ", m.constr_characteristics=" + int_val[2]
-        constr_create = " MERGE (m)-[k:CONSTRAINTS{distance_parall_min:"+int_val[0]+",distance_parall_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
+        constr_create = " MERGE (m)-[k:CONSTRAINT{distance_parall_min:"+int_val[0]+",distance_parall_max:"+ int_val[1] + ", " + "constraint_type: " + constr_type +"}]->(w) "
         transformation = elem + elem_2 + trans_1 + constr_all + constr_create + " RETURN k,m,w"
         return transformation
 
