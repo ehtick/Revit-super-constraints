@@ -163,19 +163,19 @@ class ModalForm(WPFWindow):
                     if 'floors' in tail:#completed
                         if 'roomname' in tail:
                             str_1 = "All floors in the room called " + row[0] + " have [min,mean,max,mode] " + row[1] + " distance to nonparallel floors."
-                            str_2 = "All floors in the room called " + row[0] + " have [min,mean,max,mode] " + row[2]  + " distance to paralel floors."
+                            str_2 = "All floors in the room called " + row[0] + " have [min,mean,max,mode] " + row[2]  + " distance to parallel floors."
                             
                             self.lb_trends.Items.Add(str_1)
                             self.lb_trends.Items.Add(str_2)
                         elif 'category' in tail:
                             str_1 = "All floors in the category " + row[0] + " have [min,mean,max,mode] " + row[1] + " distance to nonparallel floors."
-                            str_2 = "All floors in the category " + row[0] + " have [min,mean,max,mode] " + row[2]  + " distance to paralel floors."
+                            str_2 = "All floors in the category " + row[0] + " have [min,mean,max,mode] " + row[2]  + " distance to parallel floors."
                             
                             self.lb_trends.Items.Add(str_1)
                             self.lb_trends.Items.Add(str_2)
                         elif 'family' in tail:
                             str_1 = "All floors of the family " + row[0] + " have [min,mean,max,mode] " + row[1] + " distance to nonparallel floors."
-                            str_2 = "All floors of the family " + row[0] + " have [min,mean,max,mode] " + row[2]  + " distance to paralel floors."
+                            str_2 = "All floors of the family " + row[0] + " have [min,mean,max,mode] " + row[2]  + " distance to parallel floors."
                             
                             self.lb_trends.Items.Add(str_1)
                             self.lb_trends.Items.Add(str_2)
@@ -194,7 +194,6 @@ class ModalForm(WPFWindow):
                             self.lb_trends.Items.Add(str_1)
 
     def convert_trend(self,sender,args):
-        self.lb_trends.Items.Clear()
         self.first_limit_p.Items.Clear()
         self.second_limit_p.Items.Clear()
         text = self.lb_trends.SelectedItem
@@ -235,23 +234,23 @@ class ModalForm(WPFWindow):
             int_info = '"closed interval"'
             first_int = self.first_limit_p.SelectedItem.ToString()
             second_int = self.second_limit_p.SelectedItem.ToString()
-            if first_int == '"min"':
+            if first_int == "min":
                 f_val = values[0]
-            elif first_int == '"mean"':
+            elif first_int == "mean":
                 f_val = values[1]
-            elif first_int == '"max"':
+            elif first_int == "max":
                 f_val = values[2]
-            elif first_int == '"mode"':
+            elif first_int == "mode":
                 f_val = values[3]
             else:
                 f_val = '"inf"'    
-            if second_int == '"min"':
+            if second_int == "min":
                 s_val = values[0]
-            elif second_int == '"mean"':
+            elif second_int == "mean":
                 s_val = values[1]
-            elif second_int == '"max"':
+            elif second_int == "max":
                 s_val = values[2]
-            elif second_int == '"mode"':
+            elif second_int == "mode":
                 s_val = values[3]
             else:
                 s_val = '"inf"'   
@@ -259,23 +258,23 @@ class ModalForm(WPFWindow):
             int_info = '"half-open interval"'
             first_int = self.first_limit_p.SelectedItem.ToString()
             second_int = self.second_limit_p.SelectedItem.ToString()
-            if first_int == '"min"':
+            if first_int == "min":
                 f_val = values[0]
-            elif first_int == '"mean"':
+            elif first_int == "mean":
                 f_val = values[1]
-            elif first_int == '"max"':
+            elif first_int == "max":
                 f_val = values[2]
-            elif first_int == '"mode"':
+            elif first_int == "mode":
                 f_val = values[3]
             else:
                 f_val = '"inf"'    
-            if second_int == '"min"':
+            if second_int == "min":
                 s_val = values[0]
-            elif second_int == '"mean"':
+            elif second_int == "mean":
                 s_val = values[1]
-            elif second_int == '"max"':
+            elif second_int == "max":
                 s_val = values[2]
-            elif second_int == '"mode"':
+            elif second_int == "mode":
                 s_val = values[3]
             else:
                 s_val = '"inf"'  
@@ -316,6 +315,7 @@ class ModalForm(WPFWindow):
             values_new.append(val)
         values = values_new
         int_val = self.interval_check(values)
+        print(int_val)
         constr_type = self.add_type()
         elem = "MATCH (n)-[:CONTAINS]->(m) "
         elem_2 = "MATCH (m)-[:DISTANCE_HOR]->(w) "
@@ -430,7 +430,7 @@ class ModalForm(WPFWindow):
                 trans_1 = " WHERE m.category = 'Floors'"
         if name == 'family':
             trans_1 = " WHERE m.family_name = " + '"'+paste + '"'
-        values = str_splited[i+3:i+6]
+        values = str_splited[i+3:i+7]
         values_new = []
         for val in values:
             val = val.replace('[',"")
@@ -471,7 +471,7 @@ class ModalForm(WPFWindow):
                 trans_1 = " WHERE m.category = 'Floors'"
         if name == 'family':
             trans_1 = " WHERE m.family_name = " + '"'+paste + '"'
-        values = str_splited[i+3:i+6]
+        values = str_splited[i+3:i+7]
         values_new = []
         for val in values:
             val = val.replace('[',"")
@@ -508,7 +508,7 @@ class ModalForm(WPFWindow):
                 trans_1 = " WHERE m.category = 'Furniture'"
         if name == 'family':
             trans_1 = " WHERE m.family_name = " + '"'+paste + '"'
-        values = str_splited[i+3:i+6]
+        values = str_splited[i+3:i+7]
         values_new = []
         for val in values:
             val = val.replace('[',"")

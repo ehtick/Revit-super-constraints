@@ -155,14 +155,17 @@ mode_dist_h = statistics.mode(distance_list_h)
 mode_dist_v = statistics.mode(distance_list_v)
 str_n_min = df_win['Distance_to_next_win_min'].values
 mode_win_n = df_win['Distance_to_next_win_min'].agg(pd.Series.mode).values[0]
-min_dist_n = min(str_n_min[str_n_min!=0])
-max_dist_n = max(str_n_min[str_n_min!=0])
-mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
+min_dist_n = min(str_n_min)
+max_dist_n = max(str_n_min)
+mean_dist_n = round(statistics.mean(str_n_min),3)
+# min_dist_n = min(str_n_min[str_n_min!=0])
+# max_dist_n = max(str_n_min[str_n_min!=0])
+#mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
 #all
 str_1 = pd.Series({'Category': 'Windows','Width':win_w,'Height':win_h,
-                    'Distance_to_edges_hor':[max_dist_h,mean_dist_h,min_dist_h,mode_dist_h],
-                    'Distance_to_edges_vert':[max_dist_v,mean_dist_v,min_dist_v,mode_dist_v],
-                    'Distance_to_next':[min_dist_n,mean_dist_n,min_dist_n,mode_win_n]})
+                    'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
+                    'Distance_to_edges_vert':[min_dist_v,mean_dist_v,max_dist_v,mode_dist_v],
+                    'Distance_to_next':[min_dist_n,mean_dist_n,max_dist_n,mode_win_n]})
 win_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
 df_win_new_cat = pd.concat([df_win_new,str_1.to_frame().T],ignore_index=True)
 
@@ -205,14 +208,17 @@ for key in df_elements_keys:
         mode_dist_v = statistics.mode(distance_list_v)
         str_n_min = df_win_sorted['Distance_to_next_win_min'].values
         mode_win_n = df_win_sorted['Distance_to_next_win_min'].agg(pd.Series.mode).values[0]
-        min_dist_n = min(str_n_min[str_n_min!=0])
-        max_dist_n = max(str_n_min[str_n_min!=0])
-        mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
+        min_dist_n = min(str_n_min)
+        max_dist_n = max(str_n_min)
+        mean_dist_n = round(statistics.mean(str_n_min),3)
+        # min_dist_n = min(str_n_min[str_n_min!=0])
+        # max_dist_n = max(str_n_min[str_n_min!=0])
+        #mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
         #all
         str_1 = pd.Series({'Room_name': key,'Width':win_w,'Height':win_h,
-                            'Distance_to_edges_hor':[max_dist_h,mean_dist_h,min_dist_h,mode_dist_h],
-                            'Distance_to_edges_vert':[max_dist_v,mean_dist_v,min_dist_v,mode_dist_v],
-                            'Distance_to_next':[min_dist_n,mean_dist_n,min_dist_n,mode_win_n]})
+                            'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
+                            'Distance_to_edges_vert':[min_dist_v,mean_dist_v,max_dist_v,mode_dist_v],
+                            'Distance_to_next':[min_dist_n,mean_dist_n,max_dist_n,mode_win_n]})
         win_file.write(str_1.to_frame().T.to_string()  + '\n')
         df_win_new_roomname = pd.concat([df_win_new_roomname,str_1.to_frame().T],ignore_index=True)
 
@@ -309,14 +315,17 @@ for key in df_elements_keys:
         mode_dist_v = statistics.mode(distance_list_v)
         str_n_min = df_win_sorted['Distance_to_next_win_min'].values
         mode_win_n = df_win_sorted['Distance_to_next_win_min'].agg(pd.Series.mode).values[0]
-        min_dist_n = min(str_n_min[str_n_min!=0])
-        max_dist_n = max(str_n_min[str_n_min!=0])
-        mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
+        min_dist_n = min(str_n_min)
+        max_dist_n = max(str_n_min)
+        mean_dist_n = round(statistics.mean(str_n_min),3)
+        # min_dist_n = min(str_n_min[str_n_min!=0])
+        # max_dist_n = max(str_n_min[str_n_min!=0])
+        #mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
         #all
         str_1 = pd.Series({'Family': key,'Width':win_w,'Height':win_h,
-                            'Distance_to_edges_hor':[max_dist_h,mean_dist_h,min_dist_h,mode_dist_h],
-                            'Distance_to_edges_vert':[max_dist_v,mean_dist_v,min_dist_v,mode_dist_v],
-                            'Distance_to_next':[min_dist_n,mean_dist_n,min_dist_n,mode_win_n]})
+                            'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
+                            'Distance_to_edges_vert':[min_dist_v,mean_dist_v,max_dist_v,mode_dist_v],
+                            'Distance_to_next':[min_dist_n,mean_dist_n,max_dist_n,mode_win_n]})
         df_win_new_famname = pd.concat([df_win_new_famname,str_1.to_frame().T],ignore_index=True)
 
 nameOfFile_csv = 'data\\tables\\windows_report_family.csv'
@@ -419,14 +428,17 @@ mode_dist_h = statistics.mode(distance_list_h)
 mode_dist_v = statistics.mode(distance_list_v)
 str_n_min = df_doors['Distance_to_next_door_min'].values
 mode_win_n = df_doors['Distance_to_next_door_min'].agg(pd.Series.mode).values[0]
-min_dist_n = min(str_n_min[str_n_min!=0])
-max_dist_n = max(str_n_min[str_n_min!=0])
-mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
+min_dist_n = min(str_n_min)
+max_dist_n = max(str_n_min)
+mean_dist_n = round(statistics.mean(str_n_min),3)
+# min_dist_n = min(str_n_min[str_n_min!=0])
+# max_dist_n = max(str_n_min[str_n_min!=0])
+#mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
 #all
 str_1 = pd.Series({'Category': 'Doors','Width':door_w,'Height':door_h,
-                    'Distance_to_edges_hor':[max_dist_h,mean_dist_h,min_dist_h,mode_dist_h],
-                    'Distance_to_edges_vert':[max_dist_v,mean_dist_v,min_dist_v,mode_dist_v],
-                    'Distance_to_next':[min_dist_n,mean_dist_n,min_dist_n,mode_win_n]})
+                    'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
+                    'Distance_to_edges_vert':[min_dist_v,mean_dist_v,max_dist_v,mode_dist_v],
+                    'Distance_to_next':[min_dist_n,mean_dist_n,max_dist_n,mode_win_n]})
 
 door_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
 df_door_new_cat = pd.concat([df_door_new_cat,str_1.to_frame().T],ignore_index=True)
@@ -469,14 +481,17 @@ for key in df_elements_keys:
         mode_dist_v = statistics.mode(distance_list_v)
         str_n_min = df_doors_sorted['Distance_to_next_door_min'].values
         mode_win_n = df_doors_sorted['Distance_to_next_door_min'].agg(pd.Series.mode).values[0]
-        min_dist_n = min(str_n_min[str_n_min!=0])
-        max_dist_n = max(str_n_min[str_n_min!=0])
-        mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
+        min_dist_n = min(str_n_min)
+        max_dist_n = max(str_n_min)
+        mean_dist_n = round(statistics.mean(str_n_min),3)
+        # min_dist_n = min(str_n_min[str_n_min!=0])
+        # max_dist_n = max(str_n_min[str_n_min!=0])
+        #mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
         #all
         str_2 = pd.Series({'Room_name': key,'Width':door_w,'Height':door_h,
-                            'Distance_to_edges_hor':[max_dist_h,mean_dist_h,min_dist_h,mode_dist_h],
-                            'Distance_to_edges_vert':[max_dist_v,mean_dist_v,min_dist_v,mode_dist_v],
-                            'Distance_to_next':[min_dist_n,mean_dist_n,min_dist_n,mode_win_n]})
+                            'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
+                            'Distance_to_edges_vert':[min_dist_v,mean_dist_v,max_dist_v,mode_dist_v],
+                            'Distance_to_next':[min_dist_n,mean_dist_n,max_dist_n,mode_win_n]})
         door_file.write(str_2.to_frame().T.to_string()  + '\n')
         df_doors_new_roomname = pd.concat([df_doors_new_roomname,str_2.to_frame().T])
 
@@ -572,14 +587,17 @@ for key in df_elements_keys:
         mode_dist_v = statistics.mode(distance_list_v)
         str_n_min = df_doors_sorted['Distance_to_next_door_min'].values
         mode_win_n = df_doors_sorted['Distance_to_next_door_min'].agg(pd.Series.mode).values[0]
-        min_dist_n = min(str_n_min[str_n_min!=0])
-        max_dist_n = max(str_n_min[str_n_min!=0])
-        mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
+        min_dist_n = min(str_n_min)
+        max_dist_n = max(str_n_min)
+        mean_dist_n = round(statistics.mean(str_n_min),3)
+        # min_dist_n = min(str_n_min[str_n_min!=0])
+        # max_dist_n = max(str_n_min[str_n_min!=0])
+        #mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
         #all
         str_3 = pd.Series({'Family': key,'Width':door_w,'Height':door_h,
-                            'Distance_to_edges_hor':[max_dist_h,mean_dist_h,min_dist_h,mode_dist_h],
-                            'Distance_to_edges_vert':[max_dist_v,mean_dist_v,min_dist_v,mode_dist_v],
-                            'Distance_to_next':[min_dist_n,mean_dist_n,min_dist_n,mode_win_n]})
+                            'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
+                            'Distance_to_edges_vert':[min_dist_v,mean_dist_v,max_dist_v,mode_dist_v],
+                            'Distance_to_next':[min_dist_n,mean_dist_n,max_dist_n,mode_win_n]})
         door_file.write(str_3.to_frame().T.to_string()  + '\n')
         df_doors_new_famname = pd.concat([df_doors_new_famname,str_3.to_frame().T])
 
@@ -662,10 +680,18 @@ df_walls_new_cat = pd.DataFrame()
 #                     'Angles_to_walls':[str_angle_min[0],str_angle_mean[0],str_angle_max[0]]})
 #width and hight
 str_wh = df_walls.agg({'Width':['min','mean','max'],'Height':['min','mean','max']}).T.values
-mode_wall_w = df_walls['Width'].agg(pd.Series.mode).values[0]
-mode_wall_h = df_walls['Height'].agg(pd.Series.mode).values[0]
-wall_w = list(np.append(str_wh[0],mode_wall_w))
-wall_h = list(np.append(str_wh[1],mode_wall_h))
+min_wall_w = round(min(df_walls['Width'].values),3)
+max_wall_w = round(max(df_walls['Width'].values),3)
+mean_wall_w = round(df_walls['Width'].agg(pd.Series.mean),3)
+min_wall_h = round(min(df_walls['Height'].values),3)
+max_wall_h = round(max(df_walls['Height'].values),3)
+mean_wall_h = round(df_walls['Height'].agg(pd.Series.mean),3)
+mode_wall_w = round(df_walls['Width'].agg(pd.Series.mode).values[0],3)
+mode_wall_h = round(df_walls['Height'].agg(pd.Series.mode).values[0],3)
+# wall_w = list(np.append(str_wh[0],mode_wall_w))
+# wall_h = list(np.append(str_wh[1],mode_wall_h))
+wall_w = [min_wall_w,mean_wall_w,max_wall_w,mode_wall_w]
+wall_h = [min_wall_h,mean_wall_h,max_wall_h,mode_wall_h]
 #distance
 distance_list_p = []
 for item in list(df_walls['Distance_to_parall'].values):
@@ -689,8 +715,8 @@ mean_angle = round(np.mean(angles_list),3)
 mode_angle= statistics.mode(angles_list)
 #all
 str_1 = pd.Series({'Category': 'Walls','Width':wall_w,'Height':wall_h,
-                    'Distance_to_parall_walls':[max_dist_h,mean_dist_h,min_dist_h,mode_dist_h],
-                    'Angles_to_walls':[max_angle,mean_angle,min_angle,mode_angle]})
+                    'Distance_to_parall_walls':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
+                    'Angles_to_walls':[min_angle,mean_angle,max_angle,mode_angle]})
 walls_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
 df_walls_new_cat = pd.concat([df_walls_new_cat,str_1.to_frame().T],ignore_index=True)
 nameOfFile_csv = 'data\\tables\\walls_report_category.csv'
@@ -709,10 +735,18 @@ for key in df_elements_keys:
     if len(df_walls_sorted)>0:
         #width and hight
         str_wh = df_walls_sorted.agg({'Width':['min','mean','max'],'Height':['min','mean','max']}).T.values
-        mode_wall_w = df_walls_sorted['Width'].agg(pd.Series.mode).values[0]
-        mode_wall_h = df_walls_sorted['Height'].agg(pd.Series.mode).values[0]
-        wall_w = list(np.append(str_wh[0],mode_wall_w))
-        wall_h = list(np.append(str_wh[1],mode_wall_h))
+        min_wall_w = round(min(df_walls_sorted['Width'].values),3)
+        max_wall_w = round(max(df_walls_sorted['Width'].values),3)
+        mean_wall_w = round(df_walls_sorted['Width'].agg(pd.Series.mean),3)
+        min_wall_h = round(min(df_walls_sorted['Height'].values),3)
+        max_wall_h = round(max(df_walls_sorted['Height'].values),3)
+        mean_wall_h = round(df_walls_sorted['Height'].agg(pd.Series.mean),3)
+        mode_wall_w = round(df_walls_sorted['Width'].agg(pd.Series.mode).values[0],3)
+        mode_wall_h = round(df_walls_sorted['Height'].agg(pd.Series.mode).values[0],3)
+        # wall_w = list(np.append(str_wh[0],mode_wall_w))
+        # wall_h = list(np.append(str_wh[1],mode_wall_h))
+        wall_w = [min_wall_w,mean_wall_w,max_wall_w,mode_wall_w]
+        wall_h = [min_wall_h,mean_wall_h,max_wall_h,mode_wall_h]
         #distance
         distance_list_p = []
         for item in list(df_walls_sorted['Distance_to_parall'].values):
@@ -736,8 +770,8 @@ for key in df_elements_keys:
         mode_angle= statistics.mode(angles_list)
         #all
         str_1 = pd.Series({'Room_name': key,'Width':wall_w,'Height':wall_h,
-                            'Distance_to_parall_walls':[max_dist_h,mean_dist_h,min_dist_h,mode_dist_h],
-                            'Angles_to_walls':[max_angle,mean_angle,min_angle,mode_angle]})
+                            'Distance_to_parall_walls':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
+                            'Angles_to_walls':[min_angle,mean_angle,max_angle,mode_angle]})
         walls_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
         df_walls_new_roomname = pd.concat([df_walls_new_roomname,str_1.to_frame().T],ignore_index=True)   
 nameOfFile_csv = 'data\\tables\\walls_report_roomname.csv'
@@ -756,10 +790,18 @@ for key in df_elements_keys:
     if len(df_walls_sorted)>0:
         #width and hight
         str_wh = df_walls_sorted.agg({'Width':['min','mean','max'],'Height':['min','mean','max']}).T.values
-        mode_wall_w = df_walls_sorted['Width'].agg(pd.Series.mode).values[0]
-        mode_wall_h = df_walls_sorted['Height'].agg(pd.Series.mode).values[0]
-        wall_w = list(np.append(str_wh[0],mode_wall_w))
-        wall_h = list(np.append(str_wh[1],mode_wall_h))
+        min_wall_w = round(min(df_walls_sorted['Width'].values),3)
+        max_wall_w = round(max(df_walls_sorted['Width'].values),3)
+        mean_wall_w = round(df_walls_sorted['Width'].agg(pd.Series.mean),3)
+        min_wall_h = round(min(df_walls_sorted['Height'].values),3)
+        max_wall_h = round(max(df_walls_sorted['Height'].values),3)
+        mean_wall_h = round(df_walls_sorted['Height'].agg(pd.Series.mean),3)
+        mode_wall_w = round(df_walls_sorted['Width'].agg(pd.Series.mode).values[0],3)
+        mode_wall_h = round(df_walls_sorted['Height'].agg(pd.Series.mode).values[0],3)
+        # wall_w = list(np.append(str_wh[0],mode_wall_w))
+        # wall_h = list(np.append(str_wh[1],mode_wall_h))
+        wall_w = [min_wall_w,mean_wall_w,max_wall_w,mode_wall_w]
+        wall_h = [min_wall_h,mean_wall_h,max_wall_h,mode_wall_h]
         #distance
         distance_list_p = []
         for item in list(df_walls_sorted['Distance_to_parall'].values):
@@ -783,8 +825,8 @@ for key in df_elements_keys:
         mode_angle= statistics.mode(angles_list)
         #all
         str_1 = pd.Series({'Family': key,'Width':wall_w,'Height':wall_h,
-                            'Distance_to_parall_walls':[max_dist_h,mean_dist_h,min_dist_h,mode_dist_h],
-                            'Angles_to_walls':[max_angle,mean_angle,min_angle,mode_angle]})
+                            'Distance_to_parall_walls':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
+                            'Angles_to_walls':[min_angle,mean_angle,max_angle,mode_angle]})
         walls_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
         df_wall_new_famname = pd.concat([df_wall_new_famname,str_1.to_frame().T],ignore_index=True)   
 nameOfFile_csv = 'data\\tables\\walls_report_family.csv'
