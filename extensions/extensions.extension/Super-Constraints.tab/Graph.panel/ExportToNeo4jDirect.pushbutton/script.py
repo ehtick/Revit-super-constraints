@@ -297,7 +297,7 @@ class App:
                                             el_h = el_h, database = "neo4j").summary
             if dis_to_next != 'nan' and elementId_next != 'nan':
                 self.driver.execute_query("""MATCH (a),
-                                            (b:Window{category:"Doors"})
+                                            (b:Door{category:"Doors"})
                                             WHERE b.unique_id = $unique_id AND a.id = $el_h
                                             MERGE (b) - [r:DISTANCE_NEXT {distance: $dist}] -> (a)""",
                                             unique_id = unique_id,
@@ -314,19 +314,19 @@ class App:
                                             width = width,
                                             height = height,
                                             database = "neo4j").summary
-        elementId_next = df_doors['ElementId_next_door'].values.tolist()
-        dis_to_next = df_doors['Distance_to_next_door_min'].values.tolist()
-        for el_h in elementId_next:
-                index = elementId_next.index(el_h)
-                dist = dis_to_next[index]
-                if dist !=0:
-                    self.driver.execute_query("""MATCH (a),
-                                                (b:Window{category:"Doors"})
-                                                WHERE b.unique_id = $unique_id AND a.id = $el_h
-                                                MERGE (b) - [r:DISTANCE_NEXT {distance: $dist}] -> (a)""",
-                                                unique_id = unique_id,
-                                                dist = dist,
-                                                el_h = el_h, database = "neo4j").summary
+        # elementId_next = df_doors['ElementId_next_door'].values.tolist()
+        # dis_to_next = df_doors['Distance_to_next_door_min'].values.tolist()
+        # for el_h in elementId_next:
+        #         index = elementId_next.index(el_h)
+        #         dist = dis_to_next[index]
+        #         if dist !=0:
+        #             self.driver.execute_query("""MATCH (a),
+        #                                         (b:Door{category:"Doors"})
+        #                                         WHERE b.unique_id = $unique_id AND a.id = $el_h
+        #                                         MERGE (b) - [r:DISTANCE_NEXT {distance: $dist}] -> (a)""",
+        #                                         unique_id = unique_id,
+        #                                         dist = dist,
+        #                                         el_h = el_h, database = "neo4j").summary
         # working with walls
         for item,row in df_walls.iterrows():
             unique_id = row['Element_uniqueId']
