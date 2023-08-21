@@ -1,2 +1,3 @@
 Family,Distance_to_nonparallel,Distance_to_parallel
-Floor,"[nan, nan, nan, nan]","[0.718, 2.756, 3.575, 2.85]"
+Compound Ceiling,"[nan, nan, nan, nan]","[0.718, 1.759, 2.8, 0.718]"
+Floor,"[nan, nan, nan, nan]","[0.718, 2.517, 3.575, 2.85]"

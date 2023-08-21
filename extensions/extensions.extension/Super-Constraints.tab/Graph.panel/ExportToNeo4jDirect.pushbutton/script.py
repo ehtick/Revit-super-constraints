@@ -221,7 +221,7 @@ class App:
             elementId_vert = json.loads(row['ElementId_vert'])
             elementId_hor = json.loads(row['ElementId_hor'])
             elementId_next = row['ElementId_next_win']
-            print(elementId_next)
+            #print(elementId_next)
             distance_vert = json.loads(row['Distance_to_edges_vert'])
             distance_hor = json.loads(row['Distance_to_edges_hor'])
             dis_to_next = row['Distance_to_next_win_min']
@@ -391,7 +391,7 @@ class App:
                     index = elementId_par.index(el_p)
                     dist = distance_par[index]
                     self.driver.execute_query("""MATCH (a),
-                                                (b:Floor)
+                                                (b)
                                                 WHERE b.unique_id = $unique_id AND a.id = $el_p
                                                 MERGE (b) - [r:DISTANCE_PAR {distance: $dist}] -> (a)""",
                                                 unique_id = unique_id,
@@ -408,14 +408,14 @@ class App:
                     index = elementId_nonpar.index(el_p)
                     dist = distance_nonpar[index]
                     self.driver.execute_query("""MATCH (a),
-                                                (b:Floor)
+                                                (b)
                                                 WHERE b.unique_id = $unique_id AND a.id = $el_p
                                                 MERGE (b) - [r:DISTANCE_NONPAR {distance: $dist}] -> (a)""",
                                                 unique_id = unique_id,
                                                 dist = dist, 
                                                 el_p = el_p, database = "neo4j").summary
                     self.driver.execute_query("""MATCH (a),
-                                                (b:Floor)
+                                                (b)
                                                 WHERE b.unique_id = $unique_id AND a.id = $el_p
                                                 MERGE (b) - [r:NONPARALLEL] -> (a)""",
                                                 unique_id = unique_id,

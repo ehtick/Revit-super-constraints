@@ -439,7 +439,13 @@ for room in room_collection:
     #
     ceiling_point_list = []
     ceiling_point_dic = {}
+    floors = []
+    parallel_floors = []
     for id in ceiling_elements:
+        ceiling_point_list = []
+        floors.append(id.IntegerValue)
+        #default parallel ceiling
+        parallel_floors.append(id.IntegerValue)
         ceiling = doc.GetElement(id)
         elem_geom = ceiling.get_Geometry(Options())
         for geomInst in elem_geom:
@@ -454,8 +460,6 @@ for room in room_collection:
         max_ceiling_p_z = max(ceiling_point_list)
         ceiling_point_dic[id.IntegerValue] = [min_ceiling_p_z,max_ceiling_p_z]
 
-    floors = []
-    parallel_floors = []
     roof = []
     room_bb = room.ClosedShell.GetBoundingBox()
     room_bb_min = room_bb.Min
@@ -465,7 +469,7 @@ for room in room_collection:
         dir = face_dic[id]
         elem = doc.GetElement(ElementId(id))
         category = elem.Category.Name
-        if abs(dir.Z) == 1.0 and ("Floors" in category or "Ceiling" in category):
+        if abs(dir.Z) == 1.0 and ("Floors" in category):
             parallel_floors.append(id)
             floors.append(id)
         elif abs(dir.Z) > 0.0 :
@@ -473,6 +477,7 @@ for room in room_collection:
     
     floor_points_dic = {}                               
     for id in floors:
+        #print(id)
         floor_point_list = []
         floor = doc.GetElement(ElementId(id))
         elem_geom = floor.get_Geometry(Options())
@@ -488,7 +493,7 @@ for room in room_collection:
         max_floor_point_z = max(floor_point_list)
         floor_points_dic[id] = [min_floor_point_z,max_floor_point_z]
 
-    for id in floor_points_dic.keys():
+    for id in floors:
         paral_floors_new = []
         roof_new = []
         distance_par_list = []
@@ -497,48 +502,97 @@ for room in room_collection:
         min_val_floor = floor_points_dic[id][0]
         max_val_floor = floor_points_dic[id][1]
         for id_c in ceiling_point_dic.keys():
-            min_val_ceiling = ceiling_point_dic[id_c][0]
-            max_val_ceiling  = ceiling_point_dic[id_c][1]
-            dis_1 = abs(min_val_floor-max_val_ceiling)
-            dis_2 = abs(max_val_floor-min_val_ceiling)
-            if id in parallel_floors:
-                paral_floors_new.append(id_c)
-                if dis_1 > dis_2:
-                    distance_par = round(dis_2*0.3048,3)
-                    distance_par_list.append(distance_par)
-                else:
-                    distance_par = round(dis_1*0.3048,3)
-                    distance_par_list.append(distance_par)
-            if id in roof:
-                roof_new.append(id_c)
-                if dis_1 > dis_2:
-                    distance_nonpar = round(dis_2*0.3048,3)
-                    distance_nonpar_list.append(distance_nonpar)
-                else:
-                    distance_nonpar = round(dis_1*0.3048,3)
-                    distance_nonpar_list.append(distance_nonpar)
+            if id != id_c:
+                min_val_ceiling = ceiling_point_dic[id_c][0]
+                max_val_ceiling  = ceiling_point_dic[id_c][1]
+                #dis_1 = abs(min_val_floor-max_val_ceiling)
+                dis_2 = abs(max_val_floor-min_val_ceiling)
+                if id in parallel_floors:
+                    if max_val_ceiling > max_val_floor:#means floor bellow ceiling
+                        paral_floors_new.append(id_c)
+                        dis = abs(max_val_floor-min_val_ceiling)
+                        distance_par = round(dis*0.3048,3)
+                        distance_par_list.append(distance_par)
+                    else:
+                        paral_floors_new.append(id_c)
+                        dis = abs(min_val_floor-max_val_ceiling)
+                        distance_par = round(dis*0.3048,3)
+                        distance_par_list.append(distance_par)
+                    if id in roof:
+                        roof_new.append(id_c)
+                        if max_val_ceiling > max_val_floor:#means floor bellow ceiling
+                            dis = abs(max_val_floor-min_val_ceiling)
+                            distance_nonpar = round(dis*0.3048,3)
+                            distance_nonpar_list.append(distance_nonpar)
+                        else:
+                            dis = abs(min_val_floor-max_val_ceiling)
+                            distance_nonpar = round(dis*0.3048,3)
+                            distance_nonpar_list.append(distance_nonpar)
+                        # if dis_1 > dis_2:
+                        #     distance_nonpar = round(dis_2*0.3048,3)
+                        #     distance_nonpar_list.append(distance_nonpar)
+                        # else:
+                        #     distance_nonpar = round(dis_1*0.3048,3)
+                        #     distance_nonpar_list.append(distance_nonpar)
+                    # paral_floors_new.append(id_c)
+                    # distance_par = round(dis_2*0.3048,3)
+                    # distance_par_list.append(distance_par)
+                #     if dis_1 > dis_2:
+                #         distance_par = round(dis_2*0.3048,3)
+                #         distance_par_list.append(distance_par)
+                #     else:
+                #         distance_par = round(dis_1*0.3048,3)
+                #         distance_par_list.append(distance_par)
+                # if id in roof:
+                #     roof_new.append(id_c)
+                #     if dis_1 > dis_2:
+                #         distance_nonpar = round(dis_2*0.3048,3)
+                #         distance_nonpar_list.append(distance_nonpar)
+                #     else:
+                #         distance_nonpar = round(dis_1*0.3048,3)
+                #         distance_nonpar_list.append(distance_nonpar)
         for id_f in floor_points_dic.keys():
-            min_val_floor_f = floor_points_dic[id_f][0]
-            max_val_floor_f = floor_points_dic[id_f][1]
-            dis_1 = abs(min_val_floor-max_val_floor_f)
-            dis_2 = abs(max_val_floor-min_val_floor_f)
             if id != id_f:
+                min_val_floor_f = floor_points_dic[id_f][0]
+                max_val_floor_f = floor_points_dic[id_f][1]
+                dis_1 = abs(min_val_floor-max_val_floor_f)
+                dis_2 = abs(max_val_floor-min_val_floor_f)
                 if id in parallel_floors and id_f in parallel_floors:
-                    paral_floors_new.append(id_f)
-                    if dis_1 > dis_2:
-                        distance_par = round(dis_2*0.3048,3)
+                    if max_val_floor_f > max_val_floor:#means floor bellow ceiling
+                        paral_floors_new.append(id_f)
+                        dis = abs(max_val_floor-min_val_floor_f)
+                        distance_par = round(dis*0.3048,3)
                         distance_par_list.append(distance_par)
                     else:
-                        distance_par = round(dis_1*0.3048,3)
+                        paral_floors_new.append(id_f)
+                        dis = abs(min_val_floor-max_val_floor_f)
+                        distance_par = round(dis*0.3048,3)
                         distance_par_list.append(distance_par)
-                if id in roof or id_f in roof:
-                    roof_new.append(id_f)
-                    if dis_1 > dis_2:
-                        distance_nonpar = round(dis_2*0.3048,3)
-                        distance_nonpar_list.append(distance_nonpar)
-                    else:
-                        distance_nonpar = round(dis_1*0.3048,3)
-                        distance_nonpar_list.append(distance_nonpar)
+                    if id in roof:
+                        roof_new.append(id_c)
+                        if max_val_floor_f > max_val_floor:#means floor bellow ceiling
+                            dis = abs(max_val_floor-min_val_floor_f)
+                            distance_nonpar = round(dis*0.3048,3)
+                            distance_nonpar_list.append(distance_nonpar)
+                        else:
+                            dis = abs(min_val_floor-max_val_floor_f)
+                            distance_nonpar = round(dis*0.3048,3)
+                            distance_nonpar_list.append(distance_nonpar)
+                #     paral_floors_new.append(id_f)
+                #     if dis_1 > dis_2:
+                #         distance_par = round(dis_2*0.3048,3)
+                #         distance_par_list.append(distance_par)
+                #     else:
+                #         distance_par = round(dis_1*0.3048,3)
+                #         distance_par_list.append(distance_par)
+                # if id in roof or id_f in roof:
+                #     roof_new.append(id_f)
+                #     if dis_1 > dis_2:
+                #         distance_nonpar = round(dis_2*0.3048,3)
+                #         distance_nonpar_list.append(distance_nonpar)
+                #     else:
+                #         distance_nonpar = round(dis_1*0.3048,3)
+                #         distance_nonpar_list.append(distance_nonpar)
         new_row_floors = pd.Series({'Room_Id':room.Id,
                                         'Room_uniqueId':room.UniqueId,
                                         'ElementId': id,
@@ -965,17 +1019,20 @@ for room in room_collection:
         df_windows = pd.concat([df_windows,new_row_windows.to_frame().T],ignore_index= True)
     for wall,wins in wall_win.items():
         for w in wins:
+            print('First')
+            print(w)
             l_edge = win_edge_dic[w][0]
             r_edge = win_edge_dic[w][1]
             distance = 0.
             id_next = None
             for w_t in wins:
                 if w != w_t:
+                    print("Next")
+                    print(w_t)
                     l_edge_t = win_edge_dic[w_t][0]
                     r_edge_t = win_edge_dic[w_t][1]
                     dis_1 = l_edge.DistanceTo(r_edge_t)
                     dis_2 = r_edge.DistanceTo(l_edge_t)
-
                     dis = min(dis_1,dis_2)
                     if distance == 0.:
                         distance = dis
@@ -1012,6 +1069,8 @@ for room in room_collection:
                     wall_point = wall_loc.Point
                     loc_furn_new = XYZ(loc_furn.X,loc_furn.Y,wall_point.Z)
                     dist = round(wall_point.DistanceTo(loc_furn_new)*0.3048,3)
+                    if dist<0.:
+                        dist = 0.0
                     closest_dis.append(dist)
                     distance_ids.append(b_el.IntegerValue)
                 if location_type == "Autodesk.Revit.DB.LocationCurve":
@@ -1019,6 +1078,8 @@ for room in room_collection:
                     wall_w = wall.Width
                     loc_furn_new = XYZ(loc_furn.X,loc_furn.Y,wall_curve.GetEndPoint(0).Z)
                     dist = round(wall_curve.Project(loc_furn_new).Distance*0.3048 - wall_w/2*0.3048,3)
+                    if dist<0.:
+                        dist = 0.0
                     closest_dis.append(dist)
                     distance_ids.append(b_el.IntegerValue)
             if dir.Z == 1.0:

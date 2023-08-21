@@ -315,7 +315,6 @@ class ModalForm(WPFWindow):
             values_new.append(val)
         values = values_new
         int_val = self.interval_check(values)
-        print(int_val)
         constr_type = self.add_type()
         elem = "MATCH (n)-[:CONTAINS]->(m) "
         elem_2 = "MATCH (m)-[:DISTANCE_HOR]->(w) "
