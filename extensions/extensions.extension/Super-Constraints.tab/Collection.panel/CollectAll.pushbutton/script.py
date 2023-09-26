@@ -1,6 +1,5 @@
 #! python3
 import sys
-# print(sys.version)
 # for problems with packages once uncommet line below (with correct site-packages directory)
 sys.path.append(r"C:\Users\elyah\AppData\Local\Programs\Python\Python38\Lib\site-packages")
 
@@ -9,7 +8,6 @@ import os.path
 import numpy as np
 import pandas as pd
 import statistics
-import bisect
 # from openpyxl.workbook import Workbook
 
 from Autodesk.Revit.DB import *
@@ -23,9 +21,6 @@ global doc
 app = __revit__.Application
 doc = __revit__.ActiveUIDocument.Document
 uidoc = __revit__.ActiveUIDocument
-
-# t = Transaction(doc, "Get all elements in the model")
-# t.Start()
 
 # filter categories
 directory = os.path.dirname(os.path.abspath(__file__))
@@ -206,7 +201,6 @@ def find_intersection_elemToRoomSolid(elem, room_solid):
         elif geomInst.GetType().ToString() == "Autodesk.Revit.DB.Line":
             inter_options = SolidCurveIntersectionOptions()
             interSolid = room_solid.IntersectWithCurve(geomInst,inter_options)
-            # print(interSolid.ResultType)
             res = interSolid.ResultType
             if res == 0:
                 return 1          
@@ -477,7 +471,6 @@ for room in room_collection:
     
     floor_points_dic = {}                               
     for id in floors:
-        #print(id)
         floor_point_list = []
         floor = doc.GetElement(ElementId(id))
         elem_geom = floor.get_Geometry(Options())
@@ -528,29 +521,7 @@ for room in room_collection:
                             dis = abs(min_val_floor-max_val_ceiling)
                             distance_nonpar = round(dis*0.3048,3)
                             distance_nonpar_list.append(distance_nonpar)
-                        # if dis_1 > dis_2:
-                        #     distance_nonpar = round(dis_2*0.3048,3)
-                        #     distance_nonpar_list.append(distance_nonpar)
-                        # else:
-                        #     distance_nonpar = round(dis_1*0.3048,3)
-                        #     distance_nonpar_list.append(distance_nonpar)
-                    # paral_floors_new.append(id_c)
-                    # distance_par = round(dis_2*0.3048,3)
-                    # distance_par_list.append(distance_par)
-                #     if dis_1 > dis_2:
-                #         distance_par = round(dis_2*0.3048,3)
-                #         distance_par_list.append(distance_par)
-                #     else:
-                #         distance_par = round(dis_1*0.3048,3)
-                #         distance_par_list.append(distance_par)
-                # if id in roof:
-                #     roof_new.append(id_c)
-                #     if dis_1 > dis_2:
-                #         distance_nonpar = round(dis_2*0.3048,3)
-                #         distance_nonpar_list.append(distance_nonpar)
-                #     else:
-                #         distance_nonpar = round(dis_1*0.3048,3)
-                #         distance_nonpar_list.append(distance_nonpar)
+
         for id_f in floor_points_dic.keys():
             if id != id_f:
                 min_val_floor_f = floor_points_dic[id_f][0]
@@ -578,21 +549,7 @@ for room in room_collection:
                             dis = abs(min_val_floor-max_val_floor_f)
                             distance_nonpar = round(dis*0.3048,3)
                             distance_nonpar_list.append(distance_nonpar)
-                #     paral_floors_new.append(id_f)
-                #     if dis_1 > dis_2:
-                #         distance_par = round(dis_2*0.3048,3)
-                #         distance_par_list.append(distance_par)
-                #     else:
-                #         distance_par = round(dis_1*0.3048,3)
-                #         distance_par_list.append(distance_par)
-                # if id in roof or id_f in roof:
-                #     roof_new.append(id_f)
-                #     if dis_1 > dis_2:
-                #         distance_nonpar = round(dis_2*0.3048,3)
-                #         distance_nonpar_list.append(distance_nonpar)
-                #     else:
-                #         distance_nonpar = round(dis_1*0.3048,3)
-                #         distance_nonpar_list.append(distance_nonpar)
+
         new_row_floors = pd.Series({'Room_Id':room.Id,
                                         'Room_uniqueId':room.UniqueId,
                                         'ElementId': id,
@@ -602,98 +559,6 @@ for room in room_collection:
                                         'Distance_to_parallel':distance_par_list,
                                         'Distance_to_nonparallel':distance_nonpar_list})
         df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
-
-    
-
-    # df_floors = pd.DataFrame()
-    # resultArray = IntersectionResultArray()
-    # floor_distance = {}
-    # dis_to_m = []
-    # dir_t = 0
-    # id_t = None
-
-    # for id in floors:
-    #     if len(floors) <3:
-    #         # room has only top and bottom floor
-    #         floor = doc.GetElement(ElementId(id))
-    #         room_bb = room.ClosedShell.GetBoundingBox()
-    #         room_bb_min = room_bb.Min
-    #         room_bb_max = room_bb.Max
-    #         # floor_distance[id] = dis
-    #         new_par = None
-    #         paral_count = 0
-    #         dis_par = 0
-    #         dis_op = 0
-    #         roof_id = None
-    #         for id_n in parallel_floors:
-    #             if id_n != id and id not in roof:
-    #                 new_par = id_n
-    #                 paral_count = 1
-    #                 dis_par = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,3)
-    #         for id_n in roof:
-    #             if id_n != id:
-    #                 roof_id = id_n
-    #                 dis_op = round(abs(room_bb_max.Z-room_bb_min.Z)*0.3048,3)
-    #         new_row_floors = pd.Series({'Room_Id':room.Id,
-    #                                     'Room_uniqueId':room.UniqueId,
-    #                                     'ElementId': id,
-    #                                     'Element_uniqueId': floor.UniqueId,
-    #                                     'Parallel_floor_id':[new_par],
-    #                                     'Parallel_floors_count':paral_count,
-    #                                     'Nonparallel_floor_id': [roof_id],
-    #                                     'Distance_to_nonparallel':[dis_op],
-    #                                     'Distance_to_parallel':[dis_par]})
-    #         df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
-    #     else:
-    #         # room has additional ceiling or floor
-    #         elem = doc.GetElement(ElementId(id))
-    #         elem_geom = elem.get_Geometry(Options())
-    #         for geomInst in elem_geom:
-    #             if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
-    #                     floor_solid = geomInst
-    #                     for face in floor_solid.Faces:
-    #                         normal = face.ComputeNormal(UV(room_location.X,room_location.Y))
-    #                         if abs(normal.Z)==1.0 and face != None:
-    #                             try:
-    #                                 dis = face.Project(room_location).Distance
-    #                                 floor_distance[id] = [normal.Z,dis]
-    #                                 break
-    #                             except:
-    #                                 pass
-
-    # for id in floor_distance.keys():
-    #     val = floor_distance[id]
-    #     dir = val[0]
-    #     dis_to_room = val[1]
-    #     floor = doc.GetElement(ElementId(id))
-    #     paral_count = 0
-    #     distance = 0
-    #     new_par = []
-    #     distance_to_parallel = []
-    #     for id_t in floor_distance.keys():
-    #         if id_t != id and id not in roof and id_t not in roof and id_t in parallel_floors and id in parallel_floors:
-    #             paral_count = paral_count + 1
-    #             val_t = floor_distance[id_t]
-    #             dir_t = val_t[0]
-    #             dis_to_room_t = val_t[1]
-    #             new_par.append(id_t)
-    #             if dir != dir_t:
-    #                 distance = dis_to_room + dis_to_room_t
-    #                 distance_to_parallel.append(round(distance*0.3048,3))
-    #             else:
-    #                 distance = abs(dis_to_room - dis_to_room_t)
-    #                 distance_to_parallel.append(round(distance*0.3048,3))
-
-    #     new_row_floors = pd.Series({'Room_Id':room.Id,
-    #                                     'Room_uniqueId':room.UniqueId,
-    #                                     'ElementId': id,
-    #                                     'Element_uniqueId': floor.UniqueId,
-    #                                     'Parallel_floor_id':new_par,
-    #                                     'Parallel_floors_count':paral_count,
-    #                                     'Nonparallel_floor_id': [None],
-    #                                     'Distance_to_nonparallel':[0],
-    #                                     'Distance_to_parallel': distance_to_parallel})
-    #     df_floors = pd.concat([df_floors,new_row_floors.to_frame().T],ignore_index= True)
     # 
     # 
     # 
@@ -816,8 +681,6 @@ for room in room_collection:
                                     'Element_uniqueId': door.UniqueId,
                                     'Door_width':round(width*0.3048,3),
                                     'Door_height':round(height*0.3048,3),
-                                    #'Nearest_elementIds':distance_ids,
-                                    # 'Distance_to_edges':distance_dic[id],
                                     'ElementId_hor':distance_hor_ids,
                                     'ElementId_vert': distance_vert_ids,
                                     'Distance_to_edges_hor': closest_dis_hor,
@@ -828,9 +691,6 @@ for room in room_collection:
                                     'Distance_to_edges_vert_mi': min(closest_dis_vert),
                                     'Distance_to_edges_vert_mean': round(statistics.mean(closest_dis_vert),3),
                                     'Distance_to_edges_vert_ma': max(closest_dis_vert),
-                                    # 'Distance_to_edges_mi':min(com_dis),
-                                    # 'Distance_to_edges_mean':round(statistics.mean(com_dis),3),
-                                    #'Distance_to_edges_ma':max(com_dis),
                                     'ElementId_next_door':[],
                                     'Distance_to_next_door_min': []})
         df_doors = pd.concat([df_doors,new_row_doors.to_frame().T],ignore_index= True) 
@@ -917,52 +777,6 @@ for room in room_collection:
                                         distance_hor_ids.append(id_el)
                                         closest_dis_hor.append(dis_to_cut)
 
-                        # if abs(dir_c.Z) == 0.0:
-                        #     if face_dic[id_el].Z == 1.0:
-                        #         proj_pnt = curve.GetEndPoint(0)
-                        #         elem_geom = elem.get_Geometry(Options())
-                        #         dis = 1
-                        #         temp_dist = []
-                        #         for geomInst in elem_geom:
-                        #             if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
-                        #                     floor_solid = geomInst
-                        #                     for face in floor_solid.Faces:
-                        #                         if dis != 0:
-                        #                             normal = face.ComputeNormal(UV(proj_pnt.X,proj_pnt.Y))
-                        #                             if normal.Z==-1.0:
-                        #                                 dis = round(face.Project(proj_pnt).Distance*0.3084,3)
-                        #                                 temp_dist.append(dis)
-                        #         min_dis = min(temp_dist)
-                        #         distance_vert_ids.append(id_el)
-                        #         closest_dis_vert.append(dis)
-                                # if dis_to_cut not in distance_ids:
-                                #     distance_ids.append(id_el)
-                                #     closest_dis.append(dis)
-                                #     distance_vert_ids.append(id_el)
-                                #     closest_dis_vert.append(round(dis,3))
-
-                            # elif face_dic[id_el].Z == -1.0:
-                            #     proj_pnt = curve.GetEndPoint(0)
-                            #     elem_geom = elem.get_Geometry(Options())
-                            #     dis = 1
-                            #     temp_dist = []
-                            #     for geomInst in elem_geom:
-                            #         if geomInst.Faces.Size != 0 and geomInst.Edges.Size != 0:
-                            #                 floor_solid = geomInst
-                            #                 for face in floor_solid.Faces:
-                            #                     if dis != 0:
-                            #                         normal = face.ComputeNormal(UV(proj_pnt.X,proj_pnt.Y))
-                            #                         if normal.Z==1.0:
-                            #                             dis = round(face.Project(proj_pnt).Distance*0.3084,3)
-                            #                             temp_dist.append(dis)
-                            #     min_dis = min(temp_dist)
-                            #     closest_dis_vert.append(dis)
-                            #     distance_vert_ids.append(id_el)
-                            #     # if id_el not in distance_ids:
-                            #     #     distance_ids.append(id_el)
-                            #     #     closest_dis.append(dis)
-                            #     #     closest_dis_vert.append(round(dis,3))
-                            #     #     distance_vert_ids.append(id_el)
                         for id_f in floor_points_dic.keys():
                             dist_1 = round(abs(curve.GetEndPoint(0).Z - floor_points_dic[id_f][0])*0.3048,3)
                             dist_2 = round(abs(curve.GetEndPoint(0).Z - floor_points_dic[id_f][1])*0.3048,3)
@@ -1002,8 +816,6 @@ for room in room_collection:
                                         'Element_uniqueId': window.UniqueId,
                                         'Window_width':round(min(dim_arr)*0.3048,3),
                                         'Window_height':round(max(dim_arr)*0.3048,3),
-                                        #'Nearest_elementIds':distance_ids,
-                                        # 'Distance_to_edges':distance_dic[id.IntegerValue],
                                         'ElementId_vert': distance_vert_ids,
                                         'ElementId_hor':distance_hor_ids,
                                         'Distance_to_edges_hor':closest_dis_hor,
@@ -1019,16 +831,12 @@ for room in room_collection:
         df_windows = pd.concat([df_windows,new_row_windows.to_frame().T],ignore_index= True)
     for wall,wins in wall_win.items():
         for w in wins:
-            print('First')
-            print(w)
             l_edge = win_edge_dic[w][0]
             r_edge = win_edge_dic[w][1]
             distance = 0.
             id_next = None
             for w_t in wins:
                 if w != w_t:
-                    print("Next")
-                    print(w_t)
                     l_edge_t = win_edge_dic[w_t][0]
                     r_edge_t = win_edge_dic[w_t][1]
                     dis_1 = l_edge.DistanceTo(r_edge_t)
@@ -1188,45 +996,3 @@ nameOfFile = 'data\\tables\\room_elements.xlsx'
 nameOfFile_csv = 'data\\tables\\room_elements.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_all.to_csv(completename_csv)
-
-# experimental solution
-# win_nearest_dim = df_windows_all.agg({'Distance_to_next_win_min':['mean','min','max']})
-# # apply min = 0.5
-
-# df_windows_all = df_windows_all[df_windows_all['Distance_to_next_win_min']> 0.]
-# min_val = df_windows_all['Distance_to_next_win_min'].min()
-# print(min_val)
-# df_windows_all.loc[df_windows_all['Distance_to_next_win_min'] == min_val,['Distance_to_next_win_min']] = 0.5
-# win_id = df_windows_all.loc[df_windows_all['Distance_to_next_win_min'] == 0.5,'ElementId']
-# print(win_id.values)
-# dif = abs(min_val- 0.5)*3.28084
-# # transl = XYZ(0.,dif,0.)
-# # w = win_id.values[0]
-# # print(w)
-# # win = doc.GetElement(ElementId(w))
-# # loc = win.Location
-# # loc.Move(transl)
-# # id_prev = None
-# for w in win_id:
-#     win = doc.GetElement(ElementId(w))
-#     loc = win.Location
-#     loc_p = loc.Point
-#     # loc.Move(transl)
-#     id_prev = w
-#     near = df_windows_all.loc[df_windows_all['ElementId'] == w,'ElementId_next_win'].values
-#     win_near = doc.GetElement(ElementId(near))
-#     loc_near = win_near.Location
-#     loc_near_p = loc_near.Point
-#     normal_to_near = XYZ(loc_near_p.X-loc_p.X,loc_near_p.Y-loc_p.Y,loc_p.Z).Normalize()
-#     move_vec = normal_to_near.Multiply(dif)
-#     loc.Move(move_vec)
-#     if near == id_prev:
-#         continue
-# df_sum = pd.DataFrame()
-# print('####### ROOM REPORT ######')
-# print(df['Category'].value_counts())
-# print("Number of doors:" + str(df_doors.shape[0]))
-# print(df_doors.agg({'Door_width':['mean','min','max'],'Door_height':['mean','min','max']}))
-# print("Number of floors:" + str(df_floors.shape[0]))
-# print(df_floors.agg({'Distance_to_parall':['count','mean','min','max']}))
-# t.Commit()

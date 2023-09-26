@@ -1,3 +1,3 @@
-Cypher transformation of: All doors in the room called Kitchen have [min,mean,max,mode] [0.7, 2.13, 3.575, 2.8] vertical distances to edges., "conceptual" 
-MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_VERT]->(w)  WHERE n.room_name = "Kitchen" AND m.category = 'Doors' SET m.constr_distance_vertical_min= 0.7, m.constr_distance_vertical_max="inf", m.constr_characteristics="closed interval" MERGE (m)-[k:CONSTRAINT{distance_vert_min:0.7,distance_vert_max:"inf", constraint_type: "conceptual"}]->(w)  RETURN k,m,w
+Cypher transformation of: All windows in the room called Corridor have [min,mean,max,mode] [0.305, 1.601, 3.27, 0.305] vertical distances to edges., "conceptual" 
+MATCH (n)-[:CONTAINS]->(m) MATCH (m)-[:DISTANCE_VERT]->(w)  WHERE n.room_name = "Corridor" AND m.category = 'Windows' SET m.constr_distance_vertical_min= 0.305, m.constr_distance_vertical_max="inf", m.constr_characteristics="half-open interval" MERGE (m)-[k:CONSTRAINT{distance_vert_min:0.305,distance_vert_max:"inf", constraint_type: "conceptual"}]->(w)  RETURN k,m,w
 

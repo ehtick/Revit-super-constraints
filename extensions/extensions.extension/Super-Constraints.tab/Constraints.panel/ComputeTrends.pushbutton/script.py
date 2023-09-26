@@ -1,15 +1,12 @@
 #! python3
 import sys
-# print(sys.version)
 # for problems with packages once uncommet line below (with correct site-packages directory)
 # sys.path.append(r"C:\Users\elyah\AppData\Local\Programs\Python\Python38\Lib\site-packages")
-# import clr
 import os
 import os.path
 import statistics
 import numpy as np
 import pandas as pd
-import collections
 
 from Autodesk.Revit.DB import *
 from Autodesk.Revit.UI.Selection import *
@@ -66,69 +63,15 @@ nameOfFile_csv = 'data\\tables\\room_elements.csv'
 completename_csv =os.path.join(data_dir,nameOfFile_csv)
 df_elements = pd.read_csv(completename_csv)
 
-# def find_frequency_value(distance_list):
-#     duplicates = []
-#     non_duplicates = set()
-#     for val in distance_list:
-#         if val in non_duplicates:
-#             duplicates.append(val)
-#         else:
-#             non_duplicates.add(val)
-#     if len(duplicates)>0:
-#         counter = collections.Counter(duplicates)
-#         most_common = [counter.most_common(1)[0][0]]
-#     else:
-#         most_common = [min(distance_list),max(distance_list)]
-#     return most_common
-
-def find_frequency_value(distance_list):
-    duplicates = []
-    non_duplicates = set()
-    for val in distance_list:
-        if val in non_duplicates:
-            duplicates.append(val)
-        else:
-            non_duplicates.add(val)
-    if len(duplicates)>0:
-        counter = collections.Counter(duplicates)
-        most_common = [counter.most_common(1)[0][0]]
-    else:
-        most_common = [min(distance_list),max(distance_list)]
-    return most_common
-
 
 # WINDOWS
 # analyse windows
+
 # nameOfFile_txt = 'data\\tables\\windows_report.txt'
 # completename_txt = os.path.join(data_dir,nameOfFile_txt)
 # win_file = open(completename_txt,'w+')
 # win_file.write("Analyse windows \n")
 # win_file.write('1. Analyse all windows (by category:Windows) \n')
-# # analyse windows all by category - completed
-# str_wh = df_win.agg({'Window_width':['min','mean','max'],'Window_height':['min','mean','max']}).T.values
-# str_e_hor_min = df_win.agg({'Distance_to_edges_hor_mi':['min']}).values[0]
-# str_e_hor_mean = df_win.agg({'Distance_to_edges_hor_mean':['mean']}).values[0]
-# str_e_hor_max = df_win.agg({'Distance_to_edges_hor_ma':['max']}).values[0]
-# str_e_vert_min = df_win.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
-# str_e_vert_mean = df_win.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
-# str_e_vert_max = df_win.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-# str_n_min = df_win.agg({'Distance_to_next_win_min':['min']}).values[0]
-# str_1 = pd.Series({'Category': 'Windows','Width':list(str_wh[0]),'Height':list(str_wh[1]),
-#                     'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
-#                     'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
-#                     'Distance_to_next':[str_n_min[0],0.,0.]})
-# win_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
-# df_win_new_cat = pd.concat([df_win_new,str_1.to_frame().T],ignore_index=True)
-
-# nameOfFile_csv = 'data\\tables\\windows_report_cateqory.csv'
-# completename_csv = os.path.join(data_dir,nameOfFile_csv)
-# df_win_new_cat.to_csv(completename_csv)
-
-nameOfFile_txt = 'data\\tables\\windows_report.txt'
-completename_txt = os.path.join(data_dir,nameOfFile_txt)
-win_file = open(completename_txt,'w+')
-win_file.write("Analyse windows \n")
-win_file.write('1. Analyse all windows (by category:Windows) \n')
 # analyse windows all by category - completed
 #width and hight
 str_wh = df_win.agg({'Window_width':['min','mean','max'],'Window_height':['min','mean','max']}).T.values
@@ -158,15 +101,12 @@ mode_win_n = df_win['Distance_to_next_win_min'].agg(pd.Series.mode).values[0]
 min_dist_n = min(str_n_min)
 max_dist_n = max(str_n_min)
 mean_dist_n = round(statistics.mean(str_n_min),3)
-# min_dist_n = min(str_n_min[str_n_min!=0])
-# max_dist_n = max(str_n_min[str_n_min!=0])
-#mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
 #all
 str_1 = pd.Series({'Category': 'Windows','Width':win_w,'Height':win_h,
                     'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
                     'Distance_to_edges_vert':[min_dist_v,mean_dist_v,max_dist_v,mode_dist_v],
                     'Distance_to_next':[min_dist_n,mean_dist_n,max_dist_n,mode_win_n]})
-win_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
+#win_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
 df_win_new_cat = pd.concat([df_win_new,str_1.to_frame().T],ignore_index=True)
 
 nameOfFile_csv = 'data\\tables\\windows_report_category.csv'
@@ -174,7 +114,7 @@ completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_win_new_cat.to_csv(completename_csv,index=False)
 
 # analyse by room names - completed
-win_file.write('2. Analyse all windows by room names \n')
+#win_file.write('2. Analyse all windows by room names \n')
 df_elements_groped = df_elements.groupby('Room_name')
 df_elements_keys = df_elements_groped.groups.keys()
 df_win_new_roomname = pd.DataFrame()
@@ -211,77 +151,20 @@ for key in df_elements_keys:
         min_dist_n = min(str_n_min)
         max_dist_n = max(str_n_min)
         mean_dist_n = round(statistics.mean(str_n_min),3)
-        # min_dist_n = min(str_n_min[str_n_min!=0])
-        # max_dist_n = max(str_n_min[str_n_min!=0])
-        #mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
         #all
         str_1 = pd.Series({'Room_name': key,'Width':win_w,'Height':win_h,
                             'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
                             'Distance_to_edges_vert':[min_dist_v,mean_dist_v,max_dist_v,mode_dist_v],
                             'Distance_to_next':[min_dist_n,mean_dist_n,max_dist_n,mode_win_n]})
-        win_file.write(str_1.to_frame().T.to_string()  + '\n')
+        #win_file.write(str_1.to_frame().T.to_string()  + '\n')
         df_win_new_roomname = pd.concat([df_win_new_roomname,str_1.to_frame().T],ignore_index=True)
 
 nameOfFile_csv = 'data\\tables\\windows_report_roomname.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_win_new_roomname.to_csv(completename_csv,index=False)
 
-# # analyse by room names and frequency - completed
-# win_file.write('2. Analyse all windows by room names and frequency \n')
-# df_elements_groped = df_elements.groupby('Room_name')
-# df_elements_keys = df_elements_groped.groups.keys()
-# df_win_new_roomname_fr = pd.DataFrame()
-# for key in df_elements_keys:
-#     df_elements_gr = df_elements_groped.get_group(key)
-
-#     uniqueid = df_elements_gr['Element_uniqueId'].values
-#     df_win_sorted = df_win.loc[df_win['Element_uniqueId'].isin(uniqueid)]
-#     if len(df_win_sorted)>0:
-#         dupl_width = find_frequency_value(df_win_sorted['Window_width'].values.tolist())
-#         if len(dupl_width)>1:
-#             dupl_width = [dupl_width[0]]
-#         dupl_height = find_frequency_value(df_win_sorted['Window_height'].values.tolist())
-#         if len(dupl_height)>1:
-#             dupl_height = [dupl_height[0]]
-#         dupl_hor_dis_min = find_frequency_value(df_win_sorted['Distance_to_edges_hor_mi'].values.tolist())
-#         if len(dupl_hor_dis_min)>1:
-#             dupl_hor_dis_min = dupl_hor_dis_min[0]
-#         else:
-#             dupl_hor_dis_min = dupl_hor_dis_min[0]
-#         dupl_hor_dis_max = find_frequency_value(df_win_sorted['Distance_to_edges_hor_ma'].values.tolist())
-#         if len(dupl_hor_dis_max)>1:
-#             dupl_hor_dis_max = dupl_hor_dis_max[1]
-#         else:
-#             dupl_hor_dis_max = dupl_hor_dis_max[0]
-#         dupl_ver_dis_min = find_frequency_value(df_win_sorted['Distance_to_edges_vert_mi'].values.tolist())
-#         if len(dupl_ver_dis_min)>1:
-#             dupl_ver_dis_min = dupl_ver_dis_min[0]
-#         else:
-#             dupl_ver_dis_min = dupl_ver_dis_min[0]
-#         dupl_ver_dis_max = find_frequency_value(df_win_sorted['Distance_to_edges_vert_ma'].values.tolist())
-#         if len(dupl_ver_dis_max)>1:
-#             dupl_ver_dis_max = dupl_ver_dis_max[1]
-#         else:
-#             dupl_ver_dis_max = dupl_ver_dis_max[0]
-#         dupl_next_dis_min = find_frequency_value(df_win_sorted['Distance_to_next_win_min'].values.tolist())
-#         if len(dupl_next_dis_min)>1:
-#             dupl_next_dis_min = dupl_next_dis_min[0]
-#         else:
-#             dupl_next_dis_min = dupl_next_dis_min[0]
-
-#         str_2 = pd.Series({'Room_name': key,'Width':dupl_width,'Height':dupl_height,
-#                            'Distance_to_edges_hor':[dupl_hor_dis_min,dupl_hor_dis_max],
-#                            'Distance_to_edges_vert':[dupl_ver_dis_min,dupl_ver_dis_max],
-#                            'Distance_to_next':[dupl_next_dis_min]})
-#         win_file.write(str_2.to_frame().T.to_string()  + '\n')
-#         df_win_new_roomname_fr = pd.concat([df_win_new_roomname_fr,str_2.to_frame().T],ignore_index=True)
-
-# nameOfFile_csv = 'data\\tables\\windows_report_roomname_freq.csv'
-# completename_csv = os.path.join(data_dir,nameOfFile_csv)
-# df_win_new_roomname_fr.to_csv(completename_csv,index=False)
-
 # analyse by family- completed
-win_file.write('3. Analyse all windows by their family name \n')
+#win_file.write('3. Analyse all windows by their family name \n')
 df_elements_groped = df_elements.groupby('Family')
 df_elements_keys = df_elements_groped.groups.keys()
 df_win_new_famname = pd.DataFrame()
@@ -318,9 +201,7 @@ for key in df_elements_keys:
         min_dist_n = min(str_n_min)
         max_dist_n = max(str_n_min)
         mean_dist_n = round(statistics.mean(str_n_min),3)
-        # min_dist_n = min(str_n_min[str_n_min!=0])
-        # max_dist_n = max(str_n_min[str_n_min!=0])
-        #mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
+
         #all
         str_1 = pd.Series({'Family': key,'Width':win_w,'Height':win_h,
                             'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
@@ -332,77 +213,18 @@ nameOfFile_csv = 'data\\tables\\windows_report_family.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_win_new_famname.to_csv(completename_csv,index=False)
 
-# # analyse by family and frequency- completed
-# win_file.write('3. Analyse all windows by their family name and frequency \n')
-# df_elements_groped = df_elements.groupby('Family')
-# df_elements_keys = df_elements_groped.groups.keys()
-# df_win_new_famname_fr = pd.DataFrame()
-# for key in df_elements_keys:
-#     dupl_width = find_frequency_value(df_win_sorted['Window_width'].values.tolist())
-#     if len(dupl_width)>1:
-#         dupl_width = [dupl_width[0]]
-#         dupl_height = find_frequency_value(df_win_sorted['Window_height'].values.tolist())
-#         if len(dupl_height)>1:
-#             dupl_height = [dupl_height[0]]
-#         dupl_hor_dis_min = find_frequency_value(df_win_sorted['Distance_to_edges_hor_mi'].values.tolist())
-#         if len(dupl_hor_dis_min)>1:
-#             dupl_hor_dis_min = dupl_hor_dis_min[0]
-#         else:
-#             dupl_hor_dis_min = dupl_hor_dis_min[0]
-#         dupl_hor_dis_max = find_frequency_value(df_win_sorted['Distance_to_edges_hor_ma'].values.tolist())
-#         if len(dupl_hor_dis_max)>1:
-#             dupl_hor_dis_max = dupl_hor_dis_max[1]
-#         else:
-#             dupl_hor_dis_max = dupl_hor_dis_max[0]
-#         dupl_ver_dis_min = find_frequency_value(df_win_sorted['Distance_to_edges_vert_mi'].values.tolist())
-#         if len(dupl_ver_dis_min)>1:
-#             dupl_ver_dis_min = dupl_ver_dis_min[0]
-#         else:
-#             dupl_ver_dis_min = dupl_ver_dis_min[0]
-#         dupl_ver_dis_max = find_frequency_value(df_win_sorted['Distance_to_edges_vert_ma'].values.tolist())
-#         if len(dupl_ver_dis_max)>1:
-#             dupl_ver_dis_max = dupl_ver_dis_max[1]
-#         else:
-#             dupl_ver_dis_max = dupl_ver_dis_max[0]
-#         dupl_next_dis_min = find_frequency_value(df_win_sorted['Distance_to_next_win_min'].values.tolist())
-#         if len(dupl_next_dis_min)>1:
-#             dupl_next_dis_min = dupl_next_dis_min[0]
-#         else:
-#             dupl_next_dis_min = dupl_next_dis_min[0]
 
-#         str_2 = pd.Series({'Room_name': key,'Width':dupl_width,'Height':dupl_height,
-#                         'Distance_to_edges_hor':[dupl_hor_dis_min,dupl_hor_dis_max],
-#                         'Distance_to_edges_vert':[dupl_ver_dis_min,dupl_ver_dis_max],
-#                         'Distance_to_next':[dupl_next_dis_min]})
-#         win_file.write(str_2.to_frame().T.to_string()  + '\n')
-#         df_win_new_roomname_fr = pd.concat([df_win_new_roomname_fr,str_2.to_frame().T],ignore_index=True)
-
-# nameOfFile_csv = 'data\\tables\\windows_report_family_freq.csv'
-# completename_csv = os.path.join(data_dir,nameOfFile_csv)
-# df_win_new_famname_fr.to_csv(completename_csv,index=False)
-#
 #
 #
 # DOORS - completed
 # analyse doors all by category - completed
-nameOfFile_txt = 'data\\tables\\doors_report.txt'
-completename_txt = os.path.join(data_dir,nameOfFile_txt)
-door_file = open(completename_txt,'w+')
-door_file.write("Analyse doors \n")
-door_file.write('1. Analyse all doors (by category: Doors) \n')
+# nameOfFile_txt = 'data\\tables\\doors_report.txt'
+# completename_txt = os.path.join(data_dir,nameOfFile_txt)
+# door_file = open(completename_txt,'w+')
+# door_file.write("Analyse doors \n")
+# door_file.write('1. Analyse all doors (by category: Doors) \n')
 df_door_new_cat = pd.DataFrame()
-# str_wh = df_doors.agg({'Door_width':['min','mean','max'],'Door_height':['min','mean','max']}).T.values
-# str_e_hor_min = df_doors.agg({'Distance_to_edges_hor_mi':['min']}).values[0]
-# str_e_hor_mean = df_doors.agg({'Distance_to_edges_hor_mean':['mean']}).values[0]
-# str_e_hor_max = df_doors.agg({'Distance_to_edges_hor_ma':['max']}).values[0]
-# str_e_vert_min = df_doors.agg({'Distance_to_edges_vert_mi':['min']}).values[0]
-# str_e_vert_mean = df_doors.agg({'Distance_to_edges_vert_mean':['mean']}).values[0]
-# str_e_vert_max = df_doors.agg({'Distance_to_edges_vert_ma':['max']}).values[0]
-# str_n_min = df_doors.agg({'Distance_to_next_door_min':['min']}).values[0]
-# str_1 = pd.Series({'Category': 'Doors','Width':list(str_wh[0]),'Height':list(str_wh[1]),
-#                     'Distance_to_edges_hor':[str_e_hor_min[0],str_e_hor_mean[0],str_e_hor_max[0]],
-#                     'Distance_to_edges_vert':[str_e_vert_min[0],str_e_vert_mean[0],str_e_vert_max[0]],
-#                     'Distance_to_next':[str_n_min[0],0.,0.]})
+
 # #width and hight
 str_wh = df_doors.agg({'Door_width':['min','mean','max'],'Door_height':['min','mean','max']}).T.values
 mode_door_w = df_doors['Door_width'].agg(pd.Series.mode).values[0]
@@ -431,23 +253,21 @@ mode_win_n = df_doors['Distance_to_next_door_min'].agg(pd.Series.mode).values[0]
 min_dist_n = min(str_n_min)
 max_dist_n = max(str_n_min)
 mean_dist_n = round(statistics.mean(str_n_min),3)
-# min_dist_n = min(str_n_min[str_n_min!=0])
-# max_dist_n = max(str_n_min[str_n_min!=0])
-#mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
+
 #all
 str_1 = pd.Series({'Category': 'Doors','Width':door_w,'Height':door_h,
                     'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
                     'Distance_to_edges_vert':[min_dist_v,mean_dist_v,max_dist_v,mode_dist_v],
                     'Distance_to_next':[min_dist_n,mean_dist_n,max_dist_n,mode_win_n]})
 
-door_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
+#door_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
 df_door_new_cat = pd.concat([df_door_new_cat,str_1.to_frame().T],ignore_index=True)
 nameOfFile_csv = 'data\\tables\\doors_report_category.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_door_new_cat.to_csv(completename_csv,index=False)
 
 # analyse by room names - completed
-door_file.write('2. Analyse all doors by room names \n')
+#door_file.write('2. Analyse all doors by room names \n')
 df_elements_groped = df_elements.groupby('Room_name')
 df_elements_keys = df_elements_groped.groups.keys()
 df_doors_new_roomname = pd.DataFrame()
@@ -484,76 +304,21 @@ for key in df_elements_keys:
         min_dist_n = min(str_n_min)
         max_dist_n = max(str_n_min)
         mean_dist_n = round(statistics.mean(str_n_min),3)
-        # min_dist_n = min(str_n_min[str_n_min!=0])
-        # max_dist_n = max(str_n_min[str_n_min!=0])
-        #mean_dist_n = round(statistics.mean(str_n_min[str_n_min!=0]),3)
         #all
         str_2 = pd.Series({'Room_name': key,'Width':door_w,'Height':door_h,
                             'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
                             'Distance_to_edges_vert':[min_dist_v,mean_dist_v,max_dist_v,mode_dist_v],
                             'Distance_to_next':[min_dist_n,mean_dist_n,max_dist_n,mode_win_n]})
-        door_file.write(str_2.to_frame().T.to_string()  + '\n')
+        #door_file.write(str_2.to_frame().T.to_string()  + '\n')
         df_doors_new_roomname = pd.concat([df_doors_new_roomname,str_2.to_frame().T])
 
 nameOfFile_csv = 'data\\tables\\doors_report_roomname.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_doors_new_roomname.to_csv(completename_csv,index=False)
 
-# analyse by room names and frequency - completed
-# win_file.write('2. Analyse all doors by room names and frequency \n')
-# df_elements_groped = df_elements.groupby('Room_name')
-# df_elements_keys = df_elements_groped.groups.keys()
-# df_doors_new_roomname_fr = pd.DataFrame()
-# for key in df_elements_keys:
-#     df_elements_gr = df_elements_groped.get_group(key)
-#     uniqueid = df_elements_gr['Element_uniqueId'].values
-#     df_door_sorted = df_doors.loc[df_doors['Element_uniqueId'].isin(uniqueid)]
-#     if len(df_door_sorted)>0:
-#         dupl_width = find_frequency_value(df_door_sorted['Door_width'].values.tolist())
-#         if len(dupl_width)>1:
-#             dupl_width = [dupl_width[0]]
-#         dupl_height = find_frequency_value(df_door_sorted['Door_height'].values.tolist())
-#         if len(dupl_height)>1:
-#             dupl_height = [dupl_height[0]]
-#         dupl_hor_dis_min = find_frequency_value(df_door_sorted['Distance_to_edges_hor_mi'].values.tolist())
-#         if len(dupl_hor_dis_min)>1:
-#             dupl_hor_dis_min = dupl_hor_dis_min[0]
-#         else:
-#             dupl_hor_dis_min = dupl_hor_dis_min[0]
-#         dupl_hor_dis_max = find_frequency_value(df_door_sorted['Distance_to_edges_hor_ma'].values.tolist())
-#         if len(dupl_hor_dis_max)>1:
-#             dupl_hor_dis_max = dupl_hor_dis_max[1]
-#         else:
-#             dupl_hor_dis_max = dupl_hor_dis_max[0]
-#         dupl_ver_dis_min = find_frequency_value(df_door_sorted['Distance_to_edges_vert_mi'].values.tolist())
-#         if len(dupl_ver_dis_min)>1:
-#             dupl_ver_dis_min = dupl_ver_dis_min[0]
-#         else:
-#             dupl_ver_dis_min = dupl_ver_dis_min[0]
-#         dupl_ver_dis_max = find_frequency_value(df_door_sorted['Distance_to_edges_vert_ma'].values.tolist())
-#         if len(dupl_ver_dis_max)>1:
-#             dupl_ver_dis_max = dupl_ver_dis_max[1]
-#         else:
-#             dupl_ver_dis_max = dupl_ver_dis_max[0]
-#         dupl_next_dis_min = find_frequency_value(df_door_sorted['Distance_to_next_door_min'].values.tolist())
-#         if len(dupl_next_dis_min)>1:
-#             dupl_next_dis_min = dupl_next_dis_min[0]
-#         else:
-#             dupl_next_dis_min = dupl_next_dis_min[0]
-
-#         str_2 = pd.Series({'Room_name': key,'Width':dupl_width,'Height':dupl_height,
-#                            'Distance_to_edges_hor':[dupl_hor_dis_min,dupl_hor_dis_max],
-#                            'Distance_to_edges_vert':[dupl_ver_dis_min,dupl_ver_dis_max],
-#                            'Distance_to_next':[dupl_next_dis_min]})
-#         win_file.write(str_2.to_frame().T.to_string()  + '\n')
-#         df_doors_new_roomname_fr = pd.concat([df_doors_new_roomname_fr,str_2.to_frame().T],ignore_index=True)
-
-# nameOfFile_csv = 'data\\tables\\doors_report_roomname_freq.csv'
-# completename_csv = os.path.join(data_dir,nameOfFile_csv)
-# df_doors_new_roomname_fr.to_csv(completename_csv,index=False)
 
 # analyse by families - completed
-door_file.write('3. Analyse all doors by their family name \n')
+#door_file.write('3. Analyse all doors by their family name \n')
 df_elements_groped = df_elements.groupby('Family')
 df_elements_keys = df_elements_groped.groups.keys()
 df_doors_new_famname = pd.DataFrame()
@@ -598,7 +363,7 @@ for key in df_elements_keys:
                             'Distance_to_edges_hor':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
                             'Distance_to_edges_vert':[min_dist_v,mean_dist_v,max_dist_v,mode_dist_v],
                             'Distance_to_next':[min_dist_n,mean_dist_n,max_dist_n,mode_win_n]})
-        door_file.write(str_3.to_frame().T.to_string()  + '\n')
+        #door_file.write(str_3.to_frame().T.to_string()  + '\n')
         df_doors_new_famname = pd.concat([df_doors_new_famname,str_3.to_frame().T])
 
 nameOfFile_csv = 'data\\tables\\doors_report_family.csv'
@@ -606,78 +371,17 @@ completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_doors_new_famname.to_csv(completename_csv,index=False)
 
 # analyse by families with frequency - completed
-# door_file.write('3. Analyse all doors by their family name and frequency \n')
-# df_elements_groped = df_elements.groupby('Family')
-# df_elements_keys = df_elements_groped.groups.keys()
-# df_doors_new_famname_fr = pd.DataFrame()
-# for key in df_elements_keys:
-#     df_elements_gr = df_elements_groped.get_group(key)
-#     uniqueid = df_elements_gr['Element_uniqueId'].values
-#     df_doors_sorted = df_doors.loc[df_doors['Element_uniqueId'].isin(uniqueid)]
-#     if len(df_doors_sorted)>0:
-#         dupl_width = find_frequency_value(df_door_sorted['Door_width'].values.tolist())
-#         if len(dupl_width)>1:
-#             dupl_width = [dupl_width[0]]
-#         dupl_height = find_frequency_value(df_door_sorted['Door_height'].values.tolist())
-#         if len(dupl_height)>1:
-#             dupl_height = [dupl_height[0]]
-#         dupl_hor_dis_min = find_frequency_value(df_door_sorted['Distance_to_edges_hor_mi'].values.tolist())
-#         if len(dupl_hor_dis_min)>1:
-#             dupl_hor_dis_min = dupl_hor_dis_min[0]
-#         else:
-#             dupl_hor_dis_min = dupl_hor_dis_min[0]
-#         dupl_hor_dis_max = find_frequency_value(df_door_sorted['Distance_to_edges_hor_ma'].values.tolist())
-#         if len(dupl_hor_dis_max)>1:
-#             dupl_hor_dis_max = dupl_hor_dis_max[1]
-#         else:
-#             dupl_hor_dis_max = dupl_hor_dis_max[0]
-#         dupl_ver_dis_min = find_frequency_value(df_door_sorted['Distance_to_edges_vert_mi'].values.tolist())
-#         if len(dupl_ver_dis_min)>1:
-#             dupl_ver_dis_min = dupl_ver_dis_min[0]
-#         else:
-#             dupl_ver_dis_min = dupl_ver_dis_min[0]
-#         dupl_ver_dis_max = find_frequency_value(df_door_sorted['Distance_to_edges_vert_ma'].values.tolist())
-#         if len(dupl_ver_dis_max)>1:
-#             dupl_ver_dis_max = dupl_ver_dis_max[1]
-#         else:
-#             dupl_ver_dis_max = dupl_ver_dis_max[0]
-#         dupl_next_dis_min = find_frequency_value(df_door_sorted['Distance_to_next_door_min'].values.tolist())
-#         if len(dupl_next_dis_min)>1:
-#             dupl_next_dis_min = dupl_next_dis_min[0]
-#         else:
-#             dupl_next_dis_min = dupl_next_dis_min[0]
-
-#         str_2 = pd.Series({'Room_name': key,'Width':dupl_width,'Height':dupl_height,
-#                            'Distance_to_edges_hor':[dupl_hor_dis_min,dupl_hor_dis_max],
-#                            'Distance_to_edges_vert':[dupl_ver_dis_min,dupl_ver_dis_max],
-#                            'Distance_to_next':[dupl_next_dis_min]})
-#         win_file.write(str_2.to_frame().T.to_string()  + '\n')
-#         df_doors_new_famname_fr = pd.concat([df_doors_new_famname_fr,str_2.to_frame().T],ignore_index=True)
-
-# nameOfFile_csv = 'data\\tables\\doors_report_family_freq.csv'
-# completename_csv = os.path.join(data_dir,nameOfFile_csv)
-# df_doors_new_famname_fr.to_csv(completename_csv,index=False)
 #
 #
 #
 # WALLS - completed
 # analyse walls all by category - completed
-nameOfFile_txt = 'data\\tables\\walls_report.txt'
-completename_txt = os.path.join(data_dir,nameOfFile_txt)
-walls_file = open(completename_txt,'w+')
-walls_file.write("Analyse walls \n")
-walls_file.write('1. Analyse all walls (by category: Walls) \n')
+# nameOfFile_txt = 'data\\tables\\walls_report.txt'
+# completename_txt = os.path.join(data_dir,nameOfFile_txt)
+# walls_file = open(completename_txt,'w+')
+# walls_file.write("Analyse walls \n")
+# walls_file.write('1. Analyse all walls (by category: Walls) \n')
 df_walls_new_cat = pd.DataFrame()
-# str_wh = df_walls.agg({'Width':['min','mean','max'],'Height':['min','mean','max']}).T.values
-# str_dis_to_paral_min = df_walls.agg({'Distance_to_parall_mi':['min']}).values[0]
-# str_dis_to_paral_mean = df_walls.agg({'Distance_to_parall_mean':['mean']}).values[0]
-# str_dis_to_paral_max = df_walls.agg({'Distance_to_parall_ma':['max']}).values[0]
-# str_angle_min = df_walls.agg({'Angles_to_walls_mi':['min']}).values[0]
-# str_angle_mean = df_walls.agg({'Angles_to_walls_mean':['mean']}).values[0]
-# str_angle_max = df_walls.agg({'Angles_to_walls_ma':['max']}).values[0]
-# str_1 = pd.Series({'Category': 'Walls','Width':list(str_wh[0]),'Height':list(str_wh[1]),
-#                     'Distance_to_parall_walls':[str_dis_to_paral_min[0],str_dis_to_paral_mean[0],str_dis_to_paral_max[0]],
-#                     'Angles_to_walls':[str_angle_min[0],str_angle_mean[0],str_angle_max[0]]})
 #width and hight
 str_wh = df_walls.agg({'Width':['min','mean','max'],'Height':['min','mean','max']}).T.values
 min_wall_w = round(min(df_walls['Width'].values),3)
@@ -688,8 +392,6 @@ max_wall_h = round(max(df_walls['Height'].values),3)
 mean_wall_h = round(df_walls['Height'].agg(pd.Series.mean),3)
 mode_wall_w = round(df_walls['Width'].agg(pd.Series.mode).values[0],3)
 mode_wall_h = round(df_walls['Height'].agg(pd.Series.mode).values[0],3)
-# wall_w = list(np.append(str_wh[0],mode_wall_w))
-# wall_h = list(np.append(str_wh[1],mode_wall_h))
 wall_w = [min_wall_w,mean_wall_w,max_wall_w,mode_wall_w]
 wall_h = [min_wall_h,mean_wall_h,max_wall_h,mode_wall_h]
 #distance
@@ -717,14 +419,14 @@ mode_angle= statistics.mode(angles_list)
 str_1 = pd.Series({'Category': 'Walls','Width':wall_w,'Height':wall_h,
                     'Distance_to_parall_walls':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
                     'Angles_to_walls':[min_angle,mean_angle,max_angle,mode_angle]})
-walls_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
+#walls_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
 df_walls_new_cat = pd.concat([df_walls_new_cat,str_1.to_frame().T],ignore_index=True)
 nameOfFile_csv = 'data\\tables\\walls_report_category.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_walls_new_cat.to_csv(completename_csv,index=False)
 
 # analyse by room names - completed
-walls_file.write('2. Analyse all walls by room names \n')
+#walls_file.write('2. Analyse all walls by room names \n')
 df_elements_groped = df_elements.groupby('Room_name')
 df_elements_keys = df_elements_groped.groups.keys()
 df_walls_new_roomname = pd.DataFrame()
@@ -772,14 +474,14 @@ for key in df_elements_keys:
         str_1 = pd.Series({'Room_name': key,'Width':wall_w,'Height':wall_h,
                             'Distance_to_parall_walls':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
                             'Angles_to_walls':[min_angle,mean_angle,max_angle,mode_angle]})
-        walls_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
+        #walls_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
         df_walls_new_roomname = pd.concat([df_walls_new_roomname,str_1.to_frame().T],ignore_index=True)   
 nameOfFile_csv = 'data\\tables\\walls_report_roomname.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_walls_new_roomname.to_csv(completename_csv,index=False)
 
 # analyse by room names - completed
-walls_file.write('3. Analyse all walls by their family name \n')
+#walls_file.write('3. Analyse all walls by their family name \n')
 df_elements_groped = df_elements.groupby('Family')
 df_elements_keys = df_elements_groped.groups.keys()
 df_wall_new_famname = pd.DataFrame()
@@ -827,7 +529,7 @@ for key in df_elements_keys:
         str_1 = pd.Series({'Family': key,'Width':wall_w,'Height':wall_h,
                             'Distance_to_parall_walls':[min_dist_h,mean_dist_h,max_dist_h,mode_dist_h],
                             'Angles_to_walls':[min_angle,mean_angle,max_angle,mode_angle]})
-        walls_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
+        #walls_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
         df_wall_new_famname = pd.concat([df_wall_new_famname,str_1.to_frame().T],ignore_index=True)   
 nameOfFile_csv = 'data\\tables\\walls_report_family.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
@@ -837,11 +539,11 @@ df_wall_new_famname.to_csv(completename_csv,index=False)
 #
 # FLOORS
 # analyse floors all by category - completed
-nameOfFile_txt = 'data\\tables\\floors_report.txt'
-completename_txt = os.path.join(data_dir,nameOfFile_txt)
-floors_file = open(completename_txt,'w+')
-floors_file.write("Analyse floors \n")
-floors_file.write('1. Analyse all floors (by category: Floors) \n')
+# nameOfFile_txt = 'data\\tables\\floors_report.txt'
+# completename_txt = os.path.join(data_dir,nameOfFile_txt)
+# floors_file = open(completename_txt,'w+')
+# floors_file.write("Analyse floors \n")
+# floors_file.write('1. Analyse all floors (by category: Floors) \n')
 df_floors_new_cat = pd.DataFrame()
 
 col1 = list(df_floors['Distance_to_nonparallel'].values)
@@ -862,14 +564,14 @@ col2_new = [float(i) for i in col2_new]
 str_1 = pd.Series({'Category': 'Floors',
                    'Distance_to_nonparallel': [round(min(col1_new),3),round(statistics.mean(col1_new),3),round(max(col1_new),3),statistics.mode(col1_new)],
                     'Distance_to_parallel':[round(min(col2_new),3),round(statistics.mean(col2_new),3),round(max(col2_new),3),statistics.mode(col2_new)] })
-floors_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
+#floors_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
 df_floors_new_cat = pd.concat([df_floors_new_cat,str_1.to_frame().T],ignore_index=True)
 nameOfFile_csv = 'data\\tables\\floors_report_category.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_floors_new_cat.to_csv(completename_csv,index=False)
 
 # analyse by room names - completed
-floors_file.write('2. Analyse all floors by room names \n')
+#floors_file.write('2. Analyse all floors by room names \n')
 df_elements_groped = df_elements.groupby('Room_name')
 df_elements_keys = df_elements_groped.groups.keys()
 df_floors_new_roomname = pd.DataFrame()
@@ -895,7 +597,7 @@ for key in df_elements_keys:
         str_1 = pd.Series({'Room_name': key,
                         'Distance_to_nonparallel': [round(min(col1_new),3),round(statistics.mean(col1_new),3),round(max(col1_new),3),statistics.mode(col1_new)],
                             'Distance_to_parallel':[round(min(col2_new),3),round(statistics.mean(col2_new),3),round(max(col2_new),3),statistics.mode(col2_new)] })
-        floors_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
+        #floors_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
         df_floors_new_roomname = pd.concat([df_floors_new_roomname,str_1.to_frame().T],ignore_index=True)
 
 nameOfFile_csv = 'data\\tables\\floors_report_roomname.csv'
@@ -903,7 +605,7 @@ completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_floors_new_roomname.to_csv(completename_csv,index=False)
 
 # analyse by family names - completed
-floors_file.write('3. Analyse all floors by their family name \n')
+#floors_file.write('3. Analyse all floors by their family name \n')
 df_elements_groped = df_elements.groupby('Family')
 df_elements_keys = df_elements_groped.groups.keys()
 df_floors_new_famname = pd.DataFrame()
@@ -929,7 +631,7 @@ for key in df_elements_keys:
         str_1 = pd.Series({'Family': key,
                         'Distance_to_nonparallel': [round(min(col1_new),3),round(statistics.mean(col1_new),3),round(max(col1_new),3),statistics.mode(col1_new)],
                             'Distance_to_parallel':[round(min(col2_new),3),round(statistics.mean(col2_new),3),round(max(col2_new),3),statistics.mode(col2_new)] })
-        floors_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
+        #floors_file.write(str_1.to_frame().T.to_string(index = False) + '\n')
         df_floors_new_famname = pd.concat([df_floors_new_famname,str_1.to_frame().T],ignore_index=True)
 
 nameOfFile_csv = 'data\\tables\\floors_report_family.csv'
@@ -940,11 +642,11 @@ df_floors_new_famname.to_csv(completename_csv,index=False)
 #
 # FURNITURE - OK
 # analyse furniture all by category
-nameOfFile_txt = 'data\\tables\\furniture_report.txt'
-completename_txt = os.path.join(data_dir,nameOfFile_txt)
-furniture_file = open(completename_txt,'w+')
-furniture_file.write("Analyse furniture \n")
-furniture_file.write('1. Analyse all furniture (by category: Furniture) \n')
+# nameOfFile_txt = 'data\\tables\\furniture_report.txt'
+# completename_txt = os.path.join(data_dir,nameOfFile_txt)
+# furniture_file = open(completename_txt,'w+')
+# furniture_file.write("Analyse furniture \n")
+# furniture_file.write('1. Analyse all furniture (by category: Furniture) \n')
 df_furniture_new_cat = pd.DataFrame()
 # str_wh = df_furniture.agg({'Distance_to_nearest_mi':['mean'],
 #                           'Distance_to_nearest_mean':['mean'],
@@ -959,14 +661,14 @@ mean_dist = round(np.mean(distance_list),3)
 mode_dist = statistics.mode(distance_list)
 str_1 = pd.Series({'Category':'Furniture',
                     'Distance_to_nearest':[min_dist,mean_dist,max_dist,mode_dist]})
-furniture_file.write(str_1.to_frame().T.to_string()  + '\n')
+#furniture_file.write(str_1.to_frame().T.to_string()  + '\n')
 df_furniture_new_cat = pd.concat([df_furniture_new_cat,str_1.to_frame().T],ignore_index=True)
 nameOfFile_csv = 'data\\tables\\furniture_report_category.csv'
 completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_furniture_new_cat.to_csv(completename_csv,index=False)
 
 # analyse by room names - completed
-furniture_file.write('2. Analyse all furniture by room names \n')
+#furniture_file.write('2. Analyse all furniture by room names \n')
 df_elements_groped = df_elements.groupby('Room_name')
 df_elements_keys = df_elements_groped.groups.keys()
 df_furniture_new_roomname = pd.DataFrame()
@@ -992,7 +694,7 @@ completename_csv = os.path.join(data_dir,nameOfFile_csv)
 df_furniture_new_roomname.to_csv(completename_csv,index=False)
 
 # analyse by family names - completed
-furniture_file.write('3. Analyse all furniture by their family name \n')
+#furniture_file.write('3. Analyse all furniture by their family name \n')
 df_elements_groped = df_elements.groupby('Family')
 df_elements_keys = df_elements_groped.groups.keys()
 df_furniture_new_famname = pd.DataFrame()
