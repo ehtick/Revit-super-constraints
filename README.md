@@ -1,6 +1,8 @@
 # Super-constraints
 Super-constraints is a Revit application to support design constraints.
 
+![content](https://github.com/Elvira2227/super-constraints/blob/main/picture_content.png)
+
 ## About
 
 The project was done within the scope of a bachelor's degree.
