@@ -28,6 +28,7 @@ at the [Chair of Computational Modeling and Simulation](https://www.cee.ed.tum.d
 - [Neo4j](https://neo4j.com/cloud/platform/aura-graph-database/?ref=nav-get-started-cta) login data
 
 ## Plugin structure
+![plugin structure](https://github.com/Elvira2227/super-constraints/blob/main/super-constraints_script_structure.png)
 
 
                
