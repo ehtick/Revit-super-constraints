@@ -16,7 +16,7 @@ The project was done within the scope of a bachelor's degree.
 
 at the [Chair of Computational Modeling and Simulation](https://www.cee.ed.tum.de/cms/home/), [Technical University of Munich](https://www.tum.de/)
 
-**Requirements**
+## Requirements
 - Autodesk Revit 2022
 - [pyRevit](https://github.com/eirannejad/pyRevit/releases)
 - Python 3.8
